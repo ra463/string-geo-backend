@@ -1,4 +1,6 @@
 const User = require("../models/User");
+const { generateCode } = require("../utils/generateCode");
+const { sendVerificationCode } = require("../utils/sendEmail");
 
 const sendData = (res, statusCode, user, message) => {
   const token = user.getJWTToken();
@@ -67,11 +69,40 @@ exports.registerUser = async (req, res) => {
       city,
     });
 
+    const code = generateCode();
+    await sendVerificationCode(user.email, code);
+
+    user.temp_code = code;
+    await user.save();
+
     user.password = undefined;
-    // function to send otp in email
-    sendData(res, 200, user, `${user.name} registered successfully`);
+    return res.status(200).json({
+      success: true,
+      message: "Account created successfully",
+    });
   } catch (error) {
-    console.log(error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+exports.verifyAccount = async (req, res) => {
+  try {
+    const { email, code } = req.body;
+    if (!email || !code)
+      return res.status(400).json({ message: "Please enter all fields" });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "User does not exist" });
+
+    if (user.temp_code !== code)
+      return res.status(400).json({ message: "Invalid/Expired code" });
+
+    user.is_verified = true;
+    user.temp_code = "";
+    await user.save();
+
+    sendData(res, 200, user, `Account Verified successfully`);
+  } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
