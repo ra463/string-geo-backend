@@ -78,7 +78,7 @@ exports.registerUser = async (req, res) => {
     user.password = undefined;
     return res.status(200).json({
       success: true,
-      message: "Account created successfully",
+      message: "Account Verification Code sent successfully",
     });
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -98,7 +98,7 @@ exports.verifyAccount = async (req, res) => {
       return res.status(400).json({ message: "Invalid/Expired code" });
 
     user.is_verified = true;
-    user.temp_code = "";
+    user.temp_code = null;
     await user.save();
 
     sendData(res, 200, user, `Account Verified successfully`);
