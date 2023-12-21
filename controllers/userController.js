@@ -2,13 +2,14 @@ const User = require("../models/User");
 const { generateCode } = require("../utils/generateCode");
 const { sendVerificationCode } = require("../utils/sendEmail");
 
-const sendData = (res, statusCode, user, message) => {
-  const token = user.getJWTToken();
-
+const sendData = async (res, statusCode, user, message) => {
+  const accessToken = await user.getAccessToken();
+  const refreshToken = await user.getRefreshToken();
   res.status(statusCode).json({
     success: true,
     user,
-    token,
+    accessToken,
+    refreshToken,
     message,
   });
 };
