@@ -30,8 +30,11 @@ app.use(
 
 // import routes
 const userRoutes = require("./routes/userRoutes");
+const { error } = require("./middlewares/Error");
 
 // use routes
 app.use("/api/user", userRoutes);
 
 module.exports = app;
+
+app.use(error);

@@ -3,10 +3,11 @@ const { connectDB } = require("./config/database");
 const cluster = require("cluster");
 cluster.schedulingPolicy = cluster.SCHED_RR
 const totalCpus = require("os").cpus();
-connectDB();
 const logger = require("./utils/Logger/Logger");
+
+connectDB();
 const port = process.env.PORT || 4000;
-// commented it for now
+
 if (cluster.isMaster) {
   totalCpus.forEach(async (node) => {
     await cluster.fork();
