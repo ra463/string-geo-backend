@@ -58,6 +58,26 @@ const schema = new mongoose.Schema(
     temp_code: {
       type: String,
     },
+    deviceIds: [
+      {
+        type: String,
+      },
+    ],
+    subscriptionPlans: {
+      type: mongoose.Types.ObjectId,
+      ref: "Subscription",
+    },
+    attempts: {
+      type: Number,
+      default: 0,
+    },
+    isFrozen: {
+      type: Boolean,
+      default: false,
+    },
+    lastAttempt: {
+      type: Date,
+    },
   },
   {
     timestamps: true,

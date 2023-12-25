@@ -24,10 +24,4 @@ if (cluster.isMaster) {
   });
 }
 
-// console.log(require("os").cpus().length);
 
-// app.listen(port, () => {
-//   logger.info(
-//       `Process ${process.pid} is online on port number ${port}`
-//       );
-// });

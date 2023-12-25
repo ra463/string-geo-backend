@@ -29,12 +29,20 @@ app.use(
 );
 
 // import routes
-const userRoutes = require("./routes/userRoutes");
+const userRoutes = require("./user_entity/user.index");
+const planRoutes = require("./plan_entity/plan.index");
+const subscriptionRoutes = require("./subscription_entity/subscription.index");
 const { error } = require("./middlewares/Error");
 
 // use routes
 app.use("/api/user", userRoutes);
-
-module.exports = app;
-
+app.use("/api/plan", planRoutes);
+app.use("/api/subscription",subscriptionRoutes);
+app.all("*",(req,res,next)=>{
+  res.status(404).send({
+    status:404,
+    message:"route not found"
+  })
+})
 app.use(error);
+module.exports = app;
