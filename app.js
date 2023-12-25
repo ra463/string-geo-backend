@@ -9,7 +9,7 @@ const rateLimit = require("express-rate-limit");
 dotenv.config({
   path: "./config/config.env",
 });
-
+app.set('trust proxy', true);
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("tiny"));
