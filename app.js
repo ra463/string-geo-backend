@@ -9,7 +9,7 @@ const rateLimit = require("express-rate-limit");
 dotenv.config({
   path: "./config/config.env",
 });
-app.set('trust proxy', true);
+app.set("trust proxy", 'loopback');
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("tiny"));
@@ -34,15 +34,19 @@ const planRoutes = require("./plan_entity/plan.index");
 const subscriptionRoutes = require("./subscription_entity/subscription.index");
 const { error } = require("./middlewares/Error");
 
+//import validators
+const userValidator = require("./user_entity/user.validator");
+const planValidator = require("./plan_entity/plan.validator");
+const subscriptionValidator = require("./subscription_entity/subscription.validator");
 // use routes
-app.use("/api/user", userRoutes);
-app.use("/api/plan", planRoutes);
-app.use("/api/subscription",subscriptionRoutes);
-app.all("*",(req,res,next)=>{
+app.use("/api/user", userValidator, userRoutes);
+app.use("/api/plan", planValidator, planRoutes);
+app.use("/api/subscription", subscriptionValidator, subscriptionRoutes);
+app.all("*", (req, res, next) => {
   res.status(404).send({
-    status:404,
-    message:"route not found"
-  })
-})
+    status: 404,
+    message: "route not found",
+  });
+});
 app.use(error);
 module.exports = app;

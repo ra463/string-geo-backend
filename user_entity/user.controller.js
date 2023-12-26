@@ -110,7 +110,8 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   const isMobile = mobile ? true : false;
 
   let user = null;
-
+  
+  //check if user try to login with email
   if (isEmail === true) {
     user = await User.findOne({ email })
       .select("+password")
@@ -121,6 +122,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
         },
       });
     if (!user) return next(new ErrorHandler("Invalid Credentials", 400));
+    //check if user is try to login in maximum devices
     if (!user.deviceIds.includes(req.ip)) {
       if (
         user.subscriptionPlans &&
@@ -132,6 +134,8 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
         );
       }
     }
+
+    //check if user account is frozen by too many unsuccessfull attempt
     if (user.isFrozen) {
       const lastAttempt = user.lastAttempt.getTime();
       const current = Date.now();
@@ -162,6 +166,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
       return next(new ErrorHandler("Invalid Credentials", 400));
     }
   } else if (isMobile === true) {
+    //if user enter mobile number when login
     user = await User.findOne({ mobile })
       .select("+password")
       .populate("subscriptionPlans");
@@ -189,10 +194,12 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
       return next(new ErrorHandler("Invalid Credentials", 400));
     }
   }
+  //set to unsuccessfull attempts to 0 as user login successfully
   if (user.attempts) {
     user.attempts = 0;
     await user.save();
   }
+  //if user are login with new device then push there ip in deviceIds
   if (!user.deviceIds.includes(req.ip)) user.deviceIds.push(req.ip);
   await user.save();
   user.password = undefined;
