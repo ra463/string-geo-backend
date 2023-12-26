@@ -9,7 +9,6 @@ const rateLimit = require("express-rate-limit");
 dotenv.config({
   path: "./config/config.env",
 });
-app.set("trust proxy", 'loopback');
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("tiny"));
@@ -27,7 +26,7 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
-
+app.set("trust proxy", true);
 // import routes
 const userRoutes = require("./user_entity/user.index");
 const planRoutes = require("./plan_entity/plan.index");
