@@ -58,12 +58,12 @@ const schema = new mongoose.Schema(
     temp_code: {
       type: String,
     },
-    deviceIds: [
+    device_ids: [
       {
         type: String,
       },
     ],
-    subscriptionPlans: {
+    subscription_plans: {
       type: mongoose.Types.ObjectId,
       ref: "Subscription",
     },
@@ -71,11 +71,11 @@ const schema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    isFrozen: {
+    is_frozen: {
       type: Boolean,
       default: false,
     },
-    lastAttempt: {
+    last_attempt: {
       type: Date,
     },
   },

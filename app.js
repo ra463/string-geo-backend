@@ -10,10 +10,11 @@ const rateLimit = require("express-rate-limit");
 dotenv.config({
   path: "./config/config.env",
 });
+
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("tiny"));
-app.set("trust proxy", 'loopback');
+app.set("trust proxy", "loopback");
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000,
   max: 50,
@@ -28,7 +29,6 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
-
 
 // import routes
 const userRoutes = require("./user_entity/user.index");
@@ -45,8 +45,8 @@ app.use("/api/user", userValidator, userRoutes);
 app.use("/api/plan", planValidator, planRoutes);
 app.use("/api/subscription", subscriptionValidator, subscriptionRoutes);
 app.all("*", (req, res, next) => {
-  res.status(404).send({
-    status: 404,
+  res.status(404).json({
+    success: false,
     message: "Route not found",
   });
 });

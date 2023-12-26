@@ -1,7 +1,7 @@
 const validator = (req, res, next) => {
   try {
     const fieleds = {
-      allowBody: ["price", "allowDevices", "validity"],
+      allowBody: ["price", "allow_devices", "validity", "description"],
       allowQuery: [],
       allowParams: [],
     };
@@ -32,7 +32,10 @@ const validator = (req, res, next) => {
     }
     next();
   } catch (e) {
-    res.status(500).send(e);
+    res.status(500).json({
+      success: false,
+      message: e.message,
+    });
   }
 };
 

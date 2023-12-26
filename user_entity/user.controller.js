@@ -115,19 +115,15 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   if (isEmail === true) {
     user = await User.findOne({ email })
       .select("+password")
-      .populate({
-        path: "subscriptionPlans",
-        populate: {
-          path: "plan",
-        },
-      });
+      .populate("subscription_plans");
     if (!user) return next(new ErrorHandler("Invalid Credentials", 400));
+
     //check if user is try to login in maximum devices
-    if (!user.deviceIds.includes(req.ip)) {
+    if (!user.device_ids.includes(req.ip)) {
       if (
-        user.subscriptionPlans &&
-        user.subscriptionPlans.plan &&
-        user.deviceIds.length === user.subscriptionPlans.plan.allowDevices
+        user.subscription_plans &&
+        user.subscription_plans.plan &&
+        user.device_ids.length === user.subscription_plans.plan.allow_devices
       ) {
         return next(
           new ErrorHandler("Maximum device login limit is reached", 429)
@@ -136,11 +132,11 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
     }
 
     //check if user account is frozen by too many unsuccessfull attempt
-    if (user.isFrozen) {
-      const lastAttempt = user.lastAttempt.getTime();
+    if (user.is_frozen) {
+      const last_attempt = user.last_attempt.getTime();
       const current = Date.now();
-      if (current - lastAttempt > 300000) {
-        user.isFrozen = false;
+      if (current - last_attempt > 300000) {
+        user.is_frozen = false;
         user.attempts = 0;
         await user.save();
       } else {
@@ -152,55 +148,59 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
         );
       }
     }
+
     const isMatch = await user.matchPassword(password);
 
     if (!isMatch) {
       user.attempts += 1;
       await user.save();
       if (user.attempts === 5) {
-        user.isFrozen = true;
-        user.lastAttempt = new Date();
+        user.is_frozen = true;
+        user.last_attempt = new Date();
         await user.save();
         return next(new ErrorHandler("Too many unsuccessfull attempt", 429));
       }
       return next(new ErrorHandler("Invalid Credentials", 400));
     }
   } else if (isMobile === true) {
-    //if user enter mobile number when login
     user = await User.findOne({ mobile })
       .select("+password")
-      .populate("subscriptionPlans");
+      .populate("subscription_plans");
     if (!user) return next(new ErrorHandler("Invalid Credentials", 400));
-    if (!user.deviceIds.includes(req.ip)) {
+    if (!user.device_ids.includes(req.ip)) {
       if (
-        user.subscriptionPlans &&
-        user.subscriptionPlans.plan &&
-        user.deviceIds.length === user.subscriptionPlans.plan.allowDevices
+        user.subscription_plans &&
+        user.subscription_plans.plan &&
+        user.device_ids.length === user.subscription_plans.plan.allow_devices
       ) {
         return next(
           new ErrorHandler("Maximum device login limit is reached", 429)
         );
       }
     }
+
     const isMatch = await user.matchPassword(password);
+
     if (!isMatch) {
       user.attempts += 1;
       if (user.attempts === 5) {
-        user.isFrozen = true;
-        user.lastAttempt = new Date();
+        user.is_frozen = true;
+        user.last_attempt = new Date();
         await user.save();
         return next(new ErrorHandler("Too many unsuccessfull attempt", 429));
       }
       return next(new ErrorHandler("Invalid Credentials", 400));
     }
   }
+
   //set to unsuccessfull attempts to 0 as user login successfully
   if (user.attempts) {
     user.attempts = 0;
     await user.save();
   }
+
   //if user are login with new device then push there ip in deviceIds
-  if (!user.deviceIds.includes(req.ip)) user.deviceIds.push(req.ip);
+  if (!user.device_ids.includes(req.ip)) user.device_ids.push(req.ip);
   await user.save();
   user.password = undefined;
   sendData(res, 200, user, `Hey ${user.name}! Welcome Back`);
@@ -277,8 +277,11 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
 exports.logout = catchAsyncError(async (req, res, next) => {
   const result = await User.updateOne(
     { _id: req.userId },
-    { $pull: { deviceIds: req.ip } }
+    { $pull: { device_ids: req.ip } }
   );
   if (!result.modifiedCount) return next(new ErrorHandler("Unauthorize", 401));
-  res.status(204).json({});
+  res.status(204).json({
+    success: true,
+    message: "Logout successfully",
+  });
 });

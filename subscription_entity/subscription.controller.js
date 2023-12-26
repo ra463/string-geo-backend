@@ -11,14 +11,14 @@ exports.createSubscription = catchAsyncError(async (req, res, next) => {
 
   const subscription = await Subscription.create({
     plan,
-    subscribeBy:req.userId
+    subscribe_by: req.userId,
   });
   const user = await User.findById(req.userId);
-  user.subscriptionPlans = subscription._id;
+  user.subscription_plans = subscription._id;
   await user.save();
+
   res.status(201).json({
     success: true,
-    message: "Subscription completed successfully",
-    subscription
+    message: "Subscription Completed Successfully",
   });
 });

@@ -52,29 +52,18 @@ exports.getNewAccesstoken = async (req, res, next) => {
 
 exports.isAdmin = async (req, res, next) => {
   try {
-   
-    if (!req.headers.authorization) {
-      return res.status(401).json({ message: `Authentication Expired` });
+    const user = await User.findById(req.userId).select("+password");
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
     }
 
-    const { userId } = await jwt.verify(
-      req.headers.authorization.split(" ")[1],
-      process.env.JWT_SECRET
-    );
-    req.adminId = userId;
-  
-    const admin = await User.findById(userId);
-    if (!admin) {
-      return res.status(401).json({ message: `Something went Wrong` });
+    if (user.role !== "admin") {
+      return res.status(401).json({ message: "Forbidden:Admin Only" });
     }
-    if (admin.role != "Admin") {
-      return res
-        .status(401)
-        .json({ message: `You did not have Authority to perform this task.` });
-    }
+
+    req.user = user;
     next();
   } catch (error) {
-    console.log(error)
-    return res.status(401).json({ message: `Authentication Expired`,error:error.message });
+    return res.status(401).json({ message: "Unauthorized:Admin Only" });
   }
 };

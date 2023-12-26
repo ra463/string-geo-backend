@@ -19,5 +19,6 @@ router.route("/login").post(loginUser);
 router.route("/send-code").post(sendForgotPasswordCode);
 router.route("/validate-code").post(validateCode);
 router.route("/reset-password").post(resetPassword);
-router.post("/logout",auth,logout);
+router.post("/logout", auth, logout);
+
 module.exports = router;
