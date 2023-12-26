@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
+const { error } = require("./middlewares/Error");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
 const helmet = require("helmet");
@@ -27,16 +28,17 @@ app.use(
   })
 );
 app.set("trust proxy", true);
+
 // import routes
 const userRoutes = require("./user_entity/user.index");
 const planRoutes = require("./plan_entity/plan.index");
 const subscriptionRoutes = require("./subscription_entity/subscription.index");
-const { error } = require("./middlewares/Error");
 
 //import validators
 const userValidator = require("./user_entity/user.validator");
 const planValidator = require("./plan_entity/plan.validator");
 const subscriptionValidator = require("./subscription_entity/subscription.validator");
+
 // use routes
 app.use("/api/user", userValidator, userRoutes);
 app.use("/api/plan", planValidator, planRoutes);
@@ -44,8 +46,10 @@ app.use("/api/subscription", subscriptionValidator, subscriptionRoutes);
 app.all("*", (req, res, next) => {
   res.status(404).send({
     status: 404,
-    message: "route not found",
+    message: "Route not found",
   });
 });
-app.use(error);
+
 module.exports = app;
+
+app.use(error);
