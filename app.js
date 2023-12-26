@@ -13,6 +13,7 @@ dotenv.config({
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("tiny"));
+app.set("trust proxy", 'loopback');
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000,
   max: 50,
@@ -27,7 +28,7 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
-app.set("trust proxy", true);
+
 
 // import routes
 const userRoutes = require("./user_entity/user.index");

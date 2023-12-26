@@ -110,7 +110,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   const isMobile = mobile ? true : false;
 
   let user = null;
-  
+
   //check if user try to login with email
   if (isEmail === true) {
     user = await User.findOne({ email })
@@ -275,9 +275,10 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
 });
 
 exports.logout = catchAsyncError(async (req, res, next) => {
-  const user = await User.findById(req.userId);
-  if (!user) return next(new ErrorHandler("Unauthorize", 401));
-  user.deviceIds = user.deviceIds.filter((data) => data != req.ip);
-  await user.save();
+  const result = await User.updateOne(
+    { _id: req.userId },
+    { $pull: { deviceIds: req.ip } }
+  );
+  if (!result.modifiedCount) return next(new ErrorHandler("Unauthorize", 401));
   res.status(204).json({});
 });
