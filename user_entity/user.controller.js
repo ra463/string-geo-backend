@@ -135,7 +135,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
     if (user.is_frozen) {
       const last_attempt = user.last_attempt.getTime();
       const current = Date.now();
-      if (current - last_attempt > 300000) {
+      if (current - last_attempt > process.env.FROZEN_TIME) {
         user.is_frozen = false;
         user.attempts = 0;
         await user.save();
@@ -154,7 +154,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
     if (!isMatch) {
       user.attempts += 1;
       await user.save();
-      if (user.attempts === 5) {
+      if (user.attempts === process.env.MAX_UNSUCCESSFULL_ATTEMPT) {
         user.is_frozen = true;
         user.last_attempt = new Date();
         await user.save();
@@ -179,11 +179,28 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
       }
     }
 
+    if (user.is_frozen) {
+      const last_attempt = user.last_attempt.getTime();
+      const current = Date.now();
+      if (current - last_attempt > process.env.FROZEN_TIME) {
+        user.is_frozen = false;
+        user.attempts = 0;
+        await user.save();
+      } else {
+        return next(
+          new ErrorHandler(
+            "Your Account is temporary freeze due to too many unsuccessfull attempt",
+            429
+          )
+        );
+      }
+    }
+
     const isMatch = await user.matchPassword(password);
 
     if (!isMatch) {
       user.attempts += 1;
-      if (user.attempts === 5) {
+      if (user.attempts === process.env.MAX_UNSUCCESSFULL_ATTEMPT) {
         user.is_frozen = true;
         user.last_attempt = new Date();
         await user.save();
