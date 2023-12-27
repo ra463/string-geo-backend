@@ -64,8 +64,8 @@ const schema = new mongoose.Schema(
       },
     ],
     subscription_plans: {
-      type: mongoose.Types.ObjectId,
-      ref: "Subscription",
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Plan",
     },
     attempts: {
       type: Number,

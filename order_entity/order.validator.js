@@ -1,7 +1,7 @@
 const validator = (req, res, next) => {
   try {
     const fieleds = {
-      allowBody: ["plan"],
+      allowBody: ["planId"],
       allowQuery: [],
       allowParams: [],
     };

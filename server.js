@@ -23,5 +23,3 @@ if (cluster.isMaster) {
     logger.info(`Process ${process.pid} is online on port number ${port}`);
   });
 }
-
-
