@@ -274,6 +274,60 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
   });
 });
 
+exports.getProfile = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.userId);
+  if (!user) return next(new ErrorHandler("Unauthorize", 401));
+  const data = {
+    name: user.name,
+    email: user.email,
+    mobile: user.mobile,
+    avatar: user.avatar,
+    role: user.role,
+    dob: user.dob,
+    states: user.states,
+    district: user.district,
+    city: user.city,
+    subscription_plans: user.subscription_plans,
+  };
+  res.status(200).json({
+    success: true,
+    message: "User found",
+    data,
+  });
+});
+
+exports.updateProfile = catchAsyncError(async (req, res, next) => {
+  const updates = {};
+  if (req.body.mobile) updates.mobile = req.body.mobile;
+  if (req.body.name) updates.name = req.body.name;
+  if (req.body.email) updates.email = req.body.email;
+  if (req.body.dob) updates.dob = req.body.dob;
+
+  const updatedUser = await User.findOneAndUpdate(
+    { _id: req.userId },
+    { $set: updates },
+    { new: true }
+  );
+  if (!updatedUser) return next(new ErrorHandler("Unauthorize", 401));
+  const data = {
+    name: updatedUser.name,
+    email: updatedUser.email,
+    mobile: updatedUser.mobile,
+    avatar: updatedUser.avatar,
+    role: updatedUser.role,
+    dob: updatedUser.dob,
+    states: updatedUser.states,
+    district: updatedUser.district,
+    city: updatedUser.city,
+    subscription_plans: updatedUser.subscription_plans,
+  };
+  res.status(200).json({
+    success: true,
+    message: "User Updated Successfully",
+    data,
+  });
+});
+
 exports.logout = catchAsyncError(async (req, res, next) => {
   const result = await User.updateOne(
     { _id: req.userId },

@@ -57,7 +57,7 @@ exports.isAdmin = async (req, res, next) => {
       return res.status(401).json({ message: "User not found" });
     }
 
-    if (user.role !== "admin") {
+    if (user.role !== "Admin") {
       return res.status(401).json({ message: "Forbidden:Admin Only" });
     }
 
