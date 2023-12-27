@@ -276,7 +276,8 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
 
 exports.getProfile = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.userId);
-  if (!user) return next(new ErrorHandler("Unauthorize", 401));
+  if (!user) return next(new ErrorHandler("User not Found", 400));
+
   const data = {
     name: user.name,
     email: user.email,
@@ -291,40 +292,26 @@ exports.getProfile = catchAsyncError(async (req, res, next) => {
   };
   res.status(200).json({
     success: true,
-    message: "User found",
     data,
   });
 });
 
 exports.updateProfile = catchAsyncError(async (req, res, next) => {
-  const updates = {};
-  if (req.body.mobile) updates.mobile = req.body.mobile;
-  if (req.body.name) updates.name = req.body.name;
-  if (req.body.email) updates.email = req.body.email;
-  if (req.body.dob) updates.dob = req.body.dob;
+  const { name, email, mobile, avatar } = req.body;
 
-  const updatedUser = await User.findOneAndUpdate(
-    { _id: req.userId },
-    { $set: updates },
-    { new: true }
-  );
-  if (!updatedUser) return next(new ErrorHandler("Unauthorize", 401));
-  const data = {
-    name: updatedUser.name,
-    email: updatedUser.email,
-    mobile: updatedUser.mobile,
-    avatar: updatedUser.avatar,
-    role: updatedUser.role,
-    dob: updatedUser.dob,
-    states: updatedUser.states,
-    district: updatedUser.district,
-    city: updatedUser.city,
-    subscription_plans: updatedUser.subscription_plans,
-  };
+  const user = await User.findById(req.userId);
+  if (!user) return next(new ErrorHandler("User not Found", 400));
+
+  if (name) user.name = name;
+  if (email) user.email = email;
+  if (mobile) user.mobile = mobile;
+  if (avatar) user.avatar = avatar;
+
+  await user.save();
+
   res.status(200).json({
     success: true,
     message: "User Updated Successfully",
-    data,
   });
 });
 
@@ -334,6 +321,7 @@ exports.logout = catchAsyncError(async (req, res, next) => {
     { $pull: { device_ids: req.ip } }
   );
   if (!result.modifiedCount) return next(new ErrorHandler("Unauthorize", 401));
+  
   res.status(204).json({
     success: true,
     message: "Logout successfully",
