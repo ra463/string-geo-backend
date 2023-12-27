@@ -297,7 +297,7 @@ exports.getProfile = catchAsyncError(async (req, res, next) => {
 });
 
 exports.updateProfile = catchAsyncError(async (req, res, next) => {
-  const { name, email, mobile, avatar } = req.body;
+  const { name, email, mobile, dob } = req.body;
 
   const user = await User.findById(req.userId);
   if (!user) return next(new ErrorHandler("User not Found", 400));
@@ -305,7 +305,7 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
   if (name) user.name = name;
   if (email) user.email = email;
   if (mobile) user.mobile = mobile;
-  if (avatar) user.avatar = avatar;
+  if (dob) user.dob = dob;
 
   await user.save();
 
@@ -321,7 +321,7 @@ exports.logout = catchAsyncError(async (req, res, next) => {
     { $pull: { device_ids: req.ip } }
   );
   if (!result.modifiedCount) return next(new ErrorHandler("Unauthorize", 401));
-  
+
   res.status(204).json({
     success: true,
     message: "Logout successfully",
