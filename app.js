@@ -16,8 +16,8 @@ app.use(helmet());
 app.use(morgan("tiny"));
 app.set("trust proxy", "loopback");
 const limiter = rateLimit({
-  windowMs: 1 * 60 * 1000,
-  max: 50,
+  windowMs: process.env.TIME,
+  max: process.env.MAX,
   message: "Too many requests from this IP, please try again later.",
   headers: false,
 });
