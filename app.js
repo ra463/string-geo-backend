@@ -43,7 +43,7 @@ const orderValidator = require("./@order_entity/order.validator");
 // use routes
 app.use("/api/user", userValidator, userRoutes);
 app.use("/api/plan", planValidator, planRoutes);
-app.use("/api/order", orderValidator, orderRoutes);
+app.use("/api/order", orderRoutes);
 
 app.all("*", (req, res, next) => {
   res.status(404).json({

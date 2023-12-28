@@ -28,7 +28,7 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
   if (!plan) return next(new ErrorHandler("Plan not found", 404));
 
   const options = {
-    amount: plan.price * 100, // amount is in paisa (lowest currency unit)
+    amount: Number(plan.price * 100), // amount is in paisa (lowest currency unit)
     currency: "INR",
   };
 
@@ -38,7 +38,7 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
     user: req.userId,
     plan: plan._id,
     razorpay_order_id: order.id,
-    amount: plan.price,
+    amount: order.amount,
     status: order.status,
   });
 
@@ -85,6 +85,7 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
     user: req.userId,
     razorpay_payment_id,
     amount: order.amount,
+    status: "Created",
   });
 
   await transaction.save();
@@ -95,5 +96,35 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
   });
 });
 
-// webhook api is pending
-exports.paymentWebhook = catchAsyncError(async (req, res, next) => {});
+exports.sendKey = catchAsyncError(async (req, res, next) => {
+  res.status(200).json({
+    success: true,
+    key: process.env.RAZORPAY_KEY_ID,
+  });
+});
+
+exports.paymentWebhook = catchAsyncError(async (req, res, next) => {
+  if (req.body.event === "payment.captured") {
+    const transaction = await Transaction.findOne({
+      razorpay_payment_id: req.body.payload.payment.entity.id,
+    }).populate("order", "razorpay_order_id");
+
+    const order = await Order.findOne({
+      razorpay_order_id: transaction.order.razorpay_order_id,
+    });
+
+    transaction.status = req.body.payload.payment.entity.status;
+    order.status = "Success";
+
+    await transaction.save();
+    await order.save();
+
+    // send mail to user is pending
+    // ------------> <--------------
+
+    res.status(200).json({
+      success: true,
+      message: "Payment Captured",
+    });
+  }
+});
