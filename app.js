@@ -31,14 +31,14 @@ app.use(
 );
 
 // import routes
-const userRoutes = require("./user_entity/user.index");
-const planRoutes = require("./plan_entity/plan.index");
-const orderRoutes = require("./order_entity/order.index");
+const userRoutes = require("./@user_entity/user.index");
+const planRoutes = require("./@plan_entity/plan.index");
+const orderRoutes = require("./@order_entity/order.index");
 
 //import validators
-const userValidator = require("./user_entity/user.validator");
-const planValidator = require("./plan_entity/plan.validator");
-const orderValidator = require("./order_entity/order.validator");
+const userValidator = require("./@user_entity/user.validator");
+const planValidator = require("./@plan_entity/plan.validator");
+const orderValidator = require("./@order_entity/order.validator");
 
 // use routes
 app.use("/api/user", userValidator, userRoutes);

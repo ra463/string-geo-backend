@@ -51,8 +51,8 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
   if (password !== confirmPassword)
     return next(new ErrorHandler("Confirm Password does not match", 400));
 
-  let user = await User.findOne({ email });
-  let user2 = await User.findOne({ mobile });
+  let user = await User.findOne({ email }).lean();
+  let user2 = await User.findOne({ mobile }).lean();
   if (user) return next(new ErrorHandler("Email address already exists", 400));
   if (user2) return next(new ErrorHandler("Mobile number already exists", 400));
   user = await User.create({
@@ -227,7 +227,7 @@ exports.sendForgotPasswordCode = catchAsyncError(async (req, res, next) => {
   const { email } = req.body;
   if (!email) return next(new ErrorHandler("Please enter your email", 400));
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).lean();
   if (!user) return next(new ErrorHandler("User does not exist", 400));
 
   const code = generateCode();
@@ -292,7 +292,7 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getProfile = catchAsyncError(async (req, res, next) => {
-  const user = await User.findById(req.userId);
+  const user = await User.findById(req.userId).lean();
   if (!user) return next(new ErrorHandler("User not Found", 400));
 
   const data = {
