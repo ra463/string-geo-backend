@@ -38,7 +38,7 @@ const orderRoutes = require("./@order_entity/order.index");
 //import validators
 const userValidator = require("./@user_entity/user.validator");
 const planValidator = require("./@plan_entity/plan.validator");
-const orderValidator = require("./@order_entity/order.validator");
+// const orderValidator = require("./@order_entity/order.validator");
 
 // use routes
 app.use("/api/user", userValidator, userRoutes);
