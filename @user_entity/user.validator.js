@@ -11,6 +11,7 @@ const validator = (req, res, next) => {
         "states",
         "district",
         "city",
+        "dob",
       ],
       allowQuery: [],
       allowParams: [],
