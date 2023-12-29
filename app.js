@@ -38,12 +38,15 @@ const orderRoutes = require("./@order_entity/order.index");
 //import validators
 const userValidator = require("./@user_entity/user.validator");
 const planValidator = require("./@plan_entity/plan.validator");
-// const orderValidator = require("./@order_entity/order.validator");
 
 // use routes
 app.use("/api/user", userValidator, userRoutes);
 app.use("/api/plan", planValidator, planRoutes);
 app.use("/api/order", orderRoutes);
+
+app.get("/", (req, res) =>
+  res.send(`<h1>Its working. Click to visit Link.</h1>`)
+);
 
 app.all("*", (req, res, next) => {
   res.status(404).json({
@@ -52,10 +55,6 @@ app.all("*", (req, res, next) => {
   });
 });
 
-app.get("/", (req, res) =>
-  res.send(`<h1>Its working. Click to visit Link.</h1>`)
-);
+module.exports = app;
 
 app.use(error);
-
-module.exports = app;
