@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const { error } = require("./middlewares/Error");
+const { error } = require("./middlewares/error");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
 const helmet = require("helmet");
@@ -59,4 +59,3 @@ app.get("/", (req, res) =>
 app.use(error);
 
 module.exports = app;
-
