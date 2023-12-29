@@ -26,7 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   })
 );
 
@@ -52,6 +52,11 @@ app.all("*", (req, res, next) => {
   });
 });
 
-module.exports = app;
+app.get("/", (req, res) =>
+  res.send(`<h1>Its working. Click to visit Link.</h1>`)
+);
 
 app.use(error);
+
+module.exports = app;
+
