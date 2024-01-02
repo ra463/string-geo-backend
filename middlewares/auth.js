@@ -28,12 +28,14 @@ exports.auth = async (req, res, next) => {
 
 exports.getNewAccesstoken = async (req, res, next) => {
   try {
+    console.log(req.headers.authorization);
     if (!req.headers.authorization) {
       return res.status(401).json({ message: `Refresh Token Expired` });
     }
+    console.log("Hello");
 
     const { userId } = jwt.verify(
-      req.headers.authorization,
+      req.headers.authorization.split(" ")[1],
       process.env.REFRESH_SECRET
     );
     const user = await User.findById(userId);
