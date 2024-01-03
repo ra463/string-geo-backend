@@ -289,6 +289,40 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
   });
 });
 
+exports.updatePassword = catchAsyncError(async (req, res, next) => {
+  const { oldPassword, newPassword, confirmPassword } = req.body;
+  if (!oldPassword || !newPassword || !confirmPassword)
+    return next(new ErrorHandler("Please enter all fields", 400));
+
+  if (newPassword.length < 8)
+    return next(new ErrorHandler("Password must be atleast 8 characters", 400));
+
+  if (newPassword !== confirmPassword)
+    return next(new ErrorHandler("Confirm Password does not match", 400));
+
+  const user = await User.findById(req.userId).select("+password");
+  if (!user) return next(new ErrorHandler("User not Found", 400));
+
+  const isMatch = await user.matchPassword(oldPassword);
+
+  if (!isMatch) {
+    return next(new ErrorHandler("Invalid Old Password", 400));
+  }
+
+  if (isMatch && oldPassword === newPassword)
+    return next(
+      new ErrorHandler("New Password cannot be same as old password", 400)
+    );
+
+  user.password = newPassword;
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Password Updated successfully",
+  });
+});
+
 exports.getProfile = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.userId).lean();
   if (!user) return next(new ErrorHandler("User not Found", 400));
