@@ -12,7 +12,7 @@ const validator = (req, res, next) => {
     for (let fieled of body) {
       if (!fieleds.allowBody.includes(fieled)) {
         return res.status(400).json({
-          error: `Extra fieleds '${fieled}' are not allowed in requset body.`,
+          error: `Extra fields '${fieled}' are not allowed in requset body.`,
         });
       }
     }
