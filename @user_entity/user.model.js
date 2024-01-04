@@ -43,6 +43,9 @@ const schema = new mongoose.Schema(
     dob: {
       type: String,
     },
+    address: {
+      type: String,
+    },
     states: {
       type: String,
       required: true,
@@ -78,6 +81,7 @@ const schema = new mongoose.Schema(
     last_attempt: {
       type: Date,
     },
+    pincode: { type: Number },
   },
   {
     timestamps: true,
