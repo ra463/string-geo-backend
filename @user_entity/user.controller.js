@@ -101,114 +101,55 @@ exports.verifyAccount = catchAsyncError(async (req, res, next) => {
 
 exports.loginUser = catchAsyncError(async (req, res, next) => {
   const { email, mobile, password } = req.body;
-
   if (!email && !mobile)
     return next(new ErrorHandler("Please Enter Email or Mobile Number", 400));
   if (!password) return next(new ErrorHandler("Please Enter Password", 400));
+  const user = await User.findOne({$or:[{email},{mobile}]}).select('+password');;
+  if (!user) return next(new ErrorHandler("Invalid Credentials", 400));
 
-  const isEmail = email ? true : false;
-  const isMobile = mobile ? true : false;
+  if (!user.is_verified) {
+    return next(new ErrorHandler("Verify your account before login", 400));
+  }
 
-  let user = null;
+  //check if user try to login with new device
+  if (!user.device_ids.includes(req.ip) && user.device_ids.length != 0) {
+    return next(new ErrorHandler("Maximum device login limit is reached", 429));
+  }
 
-  //check if user try to login with email
-  if (isEmail === true) {
-    user = await User.findOne({ email })
-      .select("+password")
-      .populate("subscription_plans");
-    if (!user) return next(new ErrorHandler("Invalid Credentials", 400));
-
-    //check if user is try to login in maximum devices
-    if (!user.device_ids.includes(req.ip)) {
-      if (
-        user.subscription_plans &&
-        user.device_ids.length === user.subscription_plans.allow_devices
-      ) {
-        return next(
-          new ErrorHandler("Maximum device login limit is reached", 429)
-        );
-      }
-    }
-
-    //check if user account is frozen by too many unsuccessfull attempt
-    if (user.is_frozen) {
-      const last_attempt = user.last_attempt.getTime();
-      const current = Date.now();
-      if (current - last_attempt > process.env.FROZEN_TIME) {
-        user.is_frozen = false;
-        user.attempts = 0;
-        await user.save();
-      } else {
-        return next(
-          new ErrorHandler(
-            "Your Account is temporary freeze due to too many unsuccessfull attempt",
-            429
-          )
-        );
-      }
-    }
-
-    const isMatch = await user.matchPassword(password);
-
-    if (!isMatch) {
-      user.attempts += 1;
+  //check if user account is freeze
+  if (user.is_frozen) {
+    const last_attempt = user.last_attempt.getTime();
+    const current = Date.now();
+    if (current - last_attempt > parseInt(process.env.FROZEN_TIME)) {
+      user.is_frozen = false;
+      user.attempts = 0;
+      user.last_attempt=null;
       await user.save();
-      if (user.attempts === process.env.MAX_UNSUCCESSFULL_ATTEMPT) {
-        user.is_frozen = true;
-        user.last_attempt = new Date();
-        await user.save();
-        return next(new ErrorHandler("Too many unsuccessfull attempt", 429));
-      }
-      return next(new ErrorHandler("Invalid Credentials", 400));
-    }
-  } else if (isMobile === true) {
-    user = await User.findOne({ mobile })
-      .select("+password")
-      .populate("subscription_plans");
-    if (!user) return next(new ErrorHandler("Invalid Credentials", 400));
-    if (!user.device_ids.includes(req.ip)) {
-      if (
-        user.subscription_plans &&
-        user.device_ids.length === user.subscription_plans.allow_devices
-      ) {
-        return next(
-          new ErrorHandler("Maximum device login limit is reached", 429)
-        );
-      }
-    }
-
-    if (user.is_frozen) {
-      const last_attempt = user.last_attempt.getTime();
-      const current = Date.now();
-      if (current - last_attempt > process.env.FROZEN_TIME) {
-        user.is_frozen = false;
-        user.attempts = 0;
-        await user.save();
-      } else {
-        return next(
-          new ErrorHandler(
-            "Your Account is temporary freeze due to too many unsuccessfull attempt",
-            429
-          )
-        );
-      }
-    }
-
-    const isMatch = await user.matchPassword(password);
-
-    if (!isMatch) {
-      user.attempts += 1;
-      if (user.attempts === process.env.MAX_UNSUCCESSFULL_ATTEMPT) {
-        user.is_frozen = true;
-        user.last_attempt = new Date();
-        await user.save();
-        return next(new ErrorHandler("Too many unsuccessfull attempt", 429));
-      }
-      return next(new ErrorHandler("Invalid Credentials", 400));
+    } else {
+      return next(
+        new ErrorHandler(
+          "Your Account is temporary freeze due to too many unsuccessfull attempt",
+          429
+        )
+      );
     }
   }
 
-  //set to unsuccessfull attempts to 0 as user login successfully
+  const isMatch = await user.matchPassword(password);
+
+  if (!isMatch) {
+    user.attempts += 1;
+    await user.save();
+    if (user.attempts === parseInt(process.env.MAX_UNSUCCESSFULL_ATTEMPT)) {
+      user.is_frozen = true;
+      user.last_attempt = new Date();
+      await user.save();
+      return next(new ErrorHandler("Too many unsuccessfull attempt", 429));
+    }
+    return next(new ErrorHandler("Invalid Credentials", 400));
+  }
+
+  //set unsuccessfull attempts to 0 as user login successfully
   if (user.attempts) {
     user.attempts = 0;
     await user.save();
@@ -217,6 +158,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   //if user are login with new device then push there ip in deviceIds
   if (!user.device_ids.includes(req.ip)) user.device_ids.push(req.ip);
   await user.save();
+
   user.password = undefined;
   sendData(res, 200, user, `Hey ${user.name}! Welcome Back`);
 });
