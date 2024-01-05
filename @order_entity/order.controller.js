@@ -28,7 +28,7 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
   if (!plan) return next(new ErrorHandler("Plan not found", 404));
 
   const options = {
-    amount: Number(plan.price * 100), // amount is in paisa (lowest currency unit)
+    amount: Number(req.body.amount * 100), // amount is in paisa (lowest currency unit)
     currency: "INR",
   };
 
@@ -93,13 +93,6 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "Payment Successfull",
-  });
-});
-
-exports.sendKey = catchAsyncError(async (req, res, next) => {
-  res.status(200).json({
-    success: true,
-    key: process.env.RAZORPAY_KEY_ID,
   });
 });
 
