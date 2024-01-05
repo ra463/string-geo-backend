@@ -6,10 +6,10 @@ const schema = new mongoose.Schema(
       type: Number,
       required: [true, "Please enter price of plan."],
     },
-    allow_devices: {
-      type: Number,
-      default: 1,
-    },
+    // allow_devices: {
+    //   type: Number,
+    //   default: 1,
+    // },
     validity: {
       type: Number,
       required: [true, "Please provide validity of plan."],

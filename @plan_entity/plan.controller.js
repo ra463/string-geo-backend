@@ -3,15 +3,15 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 
 exports.createPlan = catchAsyncError(async (req, res, next) => {
-  const { price, allow_devices, validity, description } = req.body;
-  if (!price || !validity || !allow_devices || !description) {
+  const { price, validity, description } = req.body;
+  if (!price || !validity || !description) {
     return next(new ErrorHandler("Please enter all fields", 400));
   }
 
   await Plan.create({
     price,
     validity,
-    allow_devices,
+    // allow_devices,
     description,
   });
 
