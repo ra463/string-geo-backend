@@ -9,7 +9,7 @@ const {
 const router = express.Router();
 
 router.post("/create-order", auth, createOrder);
-router.post("/verify-signature", auth, verifyPayment);
+router.post("/verify-signature", verifyPayment);
 router.post("/payment-webhook", paymentWebhook);
 router.get("/key", sendKey);
 
