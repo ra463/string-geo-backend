@@ -16,3 +16,16 @@ info: Info - ❌ : Jan-07-2024 16:39:57: Process 3656 is online on port number 4
 info: Info - ❌ : Jan-07-2024 16:39:57: Process 6492 is online on port number 4000
 info: Info - ❌ : Jan-07-2024 16:39:57: Process 21908 is online on port number 4000
 info: Info - ❌ : Jan-07-2024 16:39:57: Process 16360 is online on port number 4000
+info: Info - ❌ : Jan-07-2024 17:28:25: Process 18844 is online on port number 4000
+info: Info - ❌ : Jan-07-2024 17:28:26: Process 4884 is online on port number 4000
+info: Info - ❌ : Jan-07-2024 17:28:26: Process 21088 is online on port number 4000
+info: Info - ❌ : Jan-07-2024 17:28:26: Process 18092 is online on port number 4000
+info: Info - ❌ : Jan-07-2024 17:28:26: Process 9736 is online on port number 4000
+info: Info - ❌ : Jan-07-2024 17:28:26: Process 6764 is online on port number 4000
+info: Info - ❌ : Jan-07-2024 17:28:26: Process 2636 is online on port number 4000
+info: Info - ❌ : Jan-07-2024 17:28:27: Process 15424 is online on port number 4000
+info: Info - ❌ : Jan-07-2024 17:33:44: Worker 21088 has died!
+error: Error - ❌ : Jan-07-2024 17:33:45: Worker 21088 has died!
+error: Info - ❌ : Jan-07-2024 17:33:45: Worker 21088 has died!
+info: Info - ❌ : Jan-07-2024 17:33:45: Creating a new Worker
+error: Error - ❌ : Jan-07-2024 17:33:45: Worker 18844 has died!

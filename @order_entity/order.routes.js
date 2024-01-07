@@ -7,8 +7,8 @@ const {
 } = require("./order.controller");
 const router = express.Router();
 
-router.post("/create-order", auth, createOrder);
-router.post("/verify-signature", auth, verifyPayment);
+router.post("/create-order", createOrder);
+router.post("/verify-signature", verifyPayment);
 router.post("/payment-webhook", paymentWebhook);
 
 module.exports = router;
