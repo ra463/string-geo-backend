@@ -77,6 +77,7 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
   }
 
   const order = await Order.findOne({ razorpay_order_id });
+  if (!order) return next(new ErrorHandler("Order not found", 404));
   order.razorpay_signature = razorpay_signature;
   await order.save();
 
