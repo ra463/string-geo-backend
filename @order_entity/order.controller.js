@@ -21,7 +21,7 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.userId);
   if (!user) return next(new ErrorHandler("User not found", 404));
 
-  if (user.subscription_plans.length > 0)
+  if (user.subscription_plans && user.subscription_plans.length > 0)
     return next(
       new ErrorHandler("You already have an active Subscription Plan", 400)
     );
