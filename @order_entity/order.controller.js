@@ -65,7 +65,25 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
     .update(body.toString())
     .digest("hex");
 
-  if (isAuthentic !== razorpay_signature) {
+  if (isAuthentic === razorpay_signature) {
+    const order = await Order.findOne({ razorpay_order_id });
+    if (!order) return next(new ErrorHandler("Order not found", 404));
+    order.razorpay_signature = razorpay_signature;
+    await order.save();
+
+    // push object id of plan in subscription_plans of user
+    const user = await User.findOne({ _id: order.user });
+    user.subscription_plans = order.plan;
+    await user.save();
+
+    await Transaction.create({
+      order: order._id,
+      user: order.user,
+      razorpay_payment_id,
+      amount: order.amount,
+      status: "Created",
+    });
+  } else {
     await Order.findOneAndUpdate(
       { razorpay_order_id },
       {
@@ -75,26 +93,6 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
     );
     return next(new ErrorHandler("Invalid Signature: Payment Failed", 400));
   }
-
-  const order = await Order.findOne({ razorpay_order_id });
-  if (!order) return next(new ErrorHandler("Order not found", 404));
-  order.razorpay_signature = razorpay_signature;
-  await order.save();
-
-  // push object id of plan in subscription_plans of user
-  const user = await User.findOne({ _id: order.user });
-  user.subscription_plans = order.plan;
-  await user.save();
-
-  const transaction = new Transaction({
-    order: order._id,
-    user: order.user,
-    razorpay_payment_id,
-    amount: order.amount,
-    status: "Created",
-  });
-
-  await transaction.save();
 
   res.status(200).json({
     success: true,
