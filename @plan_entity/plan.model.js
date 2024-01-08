@@ -4,19 +4,19 @@ const schema = new mongoose.Schema(
   {
     price: {
       type: Number,
-      required: [true, "Please enter price of plan."],
+      required: [true, "Please enter price of plan"],
     },
-    // allow_devices: {
-    //   type: Number,
-    //   default: 1,
-    // },
+    allow_devices: {
+      type: Number,
+      required: [true, "Please provide number of devices allowed"],
+    },
     validity: {
       type: Number,
-      required: [true, "Please provide validity of plan."],
+      required: [true, "Please provide validity of plan"],
     },
     description: {
       type: String,
-      required: [true, "Please provide description of plan."],
+      required: [true, "Please provide description of plan"],
     },
   },
   {

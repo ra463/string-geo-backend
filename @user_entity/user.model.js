@@ -61,11 +61,11 @@ const schema = new mongoose.Schema(
     temp_code: {
       type: String,
     },
-    // device_ids: [
-    //   {
-    //     type: String,
-    //   },
-    // ],
+    device_ids: [
+      {
+        type: String,
+      },
+    ],
     subscription_plans: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Plan",

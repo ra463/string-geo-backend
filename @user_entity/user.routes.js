@@ -10,6 +10,7 @@ const {
   getProfile,
   updateProfile,
   updatePassword,
+  logout,
 } = require("./user.controller");
 
 const router = express.Router();
@@ -22,8 +23,8 @@ router.route("/send-code").post(sendForgotPasswordCode);
 router.route("/validate-code").post(validateCode);
 router.route("/reset-password").post(resetPassword);
 router.route("/update-password").patch(auth, updatePassword);
-router.get("/get-profile", auth, getProfile);
-router.patch("/update-profile", auth, updateProfile);
-// router.post("/logout", auth, logout);
+router.route("/get-profile").get(auth, getProfile);
+router.route("/update-profile").patch(auth, updateProfile);
+router.route("/logout").post(auth, logout);
 
 module.exports = router;
