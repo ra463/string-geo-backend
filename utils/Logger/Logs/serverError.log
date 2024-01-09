@@ -1,79 +1,42 @@
-info: Info - ❌ : Jan-07-2024 16:39:52: Worker 18804 has died!
-error: Error - ❌ : Jan-07-2024 16:39:52: Worker 18804 has died!
-error: Info - ❌ : Jan-07-2024 16:39:52: Worker 18804 has died!
-info: Info - ❌ : Jan-07-2024 16:39:52: Creating a new Worker
-info: Info - ❌ : Jan-07-2024 16:39:52: Worker 16136 has died!
-error: Error - ❌ : Jan-07-2024 16:39:52: Worker 16136 has died!
-error: Info - ❌ : Jan-07-2024 16:39:52: Worker 16136 has died!
-info: Info - ❌ : Jan-07-2024 16:39:52: Creating a new Worker
-info: Info - ❌ : Jan-07-2024 16:39:52: Worker 13748 has died!
-error: Error - ❌ : Jan-07-2024 16:39:52: Worker 13748 has died!
-info: Info - ❌ : Jan-07-2024 16:39:56: Process 1440 is online on port number 4000
-info: Info - ❌ : Jan-07-2024 16:39:57: Process 19272 is online on port number 4000
-info: Info - ❌ : Jan-07-2024 16:39:57: Process 17020 is online on port number 4000
-info: Info - ❌ : Jan-07-2024 16:39:57: Process 16940 is online on port number 4000
-info: Info - ❌ : Jan-07-2024 16:39:57: Process 3656 is online on port number 4000
-info: Info - ❌ : Jan-07-2024 16:39:57: Process 6492 is online on port number 4000
-info: Info - ❌ : Jan-07-2024 16:39:57: Process 21908 is online on port number 4000
-info: Info - ❌ : Jan-07-2024 16:39:57: Process 16360 is online on port number 4000
-info: Info - ❌ : Jan-07-2024 17:28:25: Process 18844 is online on port number 4000
-info: Info - ❌ : Jan-07-2024 17:28:26: Process 4884 is online on port number 4000
-info: Info - ❌ : Jan-07-2024 17:28:26: Process 21088 is online on port number 4000
-info: Info - ❌ : Jan-07-2024 17:28:26: Process 18092 is online on port number 4000
-info: Info - ❌ : Jan-07-2024 17:28:26: Process 9736 is online on port number 4000
-info: Info - ❌ : Jan-07-2024 17:28:26: Process 6764 is online on port number 4000
-info: Info - ❌ : Jan-07-2024 17:28:26: Process 2636 is online on port number 4000
-info: Info - ❌ : Jan-07-2024 17:28:27: Process 15424 is online on port number 4000
-info: Info - ❌ : Jan-07-2024 17:33:44: Worker 21088 has died!
-error: Error - ❌ : Jan-07-2024 17:33:45: Worker 21088 has died!
-error: Info - ❌ : Jan-07-2024 17:33:45: Worker 21088 has died!
-info: Info - ❌ : Jan-07-2024 17:33:45: Creating a new Worker
-error: Error - ❌ : Jan-07-2024 17:33:45: Worker 18844 has died!
-info: Info - ❌ : Jan-08-2024 10:49:33: Process 10076 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:33: Process 15268 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:33: Process 4868 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:33: Process 20028 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:33: Process 4828 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:33: Process 3368 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:33: Process 10072 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:33: Process 1996 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:37: Process 5056 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:37: Process 3428 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:37: Process 2964 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:37: Process 15104 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:37: Process 14228 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:37: Process 1400 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:37: Process 11836 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:37: Process 6608 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:51: Process 14900 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:51: Process 16816 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:52: Process 17864 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:52: Process 14500 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:52: Process 11036 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:52: Process 23040 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:52: Process 6888 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 10:49:52: Process 5384 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 20:52:54: Process 18388 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 20:52:54: Process 2708 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 20:52:54: Process 5952 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 20:52:54: Process 12520 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 20:52:54: Process 22424 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 20:52:54: Process 20776 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 20:52:54: Process 14216 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 20:52:54: Process 8924 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 21:00:04: Process 19288 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 21:00:04: Process 7060 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 21:00:04: Process 8492 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 21:00:04: Process 22800 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 21:00:04: Process 18848 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 21:00:04: Process 15220 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 21:00:04: Process 15164 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 21:00:04: Process 5988 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 21:01:58: Process 20804 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 21:01:58: Process 8312 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 21:01:58: Process 12364 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 21:01:58: Process 6432 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 21:01:58: Process 14728 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 21:01:58: Process 16688 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 21:01:58: Process 22092 is online on port number 4000
-info: Info - ❌ : Jan-08-2024 21:01:58: Process 13428 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:48:26: Process 9708 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:48:26: Process 19124 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:48:26: Process 11496 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:48:26: Process 14512 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:48:26: Process 20144 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:48:26: Process 20408 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:48:26: Process 8860 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:48:26: Process 11016 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:48:58: Worker 8860 has died!
+error: Error - ❌ : Jan-09-2024 21:48:58: Worker 8860 has died!
+error: Info - ❌ : Jan-09-2024 21:48:58: Worker 8860 has died!
+info: Info - ❌ : Jan-09-2024 21:48:58: Creating a new Worker
+info: Info - ❌ : Jan-09-2024 21:48:58: Worker 11496 has died!
+error: Info - ❌ : Jan-09-2024 21:48:58: Worker 11496 has died!
+info: Info - ❌ : Jan-09-2024 21:48:58: Creating a new Worker
+error: Error - ❌ : Jan-09-2024 21:48:58: Worker 11496 has died!
+info: Info - ❌ : Jan-09-2024 21:49:00: Process 6628 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:49:00: Process 8520 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:51:49: Process 9140 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:51:49: Process 11320 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:51:49: Process 2076 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:51:49: Process 22820 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:51:49: Process 23480 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:51:49: Process 9808 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:51:49: Process 23052 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:51:49: Process 22684 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:52:08: Process 6484 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:52:08: Process 17216 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:52:08: Process 17896 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:52:08: Process 22272 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:52:08: Process 18440 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:52:08: Process 7056 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:52:08: Process 21016 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:52:08: Process 4504 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:52:53: Process 17912 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:52:53: Process 18356 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:52:53: Process 12384 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:52:53: Process 12956 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:52:53: Process 22636 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:52:53: Process 9200 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:52:53: Process 18888 is online on port number 4000
+info: Info - ❌ : Jan-09-2024 21:52:53: Process 1524 is online on port number 4000
