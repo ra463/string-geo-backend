@@ -14,6 +14,10 @@ const schema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    gateway: {
+      type: String,
+      default: "Razorpay",
+    },
     amount: {
       type: Number,
       required: true,

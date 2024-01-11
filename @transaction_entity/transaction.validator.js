@@ -2,7 +2,13 @@ const validator = (req, res, next) => {
   try {
     const fieleds = {
       allowBody: [],
-      allowQuery: [],
+      allowQuery: [
+        "gateway",
+        "email",
+        "resultPerPage",
+        "currentPage",
+        "keyword",
+      ],
       allowParams: ["transactionId"],
     };
     const body = Object.keys(req.body);
