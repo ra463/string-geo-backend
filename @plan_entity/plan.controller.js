@@ -37,10 +37,17 @@ exports.createPlan = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getAllPlan = catchAsyncError(async (req, res, next) => {
-  const plans = await Plan.find();
+  const plan_30days = await Plan.find({ validity: 30 })
+    .sort({ price: 1 })
+    .lean();
+  const plan_365days = await Plan.find({ validity: 365 })
+    .sort({ price: 1 })
+    .lean();
+
   res.status(200).json({
     success: true,
-    plans,
+    plan_30days,
+    plan_365days,
   });
 });
 
