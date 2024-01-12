@@ -113,7 +113,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   if (
     user.subscription_plans &&
     !user.device_ids.includes(req.ip) &&
-    user.subscription_plans.allow_devices < user.device_ids.length + 1
+    user.subscription_plans.allow_devices == user.device_ids.length 
   ) {
     return next(new ErrorHandler("Maximum device login limit is reached", 429));
   }
