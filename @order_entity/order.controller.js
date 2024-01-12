@@ -28,7 +28,7 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
   if (!plan) return next(new ErrorHandler("Plan not found", 404));
 
   const options = {
-    amount: Number(req.body.amount * 100), // amount is in paisa (lowest currency unit)
+    amount: Number(plan.price * 100), // amount is in paisa (lowest currency unit)
     currency: "INR",
   };
 
@@ -87,6 +87,7 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
     razorpay_payment_id,
     amount: order.amount,
     status: "Created",
+    gateway: "Razorpay",
   });
 
   await transaction.save();

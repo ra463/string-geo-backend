@@ -18,6 +18,14 @@ const schema = new mongoose.Schema(
       type: String,
       required: [true, "Please provide description of plan"],
     },
+    plan_type: {
+      type: String,
+      required: [true, "Please provide plan type"],
+      enum: {
+        values: ["Individual", "Multi-User"],
+        message: "Please provide valid plan type",
+      },
+    },
   },
   {
     timestamps: true,
