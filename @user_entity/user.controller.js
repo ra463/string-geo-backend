@@ -1,6 +1,6 @@
 const User = require("./user.model");
 const { generateCode } = require("../utils/generateCode");
-const ip = require("ip");
+// const ip = require("ip");
 const {
   sendVerificationCode,
   sendForgotPasswordCode,
@@ -101,7 +101,8 @@ exports.verifyAccount = catchAsyncError(async (req, res, next) => {
 });
 
 exports.loginUser = catchAsyncError(async (req, res, next) => {
-  console.log(req.ip,req.connection.remoteAddress)
+  // console.log(req.ip, req.connection.remoteAddress);
+  const clientIp = req.clientIp;
   const { email, mobile, password } = req.body;
   if (!email && !mobile)
     return next(new ErrorHandler("Please Enter Email or Mobile Number", 400));
@@ -110,12 +111,12 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
     .select("+password")
     .populate("subscription_plans");
   if (!user) return next(new ErrorHandler("Invalid Credentials", 400));
-  
+
   //check if user try to login with new device & the max device login acc to subscription plan
   if (
     user.subscription_plans &&
-    !user.device_ids.includes(req.ip) &&
-    user.subscription_plans.allow_devices == user.device_ids.length 
+    !user.device_ids.includes(clientIp) &&
+    user.subscription_plans.allow_devices == user.device_ids.length
   ) {
     return next(new ErrorHandler("Maximum device login limit is reached", 429));
   }
@@ -160,8 +161,8 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   }
 
   //if user are login with new device then push there ip in deviceIds
-  if (user.subscription_plans && !user.device_ids.includes(req.ip)) {
-    user.device_ids.push(ip.address);
+  if (user.subscription_plans && !user.device_ids.includes(clientIp)) {
+    user.device_ids.push(clientIp);
     await user.save();
   }
 
@@ -325,14 +326,12 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
 
 exports.logout = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.userId);
-  if(!user) return next(new ErrorHandler("Unauthorize", 401));
-  user.device_ids=user.device_ids.filter(data=>data!=ip.address);
+  if (!user) return next(new ErrorHandler("Unauthorize", 401));
+  user.device_ids = user.device_ids.filter((data) => data != ip.address);
   await user.save();
-  
 
   res.status(200).json({
     success: true,
     message: "Logout successfully",
-    
   });
 });
