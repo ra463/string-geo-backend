@@ -297,6 +297,17 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.userId);
   if (!user) return next(new ErrorHandler("User not Found", 400));
 
+  const user_1 = await User.findOne({ email });
+  if (user_1 && user_1._id.toString() !== user._id.toString())
+    return next(new ErrorHandler("User with this email already exists", 400));
+
+  const user_2 = await User.findOne({ mobile });
+  if (user_2 && user_2._id.toString() !== user._id.toString()) {
+    return next(
+      new ErrorHandler("User with this mobile number already exists", 400)
+    );
+  }
+
   if (name) user.name = name;
   if (email) user.email = email;
   if (mobile) user.mobile = mobile;
