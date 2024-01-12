@@ -325,9 +325,15 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
 });
 
 exports.logout = catchAsyncError(async (req, res, next) => {
+  const clientIp = req.clientIp;
   const user = await User.findById(req.userId);
   if (!user) return next(new ErrorHandler("Unauthorize", 401));
-  user.device_ids = user.device_ids.filter((data) => data != ip.address);
+
+  // pull the clientId from the user devices_id array
+  const index = user.device_ids.indexOf(clientIp);
+  if (index > -1) {
+    user.device_ids.splice(index, 1);
+  }
   await user.save();
 
   res.status(200).json({
