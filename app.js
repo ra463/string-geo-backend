@@ -4,6 +4,7 @@ const app = express();
 const { error } = require("./middlewares/error");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
+const ip = require("ip");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
@@ -14,12 +15,15 @@ dotenv.config({
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("tiny"));
-app.set("trust proxy", "loopback");
+app.set("trust proxy", 1);
 const limiter = rateLimit({
   windowMs: process.env.TIME,
   max: process.env.MAX,
   message: "Too many requests from this IP, please try again later.",
   headers: false,
+  keyGenerator: function (req) {
+    return ip.address();
+  },
 });
 app.use(limiter);
 app.use(express.urlencoded({ extended: true }));
