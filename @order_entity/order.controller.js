@@ -50,6 +50,13 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
   });
 });
 
+exports.getAPIKey = catchAsyncError(async (req, res, next) => {
+  res.status(200).json({
+    success: true,
+    key: process.env.RAZORPAY_KEY_ID,
+  });
+});
+
 exports.verifyPayment = catchAsyncError(async (req, res, next) => {
   const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =
     req.body;
