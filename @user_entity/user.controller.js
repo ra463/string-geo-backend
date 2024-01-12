@@ -100,6 +100,7 @@ exports.verifyAccount = catchAsyncError(async (req, res, next) => {
 });
 
 exports.loginUser = catchAsyncError(async (req, res, next) => {
+  console.log(req.ip,req.connection.remoteAddress)
   const { email, mobile, password } = req.body;
   if (!email && !mobile)
     return next(new ErrorHandler("Please Enter Email or Mobile Number", 400));
@@ -108,7 +109,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
     .select("+password")
     .populate("subscription_plans");
   if (!user) return next(new ErrorHandler("Invalid Credentials", 400));
-
+  
   //check if user try to login with new device & the max device login acc to subscription plan
   if (
     user.subscription_plans &&
@@ -322,15 +323,15 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
 });
 
 exports.logout = catchAsyncError(async (req, res, next) => {
-  const result = await User.updateOne(
-    { _id: req.userId },
-    { $pull: { device_ids: req.ip } }
-  );
-
-  if (!result.modifiedCount) return next(new ErrorHandler("Unauthorize", 401));
+  const user = await User.findById(req.userId);
+  if(!user) return next(new ErrorHandler("Unauthorize", 401));
+  user.device_ids=user.device_ids.filter(data=>data!=req.ip);
+  await user.save();
+  
 
   res.status(200).json({
     success: true,
     message: "Logout successfully",
+    
   });
 });
