@@ -1,5 +1,6 @@
 const User = require("./user.model");
 const { generateCode } = require("../utils/generateCode");
+const ip = require("ip");
 const {
   sendVerificationCode,
   sendForgotPasswordCode,
@@ -160,7 +161,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
 
   //if user are login with new device then push there ip in deviceIds
   if (user.subscription_plans && !user.device_ids.includes(req.ip)) {
-    user.device_ids.push(req.ip);
+    user.device_ids.push(ip.address);
     await user.save();
   }
 
@@ -325,7 +326,7 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
 exports.logout = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.userId);
   if(!user) return next(new ErrorHandler("Unauthorize", 401));
-  user.device_ids=user.device_ids.filter(data=>data!=req.ip);
+  user.device_ids=user.device_ids.filter(data=>data!=ip.address);
   await user.save();
   
 
