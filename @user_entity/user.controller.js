@@ -115,7 +115,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   //check if user try to login with new device & the max device login acc to subscription plan
   if (
     user.subscription_plans &&
-    !user.device_ids.includes(clientIp) &&
+    !user.device_ids.includes(req.ip) &&
     user.subscription_plans.allow_devices == user.device_ids.length
   ) {
     return next(new ErrorHandler("Maximum device login limit is reached", 429));
@@ -161,8 +161,8 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   }
 
   //if user are login with new device then push there ip in deviceIds
-  if (user.subscription_plans && !user.device_ids.includes(clientIp)) {
-    user.device_ids.push(clientIp);
+  if (user.subscription_plans && !user.device_ids.includes(req.ip)) {
+    user.device_ids.push(req.ip);
     await user.save();
   }
 
@@ -325,15 +325,17 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
 });
 
 exports.logout = catchAsyncError(async (req, res, next) => {
-  const clientIp = req.clientIp;
   const user = await User.findById(req.userId);
   if (!user) return next(new ErrorHandler("Unauthorize", 401));
 
   // pull the clientId from the user devices_id array
-  const index = user.device_ids.indexOf(clientIp);
-  if (index > -1) {
-    user.device_ids.splice(index, 1);
+  let arr = []
+  for(let id of user.device_ids){
+    if(id!=req.ip){
+      arr.push(id);
+    }
   }
+  user.device_ids = arr
   await user.save();
 
   res.status(200).json({

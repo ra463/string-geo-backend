@@ -16,8 +16,8 @@ dotenv.config({
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("tiny"));
-app.set("trust proxy", 1);
-app.use(requestIp.mw());
+// app.set("trust proxy", 1);
+// app.use(requestIp.mw());
 const limiter = rateLimit({
   windowMs: process.env.TIME,
   max: process.env.MAX,
@@ -32,6 +32,8 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   })
 );
+
+
 
 // import routes
 const userRoutes = require("./@user_entity/user.index");
