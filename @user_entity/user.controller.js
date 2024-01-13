@@ -52,9 +52,8 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
   if (password !== confirmPassword)
     return next(new ErrorHandler("Confirm Password does not match", 400));
 
-  const email_to_lowercase = email.toLowerCase();
   let user1 = await User.findOne({
-    email: { $regex: new RegExp(email_to_lowercase, "i") },
+    email: { $regex: new RegExp(email, "i") },
   });
   if (user1) return next(new ErrorHandler("Email already exists", 400));
   let user2 = await User.findOne({ mobile });

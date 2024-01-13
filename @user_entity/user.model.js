@@ -70,6 +70,9 @@ const schema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Plan",
     },
+    expiry_date: {
+      type: Date,
+    },
     attempts: {
       type: Number,
       default: 0,

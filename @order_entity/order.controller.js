@@ -78,14 +78,17 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Invalid Signature: Payment Failed", 400));
   }
 
-  const order = await Order.findOne({ razorpay_order_id });
+  const order = await Order.findOne({ razorpay_order_id }).populate("plan");
   order.razorpay_signature = razorpay_signature;
   await order.save();
 
   // push object id of plan in subscription_plans of user
   const user = await User.findOne({ _id: order.user });
-  user.subscription_plans = order.plan;
-  user.device_ids.push(req.ip);
+  let expiry_date = new Date();
+  expiry_date.setDate(expiry_date.getDate() + order.plan.validity);
+  user.subscription_plans = order.plan._id;
+  user.expiry_date = expiry_date;
+
   await user.save();
 
   const transaction = new Transaction({
