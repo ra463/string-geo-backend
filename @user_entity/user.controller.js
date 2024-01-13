@@ -102,6 +102,8 @@ exports.verifyAccount = catchAsyncError(async (req, res, next) => {
 
 exports.loginUser = catchAsyncError(async (req, res, next) => {
   // console.log(req.ip, req.connection.remoteAddress);
+  // console.log(req.headers);
+  console.log(req.socket.remoteAddress)
   const clientIp = req.clientIp;
   const { email, mobile, password } = req.body;
   if (!email && !mobile)
@@ -115,7 +117,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   //check if user try to login with new device & the max device login acc to subscription plan
   if (
     user.subscription_plans &&
-    !user.device_ids.includes(req.ip) &&
+    !user.device_ids.includes(req.headers['x-forwarded-for']||req.socket.remoteAddress) &&
     user.subscription_plans.allow_devices == user.device_ids.length
   ) {
     return next(new ErrorHandler("Maximum device login limit is reached", 429));
@@ -161,8 +163,8 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   }
 
   //if user are login with new device then push there ip in deviceIds
-  if (user.subscription_plans && !user.device_ids.includes(req.ip)) {
-    user.device_ids.push(req.ip);
+  if (user.subscription_plans && !user.device_ids.includes(req.headers['x-forwarded-for']||req.socket.remoteAddress)) {
+    user.device_ids.push(req.headers['x-forwarded-for']||req.socket.remoteAddress);
     await user.save();
   }
 
@@ -331,7 +333,7 @@ exports.logout = catchAsyncError(async (req, res, next) => {
   // pull the clientId from the user devices_id array
   let arr = []
   for(let id of user.device_ids){
-    if(id!=req.ip){
+    if(id!=(req.headers['x-forwarded-for']||req.socket.remoteAddress)){
       arr.push(id);
     }
   }
@@ -341,5 +343,6 @@ exports.logout = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "Logout successfully",
+    
   });
 });
