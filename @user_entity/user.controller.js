@@ -52,11 +52,14 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
   if (password !== confirmPassword)
     return next(new ErrorHandler("Confirm Password does not match", 400));
 
-  let user = await User.findOne({ email }).lean();
-  let user2 = await User.findOne({ mobile }).lean();
-  if (user) return next(new ErrorHandler("Email address already exists", 400));
+  const email_to_lowercase = email.toLowerCase();
+  let user1 = await User.findOne({
+    email: { $regex: new RegExp(email_to_lowercase, "i") },
+  });
+  if (user1) return next(new ErrorHandler("Email already exists", 400));
+  let user2 = await User.findOne({ mobile });
   if (user2) return next(new ErrorHandler("Mobile number already exists", 400));
-  user = await User.create({
+  const user = await User.create({
     name,
     email,
     password,
@@ -102,8 +105,6 @@ exports.verifyAccount = catchAsyncError(async (req, res, next) => {
 
 exports.loginUser = catchAsyncError(async (req, res, next) => {
   // console.log(req.ip, req.connection.remoteAddress);
-  // console.log(req.headers);
-  console.log(req.socket.remoteAddress)
   const clientIp = req.clientIp;
   const { email, mobile, password } = req.body;
   if (!email && !mobile)
@@ -117,7 +118,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   //check if user try to login with new device & the max device login acc to subscription plan
   if (
     user.subscription_plans &&
-    !user.device_ids.includes(req.headers['x-forwarded-for']||req.socket.remoteAddress) &&
+    !user.device_ids.includes(clientIp) &&
     user.subscription_plans.allow_devices == user.device_ids.length
   ) {
     return next(new ErrorHandler("Maximum device login limit is reached", 429));
@@ -163,8 +164,8 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   }
 
   //if user are login with new device then push there ip in deviceIds
-  if (user.subscription_plans && !user.device_ids.includes(req.headers['x-forwarded-for']||req.socket.remoteAddress)) {
-    user.device_ids.push(req.headers['x-forwarded-for']||req.socket.remoteAddress);
+  if (user.subscription_plans && !user.device_ids.includes(clientIp)) {
+    user.device_ids.push(clientIp);
     await user.save();
   }
 
@@ -327,22 +328,19 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
 });
 
 exports.logout = catchAsyncError(async (req, res, next) => {
+  const clientIp = req.clientIp;
   const user = await User.findById(req.userId);
   if (!user) return next(new ErrorHandler("Unauthorize", 401));
 
   // pull the clientId from the user devices_id array
-  let arr = []
-  for(let id of user.device_ids){
-    if(id!=(req.headers['x-forwarded-for']||req.socket.remoteAddress)){
-      arr.push(id);
-    }
+  const index = user.device_ids.indexOf(clientIp);
+  if (index > -1) {
+    user.device_ids.splice(index, 1);
   }
-  user.device_ids = arr
   await user.save();
 
   res.status(200).json({
     success: true,
     message: "Logout successfully",
-    
   });
 });
