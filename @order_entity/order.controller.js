@@ -22,7 +22,7 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
   if (!user) return next(new ErrorHandler("User not found", 404));
 
   if (user.subscription_plans) {
-    return next(new ErrorHandler(" You already had an active plan", 400));
+    return next(new ErrorHandler("You already had an active plan", 400));
   }
 
   const { planId } = req.body;
@@ -32,7 +32,7 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
   if (!plan) return next(new ErrorHandler("Plan not found", 404));
 
   const options = {
-    amount: Number(plan.price * 100), // amount is in paisa (lowest currency unit)
+    amount: plan.price * 100, // amount is in paisa (lowest currency unit)
     currency: "INR",
   };
 
