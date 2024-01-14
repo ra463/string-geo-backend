@@ -62,6 +62,8 @@ exports.getUserTransactions = catchAsyncError(async (req, res, next) => {
     .sort({
       createdAt: -1,
     })
+    .populate("user", "name email")
+    .populate("order", "razorpay_order_id plan")
     .lean();
 
   res.status(200).json({
