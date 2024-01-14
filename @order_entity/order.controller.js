@@ -22,7 +22,7 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
   if (!user) return next(new ErrorHandler("User not found", 404));
 
   if (user.subscription_plans) {
-    return next(new ErrorHandler("You already had an active plan", 400));
+    return next(new ErrorHandler("You already have an active plan", 400));
   }
 
   const { planId } = req.body;

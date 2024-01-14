@@ -60,7 +60,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
   if (user2) return next(new ErrorHandler("Mobile number already exists", 400));
   const user = await User.create({
     name,
-    email,
+    email: email.toLowerCase(),
     password,
     mobile,
     states,
@@ -316,7 +316,7 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
   }
 
   if (name) user.name = name;
-  if (email) user.email = email;
+  if (email) user.email = email.toLowerCase();
   if (mobile) user.mobile = mobile;
   if (dob) user.dob = dob;
 
