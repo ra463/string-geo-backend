@@ -40,9 +40,10 @@ exports.getNewAccesstoken = async (req, res, next) => {
     if (!user) {
       return res.status(401).json({ message: `Something went Wrong` });
     }
-    if(!user.device_ids.includesreq.headers.authorization.split(" ")[1]){
+    if(!user.device_ids.includes(req.headers.authorization.split(" ")[1])){
       return next(new ErrorHandler("Your session is expired, please login",401));
     }
+    // console.log(exp);
     const isTokenExpired = Date.now() >= exp * 1000;
     if (isTokenExpired) {
       user.device_ids = user.device_ids.filter(
