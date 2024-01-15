@@ -125,7 +125,9 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   // console.log(req.ip, req.connection.remoteAddress);
   // const clientIp = req.clientIp;
   // console.log("in this route")
-  const { email, mobile, password } = req.body;
+  const { email, mobile, password, google_login } = req.body;
+
+  if (google_login) return await loginGoogle(req, res, next);
   if (!email && !mobile)
     return next(new ErrorHandler("Please Enter Email or Mobile Number", 400));
   if (!password) return next(new ErrorHandler("Please Enter Password", 400));
@@ -390,7 +392,6 @@ exports.logout = catchAsyncError(async (req, res, next) => {
     user.device_ids = user.device_ids.filter((data) => data != refreshToken);
     await user.save();
   }
-  
 
   res.status(200).json({
     success: true,
