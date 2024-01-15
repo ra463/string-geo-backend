@@ -45,14 +45,14 @@ exports.getAllPlan = catchAsyncError(async (req, res, next) => {
   const plan_individual = await Plan.find({ plan_type: "Individual" })
     .sort({ price: 1 })
     .lean();
-  const plan_multiuser = await Plan.find({ plan_type: "Multi-User" })
+  const plan_family = await Plan.find({ plan_type: "Family" })
     .sort({ price: 1 })
     .lean();
 
   res.status(200).json({
     success: true,
     plan_individual,
-    plan_multiuser,
+    plan_family,
   });
 });
 
