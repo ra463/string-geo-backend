@@ -11,6 +11,7 @@ const {
   updateProfile,
   updatePassword,
   logout,
+  getMyPlan,
 } = require("./user.controller");
 
 const router = express.Router();
@@ -25,6 +26,7 @@ router.route("/reset-password").post(resetPassword);
 router.route("/update-password").patch(auth, updatePassword);
 router.route("/get-profile").get(auth, getProfile);
 router.route("/update-profile").patch(auth, updateProfile);
+router.route("/get-my-plan").get(auth, getMyPlan);
 router.route("/logout").post(auth, logout);
 
 module.exports = router;

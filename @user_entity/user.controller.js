@@ -329,6 +329,25 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
   });
 });
 
+exports.getMyPlan = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.userId)
+    .populate("subscription_plans")
+    .lean();
+  if (!user) return next(new ErrorHandler("User not Found", 400));
+
+  if (!user.subscription_plans) {
+    return res.status(200).json({
+      success: true,
+      data: null,
+    });
+  } else {
+    return res.status(200).json({
+      success: true,
+      data: user.subscription_plans,
+    });
+  }
+});
+
 exports.logout = catchAsyncError(async (req, res, next) => {
   const clientIp = req.clientIp;
   const user = await User.findById(req.userId);
