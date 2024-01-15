@@ -14,6 +14,7 @@ const validator = (req, res, next) => {
         "dob",
         "oldPassword",
         "newPassword",
+        "google_login",
       ],
       allowQuery: [],
       allowParams: [],
