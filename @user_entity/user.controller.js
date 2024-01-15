@@ -106,10 +106,22 @@ exports.verifyAccount = catchAsyncError(async (req, res, next) => {
   sendData(res, 200, user, `Account Verified successfully`);
 });
 
+const loginGoogle = async (req, res, next) => {
+  const { email } = req.body;
+  if (!email) return next(new ErrorHandler("Please enter email", 400));
+
+  const user = await User.findOne({
+    email: { $regex: new RegExp(`^${email}$`, "i") },
+  });
+  if (!user) return next(new ErrorHandler("User not found", 404));
+
+  sendData(res, 200, user, `Hey ${user.name}! Welcome Back`);
+};
+
 exports.loginUser = catchAsyncError(async (req, res, next) => {
   // console.log(req.ip, req.connection.remoteAddress);
   // const clientIp = req.clientIp;
-  console.log("in this route")
+  // console.log("in this route")
   const { email, mobile, password } = req.body;
   if (!email && !mobile)
     return next(new ErrorHandler("Please Enter Email or Mobile Number", 400));
@@ -353,6 +365,7 @@ exports.getMyPlan = catchAsyncError(async (req, res, next) => {
     return res.status(200).json({
       success: true,
       data: user.subscription_plans,
+      expiry_date: user.expiry_date,
     });
   }
 });
