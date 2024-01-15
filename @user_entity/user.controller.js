@@ -12,8 +12,11 @@ const userModel = require("./user.model");
 const sendData = async (res, statusCode, user, message) => {
   const accessToken = await user.getAccessToken();
   const refreshToken = await user.getRefreshToken();
-  user.device_ids.push(refreshToken);
-  await user.save();
+  if (user.subscription_plans) {
+    user.device_ids.push(refreshToken);
+    await user.save();
+  }
+
   user.password = undefined;
   res.status(statusCode).json({
     success: true,
@@ -179,7 +182,12 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
     user.subscription_plans &&
     user.subscription_plans.allow_devices == user.device_ids.length
   ) {
-    return next(new ErrorHandler("Maximum device login limit is reached, please Logout from one of your device", 429));
+    return next(
+      new ErrorHandler(
+        "Maximum device login limit is reached, please Logout from one of your device",
+        429
+      )
+    );
   }
 
   //set unsuccessfull attempts to 0 as user login successfully
@@ -372,14 +380,17 @@ exports.getMyPlan = catchAsyncError(async (req, res, next) => {
 
 exports.logout = catchAsyncError(async (req, res, next) => {
   // const clientIp = req.clientIp;
-  const {refreshToken} = req.body
+  const { refreshToken } = req.body;
   const user = await User.findById(req.userId);
   if (!user) return next(new ErrorHandler("Unauthorize", 401));
 
   // pull the clientId from the user devices_id array
-  console.log(req.headers.authorization.split(" ")[1]);
-  user.device_ids = user.device_ids.filter(data=>data!=refreshToken);
-  await user.save();
+  // console.log(req.headers.authorization.split(" ")[1]);
+  if (user.subscription_plans) {
+    user.device_ids = user.device_ids.filter((data) => data != refreshToken);
+    await user.save();
+  }
+  
 
   res.status(200).json({
     success: true,
