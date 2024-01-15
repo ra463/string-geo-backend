@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const User = require("../@user_entity/user.model");
 const dotenv = require("dotenv");
+const ErrorHandler = require("../utils/errorHandler");
 dotenv.config({ path: "../config/config.env" });
 
 exports.auth = async (req, res, next) => {
@@ -28,13 +29,10 @@ exports.auth = async (req, res, next) => {
 
 exports.getNewAccesstoken = async (req, res, next) => {
   try {
-    console.log(req.headers.authorization);
     if (!req.headers.authorization) {
-      return res.status(401).json({ message: `Refresh Token Expired` });
+      return res.status(404).json({ message: `Refresh Token not found` });
     }
-    console.log("Hello");
-
-    const { userId } = jwt.verify(
+    const { userId, exp } = jwt.verify(
       req.headers.authorization.split(" ")[1],
       process.env.REFRESH_SECRET
     );
@@ -42,6 +40,18 @@ exports.getNewAccesstoken = async (req, res, next) => {
     if (!user) {
       return res.status(401).json({ message: `Something went Wrong` });
     }
+    if(!user.device_ids.includesreq.headers.authorization.split(" ")[1]){
+      return next(new ErrorHandler("Your session is expired, please login",401));
+    }
+    const isTokenExpired = Date.now() >= exp * 1000;
+    if (isTokenExpired) {
+      user.device_ids = user.device_ids.filter(
+        (token) => token != req.headers.authorization.split(" ")[1]
+      );
+      await user.save();
+      return next(new ErrorHandler("Refresh token is expired, Please Login",401));
+    }
+
     const accessToken = await user.getAccessToken();
     res.status(200).send({
       accessToken,

@@ -7,10 +7,14 @@ const {
 } = require("../utils/sendEmail");
 const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
+const userModel = require("./user.model");
 
 const sendData = async (res, statusCode, user, message) => {
   const accessToken = await user.getAccessToken();
   const refreshToken = await user.getRefreshToken();
+  user.device_ids.push(refreshToken);
+  await user.save();
+  user.password = undefined;
   res.status(statusCode).json({
     success: true,
     user,
@@ -105,14 +109,16 @@ exports.verifyAccount = catchAsyncError(async (req, res, next) => {
 exports.loginUser = catchAsyncError(async (req, res, next) => {
   // console.log(req.ip, req.connection.remoteAddress);
   // const clientIp = req.clientIp;
+  console.log("in this route")
   const { email, mobile, password } = req.body;
   if (!email && !mobile)
     return next(new ErrorHandler("Please Enter Email or Mobile Number", 400));
   if (!password) return next(new ErrorHandler("Please Enter Password", 400));
   const user = await User.findOne({
     $or: [{ email: { $regex: new RegExp(`^${email}$`, "i") } }, { mobile }],
-  }).select("+password");
-  // .populate("subscription_plans");
+  })
+    .select("+password")
+    .populate("subscription_plans");
   if (!user) return next(new ErrorHandler("Invalid Credentials", 400));
 
   //check if user try to login with new device & the max device login acc to subscription plan
@@ -157,19 +163,22 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Invalid Credentials", 400));
   }
 
+  if (
+    user.subscription_plans &&
+    user.subscription_plans.allow_devices == user.device_ids.length
+  ) {
+    return next(new ErrorHandler("Maximum device login limit is reached, please Logout from one of your device", 429));
+  }
+
   //set unsuccessfull attempts to 0 as user login successfully
   if (user.attempts) {
     user.attempts = 0;
     await user.save();
   }
 
-  //if user are login with new device then push there ip in deviceIds
-  // if (user.subscription_plans && !user.device_ids.includes(clientIp)) {
-  //   user.device_ids.push(clientIp);
-  //   await user.save();
-  // }
+  // if user are login with new device then push there ip in deviceIds
 
-  user.password = undefined;
+  // user.password = undefined;
   sendData(res, 200, user, `Hey ${user.name}! Welcome Back`);
 });
 
@@ -349,19 +358,31 @@ exports.getMyPlan = catchAsyncError(async (req, res, next) => {
 });
 
 exports.logout = catchAsyncError(async (req, res, next) => {
-  const clientIp = req.clientIp;
+  // const clientIp = req.clientIp;
+  const {refreshToken} = req.body
   const user = await User.findById(req.userId);
   if (!user) return next(new ErrorHandler("Unauthorize", 401));
 
   // pull the clientId from the user devices_id array
-  const index = user.device_ids.indexOf(clientIp);
-  if (index > -1) {
-    user.device_ids.splice(index, 1);
-  }
+  console.log(req.headers.authorization.split(" ")[1]);
+  user.device_ids = user.device_ids.filter(data=>data!=refreshToken);
   await user.save();
 
   res.status(200).json({
     success: true,
     message: "Logout successfully",
   });
+});
+
+exports.logoutFromFirstDevice = catchAsyncError(async (req, res, next) => {
+  const { userId } = req.body;
+  const user = await userModel.findByIdAndUpdate(
+    userId,
+    { $pop: { arrayField: -1 } },
+    { new: true }
+  );
+
+  if (!user) {
+    return next(new ErrorHandler("User Not Found", 404));
+  }
 });

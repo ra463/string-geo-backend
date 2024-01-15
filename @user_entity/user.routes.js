@@ -12,6 +12,7 @@ const {
   updatePassword,
   logout,
   getMyPlan,
+  logoutFromFirstDevice,
 } = require("./user.controller");
 
 const router = express.Router();
@@ -28,5 +29,6 @@ router.route("/get-profile").get(auth, getProfile);
 router.route("/update-profile").patch(auth, updateProfile);
 router.route("/get-my-plan").get(auth, getMyPlan);
 router.route("/logout").post(auth, logout);
+router.route("/logout-from-first-device").post(auth,logoutFromFirstDevice);
 
 module.exports = router;
