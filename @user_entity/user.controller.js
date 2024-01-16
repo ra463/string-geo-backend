@@ -12,7 +12,7 @@ const userModel = require("./user.model");
 const sendData = async (res, statusCode, user, message) => {
   const accessToken = await user.getAccessToken();
   const refreshToken = await user.getRefreshToken();
-  if (user.subscription_plans) {
+  if (user.subscription_plans.plan_name) {
     user.device_ids.push(refreshToken);
     await user.save();
   }
@@ -179,7 +179,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   }
 
   if (
-    user.subscription_plans &&
+    user.subscription_plans.plan_name &&
     user.subscription_plans.allow_devices == user.device_ids.length
   ) {
     return next(
@@ -380,7 +380,7 @@ exports.logout = catchAsyncError(async (req, res, next) => {
 
   // pull the clientId from the user devices_id array
   // console.log(req.headers.authorization.split(" ")[1]);
-  if (user.subscription_plans) {
+  if (user.subscription_plans.plan_name) {
     user.device_ids = user.device_ids.filter((data) => data != refreshToken);
     await user.save();
   }
