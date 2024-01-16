@@ -101,10 +101,15 @@ exports.getUserTransactionDetails = catchAsyncError(async (req, res, next) => {
 });
 
 exports.test = catchAsyncError(async (req, res, next) => {
-  const transcation = await Transaction.find();
+  const transcation = await User.find();
   transcation.forEach(async (t) => {
-    t.gateway = "Razorpay";
-    await t.save();
+    if (t.role === "User") {
+      t.role = "user";
+      t.save();
+    } else if (t.role === "Admin") {
+      t.role = "admin";
+      t.save();
+    }
   });
   res.status(200).json({
     succes: true,
