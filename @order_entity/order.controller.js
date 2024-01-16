@@ -46,8 +46,10 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
   const newOrder = new Order({
     user: req.userId,
     plan: plan._id,
-    plan_type_id: plan_typeId,
     razorpay_order_id: order.id,
+    plan_type_id: plan_typeId,
+    plan_type: p_type.plan_type,
+    validity: p_type.validity,
     amount: order.amount,
     status: order.status,
   });
@@ -99,14 +101,14 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
   user.subscription_plans.description = order.plan.description;
 
   // find the plan_type from Prices array
-  const p_type = order.plan.prices.find((item) => {
-    if (item._id.toString() === order.plan_type_id.toString()) return item;
-  });
+  // const p_type = order.plan.prices.find((item) => {
+  //   if (item._id.toString() === order.plan_type_id.toString()) return item;
+  // });
   let expiry_date = new Date();
-  expiry_date.setDate(expiry_date.getDate() + p_type.validity);
-  user.subscription_plans.plan_type = p_type.plan_type;
-  user.subscription_plans.price = p_type.price;
-  user.subscription_plans.validity = order.plan.validity;
+  expiry_date.setDate(expiry_date.getDate() + order.validity);
+  user.subscription_plans.plan_type = order.plan_type;
+  user.subscription_plans.price = order.amount / 100;
+  user.subscription_plans.validity = order.validity;
   user.subscription_plans.expiry_date = expiry_date;
 
   await user.save();
@@ -142,7 +144,7 @@ exports.paymentWebhook = catchAsyncError(async (req, res, next) => {
     });
 
     transaction.status = req.body.payload.payment.entity.status;
-    order.status = "Success";
+    order.status = "success";
 
     await transaction.save();
     await order.save();

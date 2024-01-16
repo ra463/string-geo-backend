@@ -63,15 +63,7 @@ exports.getUserTransactions = catchAsyncError(async (req, res, next) => {
       createdAt: -1,
     })
     .populate("user", "name email")
-    .populate({
-      path: "order",
-      select: "razorpay_order_id plan",
-      populate: {
-        path: "plan",
-        model: "Plan",
-        select: "validity plan_type",
-      },
-    })
+    .populate("order", "razorpay_order_id plan_type validity")
     .lean();
 
   res.status(200).json({
