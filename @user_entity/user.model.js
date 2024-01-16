@@ -67,7 +67,7 @@ const schema = new mongoose.Schema(
       },
     ],
     subscription_plans: {
-      name: {
+      plan_name: {
         type: String,
       },
       allow_devices: {

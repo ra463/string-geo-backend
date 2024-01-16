@@ -96,7 +96,7 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
 
   // push object id of plan in subscription_plans of user
   const user = await User.findOne({ _id: order.user });
-  user.subscription_plans.name = order.plan.name;
+  user.subscription_plans.plan_name = order.plan.name;
   user.subscription_plans.allow_devices = order.plan.allow_devices;
   user.subscription_plans.description = order.plan.description;
 
