@@ -25,14 +25,19 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("You already have an active plan", 400));
   }
 
-  const { planId } = req.body;
+  const { planId, plan_typeId } = req.body;
   if (!planId) return next(new ErrorHandler("PlanId is Required", 404));
 
   const plan = await Plan.findById(planId);
   if (!plan) return next(new ErrorHandler("Plan not found", 404));
 
+  const p_type = plan.prices.find((item) => {
+    if (item._id.toString() === plan_typeId.toString()) return item;
+  });
+  if (!p_type) return next(new ErrorHandler("Plan type not found", 404));
+
   const options = {
-    amount: plan.price * 100, // amount is in paisa (lowest currency unit)
+    amount: p_type.price * 100, // amount is in paisa (lowest currency unit)
     currency: "INR",
   };
 
@@ -41,6 +46,7 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
   const newOrder = new Order({
     user: req.userId,
     plan: plan._id,
+    plan_type_id: plan_typeId,
     razorpay_order_id: order.id,
     amount: order.amount,
     status: order.status,
@@ -88,10 +94,20 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
 
   // push object id of plan in subscription_plans of user
   const user = await User.findOne({ _id: order.user });
+  user.subscription_plans.name = order.plan.name;
+  user.subscription_plans.allow_devices = order.plan.allow_devices;
+  user.subscription_plans.description = order.plan.description;
+
+  // find the plan_type from Prices array
+  const p_type = order.plan.prices.find((item) => {
+    if (item._id.toString() === order.plan_type_id.toString()) return item;
+  });
   let expiry_date = new Date();
-  expiry_date.setDate(expiry_date.getDate() + order.plan.validity);
-  user.subscription_plans = order.plan._id;
-  user.expiry_date = expiry_date;
+  expiry_date.setDate(expiry_date.getDate() + p_type.validity);
+  user.subscription_plans.plan_type = p_type.plan_type;
+  user.subscription_plans.price = p_type.price;
+  user.subscription_plans.validity = order.plan.validity;
+  user.subscription_plans.expiry_date = expiry_date;
 
   await user.save();
 

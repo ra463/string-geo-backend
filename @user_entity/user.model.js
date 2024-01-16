@@ -67,11 +67,27 @@ const schema = new mongoose.Schema(
       },
     ],
     subscription_plans: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Plan",
-    },
-    expiry_date: {
-      type: Date,
+      name: {
+        type: String,
+      },
+      allow_devices: {
+        type: Number,
+      },
+      description: {
+        type: String,
+      },
+      plan_type: {
+        type: String,
+      },
+      price: {
+        type: Number,
+      },
+      validity: {
+        type: Number,
+      },
+      expiry_date: {
+        type: Date,
+      },
     },
     attempts: {
       type: Number,

@@ -2,26 +2,35 @@ const mongoose = require("mongoose");
 
 const schema = new mongoose.Schema(
   {
-    price: {
-      type: Number,
-      required: [true, "Please enter price of plan"],
+    name: {
+      type: String,
+      required: [true, "Please provide plan type"],
     },
     allow_devices: {
       type: Number,
       required: [true, "Please provide number of devices allowed"],
     },
-    validity: {
-      type: Number,
-      required: [true, "Please provide validity of plan"],
-    },
     description: {
       type: String,
       required: [true, "Please provide description of plan"],
     },
-    plan_type: {
-      type: String,
-      required: [true, "Please provide plan type"],
-    },
+    prices: [
+      {
+        plan_type: {
+          type: String,
+          enum: ["monthly", "annual"],
+          required: true,
+        },
+        price: {
+          type: Number,
+          required: true,
+        },
+        validity: {
+          type: Number,
+          required: true,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

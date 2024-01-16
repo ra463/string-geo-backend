@@ -2,6 +2,7 @@ const validator = (req, res, next) => {
   try {
     const fieleds = {
       allowBody: [
+        "name",
         "price",
         "validity",
         "description",
@@ -9,7 +10,7 @@ const validator = (req, res, next) => {
         "plan_type",
       ],
       allowQuery: [],
-      allowParams: ["planId"],
+      allowParams: ["planId", "plan_typeId"],
     };
     const body = Object.keys(req.body);
     const query = Object.keys(req.query);

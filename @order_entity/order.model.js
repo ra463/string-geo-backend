@@ -10,6 +10,9 @@ const schema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Plan",
     },
+    plan_type_id: {
+      type: String,
+    },
     razorpay_order_id: {
       type: String,
       required: true,

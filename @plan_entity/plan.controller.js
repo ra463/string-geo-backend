@@ -3,8 +3,16 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 
 exports.createPlan = catchAsyncError(async (req, res, next) => {
-  const { price, validity, allow_devices, description, plan_type } = req.body;
-  if (!price || !validity || !description || !allow_devices) {
+  const { name, allow_devices, description, plan_type, price, validity } =
+    req.body;
+  if (
+    !name ||
+    !price ||
+    !validity ||
+    !description ||
+    !allow_devices ||
+    !plan_type
+  ) {
     return next(new ErrorHandler("Please enter all fields", 400));
   }
 
@@ -17,10 +25,6 @@ exports.createPlan = catchAsyncError(async (req, res, next) => {
   if (allow_devices < 0 || isNaN(allow_devices))
     return next(new ErrorHandler("Devices must be a positive number", 400));
 
-  if (!plan_type) {
-    return next(new ErrorHandler("Please provide plan type", 400));
-  }
-
   const plan = await Plan.findOne({ price });
   if (plan)
     return next(
@@ -28,11 +32,14 @@ exports.createPlan = catchAsyncError(async (req, res, next) => {
     );
 
   await Plan.create({
-    price,
-    validity,
-    allow_devices,
-    description,
-    plan_type,
+    name: name,
+    allow_devices: allow_devices,
+    description: description,
+    prices: {
+      plan_type: plan_type,
+      price: price,
+      validity: validity,
+    },
   });
 
   res.status(201).json({
@@ -41,51 +48,81 @@ exports.createPlan = catchAsyncError(async (req, res, next) => {
   });
 });
 
-exports.getAllPlan = catchAsyncError(async (req, res, next) => {
-  const plan_individual = await Plan.find({ plan_type: "individual" })
-    .sort({ price: 1 })
-    .lean();
-  const plan_family = await Plan.find({ plan_type: "family" })
-    .sort({ price: 1 })
-    .lean();
+exports.addMorePlanTypeToPlan = catchAsyncError(async (req, res, next) => {
+  const { plan_type, price, validity } = req.body;
+  if (!price || !validity || !plan_type) {
+    return next(new ErrorHandler("Please enter all fields", 400));
+  }
+  const plan = await Plan.findById(req.params.planId);
+  plan.prices.push({
+    plan_type: plan_type,
+    price: price,
+    validity: validity,
+  });
 
-  res.status(200).json({
+  await plan.save();
+
+  res.status(201).json({
     success: true,
-    plan_individual,
-    plan_family,
+    message: "New plan type created",
   });
 });
 
 exports.updatePlan = catchAsyncError(async (req, res, next) => {
-  const { price, validity, allow_devices, description, plan_type } = req.body;
-  if (!price) {
-    return next(new ErrorHandler("Please enter price", 400));
+  const { name, allow_devices, description } = req.body;
+
+  const plan = await Plan.findById(req.params.planId);
+  if (!plan) return next(new ErrorHandler("Plan not found", 404));
+
+  const old_plan = await Plan.findOne({
+    name: { $regex: new RegExp(name, "i") },
+  });
+  if (old_plan && old_plan._id.toString() !== plan._id.toString()) {
+    return next(new ErrorHandler("Plan with this name already exists", 400));
   }
 
-  // await Plan.findByIdAndUpdate(req.params.planId, req.body, {
-  //   new: true,
-  // });
+  if (name) plan.name = name;
+  if (allow_devices) plan.allow_devices = allow_devices;
+  if (description) plan.description = description;
 
-  const old_plan = await Plan.findOne({ price });
-  if (!old_plan) return next(new ErrorHandler("Plan not found", 404));
-
-  if (old_plan && old_plan._id != req.params.planId) {
-    return next(
-      new ErrorHandler("Plan with this Price tag already exists", 400)
-    );
-  }
-
-  if (price) old_plan.price = price;
-  if (validity) old_plan.validity = validity;
-  if (allow_devices) old_plan.allow_devices = allow_devices;
-  if (description) old_plan.description = description;
-  if (plan_type) old_plan.plan_type = plan_type;
-
-  await old_plan.save();
+  await plan.save();
 
   res.status(200).json({
     success: true,
     message: "Plan Updated",
+  });
+});
+
+exports.updatePlanType = catchAsyncError(async (req, res, next) => {
+  const { planId, plan_typeId } = req.params;
+  const { plan_type, price, validity } = req.body;
+
+  const plan = await Plan.findById(planId);
+  if (!plan) return next(new ErrorHandler("Plan not found", 404));
+
+  const p_type = plan.prices.find((item) => {
+    if (item._id.toString() === plan_typeId.toString()) return item;
+  });
+  if (!p_type) return next(new ErrorHandler("Plan type not found", 404));
+
+  if (plan_type) p_type.plan_type = plan_type;
+  if (price) p_type.price = price;
+  if (validity) p_type.validity = validity;
+
+  await plan.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Plan Updated",
+  });
+});
+
+exports.getAllPlan = catchAsyncError(async (req, res, next) => {
+  const plans = await Plan.find().lean();
+
+  res.status(200).json({
+    success: true,
+    plans,
   });
 });
 
@@ -94,5 +131,29 @@ exports.deletePlan = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "Plan Deleted",
+  });
+});
+
+exports.deletePlanType = catchAsyncError(async (req, res, next) => {
+  const { planId, plan_typeId } = req.params;
+
+  const plan = await Plan.findById(planId);
+  if (!plan) return next(new ErrorHandler("Plan not found", 404));
+
+  const p_type = plan.prices.find((item) => {
+    if (item._id.toString() === plan_typeId.toString()) return item;
+  });
+  if (!p_type) return next(new ErrorHandler("Plan type not found", 404));
+
+  // remove the plan_type from the array of prices
+  plan.prices = plan.prices.filter((item) => {
+    if (item._id.toString() !== plan_typeId.toString()) return item;
+  });
+
+  await plan.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Deleted successfully",
   });
 });

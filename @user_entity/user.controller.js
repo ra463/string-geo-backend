@@ -133,9 +133,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   if (!password) return next(new ErrorHandler("Please Enter Password", 400));
   const user = await User.findOne({
     $or: [{ email: { $regex: new RegExp(`^${email}$`, "i") } }, { mobile }],
-  })
-    .select("+password")
-    .populate("subscription_plans");
+  }).select("+password");
   if (!user) return next(new ErrorHandler("Invalid Credentials", 400));
 
   //check if user try to login with new device & the max device login acc to subscription plan
@@ -358,9 +356,7 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getMyPlan = catchAsyncError(async (req, res, next) => {
-  const user = await User.findById(req.userId)
-    .populate("subscription_plans")
-    .lean();
+  const user = await User.findById(req.userId).lean();
   if (!user) return next(new ErrorHandler("User not Found", 400));
 
   if (!user.subscription_plans) {
@@ -372,7 +368,6 @@ exports.getMyPlan = catchAsyncError(async (req, res, next) => {
     return res.status(200).json({
       success: true,
       data: user.subscription_plans,
-      expiry_date: user.expiry_date,
     });
   }
 });
