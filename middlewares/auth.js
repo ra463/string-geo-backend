@@ -42,7 +42,7 @@ exports.getNewAccesstoken = async (req, res, next) => {
     if (!user) {
       return res.status(401).json({ message: `Something went Wrong` });
     }
-    if (user.subscription_plans) {
+    if (user.subscription_plans.plan_name) {
       if (!user.device_ids.includes(req.headers.authorization.split(" ")[1])) {
         return next(
           new ErrorHandler("Your session is expired, please login", 401)
