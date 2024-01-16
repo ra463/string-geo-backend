@@ -40,17 +40,22 @@ exports.getNewAccesstoken = async (req, res, next) => {
     if (!user) {
       return res.status(401).json({ message: `Something went Wrong` });
     }
-    if(!user.device_ids.includes(req.headers.authorization.split(" ")[1])){
-      return next(new ErrorHandler("Your session is expired, please login",401));
-    }
-    // console.log(exp);
-    const isTokenExpired = Date.now() >= exp * 1000;
-    if (isTokenExpired) {
-      user.device_ids = user.device_ids.filter(
-        (token) => token != req.headers.authorization.split(" ")[1]
-      );
-      await user.save();
-      return next(new ErrorHandler("Refresh token is expired, Please Login",401));
+    if (user.subscription_plans) {
+      if (!user.device_ids.includes(req.headers.authorization.split(" ")[1])) {
+        return next(
+          new ErrorHandler("Your session is expired, please login", 401)
+        );
+      }
+      const isTokenExpired = Date.now() >= exp * 1000;
+      if (isTokenExpired) {
+        user.device_ids = user.device_ids.filter(
+          (token) => token != req.headers.authorization.split(" ")[1]
+        );
+        await user.save();
+        return next(
+          new ErrorHandler("Refresh token is expired, Please Login", 401)
+        );
+      }
     }
 
     const accessToken = await user.getAccessToken();

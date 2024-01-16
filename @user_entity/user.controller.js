@@ -198,9 +198,6 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
     await user.save();
   }
 
-  // if user are login with new device then push there ip in deviceIds
-
-  // user.password = undefined;
   sendData(res, 200, user, `Hey ${user.name}! Welcome Back`);
 });
 
