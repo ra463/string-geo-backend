@@ -69,7 +69,7 @@ exports.addMorePlanTypeToPlan = catchAsyncError(async (req, res, next) => {
 });
 
 exports.updatePlan = catchAsyncError(async (req, res, next) => {
-  const { name, allow_devices, description } = req.body;
+  const { name } = req.body;
 
   const plan = await Plan.findById(req.params.planId);
   if (!plan) return next(new ErrorHandler("Plan not found", 404));
@@ -82,8 +82,6 @@ exports.updatePlan = catchAsyncError(async (req, res, next) => {
   }
 
   if (name) plan.name = name;
-  if (allow_devices) plan.allow_devices = allow_devices;
-  if (description) plan.description = description;
 
   await plan.save();
 
@@ -95,7 +93,7 @@ exports.updatePlan = catchAsyncError(async (req, res, next) => {
 
 exports.updatePlanType = catchAsyncError(async (req, res, next) => {
   const { planId, plan_typeId } = req.params;
-  const { plan_type, price, validity } = req.body;
+  const { price } = req.body;
 
   const plan = await Plan.findById(planId);
   if (!plan) return next(new ErrorHandler("Plan not found", 404));
@@ -105,10 +103,7 @@ exports.updatePlanType = catchAsyncError(async (req, res, next) => {
   });
   if (!p_type) return next(new ErrorHandler("Plan type not found", 404));
 
-  if (plan_type) p_type.plan_type = plan_type;
   if (price) p_type.price = price;
-  if (validity) p_type.validity = validity;
-
   await plan.save();
 
   res.status(200).json({
