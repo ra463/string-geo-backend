@@ -42,10 +42,10 @@ exports.createPlan = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getAllPlan = catchAsyncError(async (req, res, next) => {
-  const plan_individual = await Plan.find({ plan_type: "Individual" })
+  const plan_individual = await Plan.find({ plan_type: "individual" })
     .sort({ price: 1 })
     .lean();
-  const plan_family = await Plan.find({ plan_type: "Family" })
+  const plan_family = await Plan.find({ plan_type: "family" })
     .sort({ price: 1 })
     .lean();
 

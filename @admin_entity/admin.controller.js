@@ -22,7 +22,7 @@ exports.adminLogin = catchAsyncError(async (req, res, next) => {
   const user = await User.findOne({ email }).select("+password");
   if (!user) return next(new ErrorHandler("Invalid email or password", 401));
 
-  if (user.role !== "Admin")
+  if (user.role !== "admin")
     return next(
       new ErrorHandler("You are not authorized to access this route", 403)
     );
