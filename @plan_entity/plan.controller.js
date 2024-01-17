@@ -11,15 +11,6 @@ exports.createPlan = catchAsyncError(async (req, res, next) => {
     usd_price_monthly,
     usd_price_yearly,
   } = req.body;
-  if (!name || !yearly_price || !allow_devices || !monthly_price) {
-    return next(new ErrorHandler("Please enter all fields", 400));
-  }
-
-  // const plan = await Plan.findOne({ price });
-  // if (plan)
-  //   return next(
-  //     new ErrorHandler("Plan with this Price tag already exists", 400)
-  //   );
 
   await Plan.create({
     name: name,
