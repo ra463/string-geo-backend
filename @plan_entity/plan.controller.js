@@ -3,7 +3,14 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 
 exports.createPlan = catchAsyncError(async (req, res, next) => {
-  const { name, allow_devices, monthly_price, yearly_price } = req.body;
+  const {
+    name,
+    allow_devices,
+    monthly_price,
+    yearly_price,
+    usd_price_monthly,
+    usd_price_yearly,
+  } = req.body;
   if (!name || !yearly_price || !allow_devices || !monthly_price) {
     return next(new ErrorHandler("Please enter all fields", 400));
   }
@@ -21,11 +28,13 @@ exports.createPlan = catchAsyncError(async (req, res, next) => {
       {
         plan_type: "monthly",
         price: monthly_price,
+        usd_price: usd_price_monthly,
         validity: 30,
       },
       {
         plan_type: "annual",
         price: yearly_price,
+        usd_price: usd_price_yearly,
         validity: 365,
       },
     ],
