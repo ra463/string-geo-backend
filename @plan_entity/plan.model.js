@@ -24,7 +24,6 @@ const schema = new mongoose.Schema(
         },
         usd_price: {
           type: Number,
-          required: true,
         },
         validity: {
           type: Number,
