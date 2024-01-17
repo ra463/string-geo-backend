@@ -110,7 +110,7 @@ exports.verifyAccount = catchAsyncError(async (req, res, next) => {
 });
 
 const loginGoogle = async (req, res, next) => {
-  const { email } = req.body;
+  const { email,logout_from_other_device } = req.body;
   if (!email) return next(new ErrorHandler("Please enter email", 400));
 
   const user = await User.findOne({
@@ -135,6 +135,11 @@ const loginGoogle = async (req, res, next) => {
     }
   }
 
+  if (logout_from_other_device) {
+    if (user.device_ids.length > 0) user.device_ids.shift();
+    await user.save();
+  }
+
   if (
     user.subscription_plans.plan_name &&
     user.subscription_plans.allow_devices <= user.device_ids.length
@@ -153,7 +158,6 @@ const loginGoogle = async (req, res, next) => {
     await user.save();
   }
 
-
   sendData(res, 200, user, `Hey ${user.name}! Welcome Back`);
 };
 
@@ -161,7 +165,8 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   // console.log(req.ip, req.connection.remoteAddress);
   // const clientIp = req.clientIp;
   // console.log("in this route")
-  const { email, mobile, password, google_login } = req.body;
+  const { email, mobile, password, google_login, logout_from_other_device } =
+    req.body;
 
   if (google_login) return await loginGoogle(req, res, next);
   if (!email && !mobile)
@@ -212,6 +217,11 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
       return next(new ErrorHandler("Too many unsuccessfull attempt", 429));
     }
     return next(new ErrorHandler("Invalid Credentials", 400));
+  }
+
+  if (logout_from_other_device) {
+    if (user.device_ids.length > 0) user.device_ids.shift();
+    await user.save();
   }
 
   if (
