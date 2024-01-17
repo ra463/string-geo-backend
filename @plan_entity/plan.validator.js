@@ -3,11 +3,7 @@ const validator = (req, res, next) => {
     const fieleds = {
       allowBody: [
         "name",
-        "price",
-        "validity",
-        "description",
         "allow_devices",
-        "plan_type",
         "monthly_price",
         "yearly_price",
         "usd_price_monthly",

@@ -110,7 +110,7 @@ exports.verifyAccount = catchAsyncError(async (req, res, next) => {
 });
 
 const loginGoogle = async (req, res, next) => {
-  const { email,logout_from_other_device } = req.body;
+  const { email, logout_from_other_device } = req.body;
   if (!email) return next(new ErrorHandler("Please enter email", 400));
 
   const user = await User.findOne({

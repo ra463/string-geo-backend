@@ -46,25 +46,25 @@ exports.createPlan = catchAsyncError(async (req, res, next) => {
   });
 });
 
-exports.addMorePlanTypeToPlan = catchAsyncError(async (req, res, next) => {
-  const { plan_type, price, validity } = req.body;
-  if (!price || !validity || !plan_type) {
-    return next(new ErrorHandler("Please enter all fields", 400));
-  }
-  const plan = await Plan.findById(req.params.planId);
-  plan.prices.push({
-    plan_type: plan_type,
-    price: price,
-    validity: validity,
-  });
+// exports.addMorePlanTypeToPlan = catchAsyncError(async (req, res, next) => {
+//   const { plan_type, price, validity } = req.body;
+//   if (!price || !validity || !plan_type) {
+//     return next(new ErrorHandler("Please enter all fields", 400));
+//   }
+//   const plan = await Plan.findById(req.params.planId);
+//   plan.prices.push({
+//     plan_type: plan_type,
+//     price: price,
+//     validity: validity,
+//   });
 
-  await plan.save();
+//   await plan.save();
 
-  res.status(201).json({
-    success: true,
-    message: "New plan type created",
-  });
-});
+//   res.status(201).json({
+//     success: true,
+//     message: "New plan type created",
+//   });
+// });
 
 exports.updatePlan = catchAsyncError(async (req, res, next) => {
   const { name } = req.body;
@@ -89,26 +89,26 @@ exports.updatePlan = catchAsyncError(async (req, res, next) => {
   });
 });
 
-exports.updatePlanType = catchAsyncError(async (req, res, next) => {
-  const { planId, plan_typeId } = req.params;
-  const { price } = req.body;
+// exports.updatePlanType = catchAsyncError(async (req, res, next) => {
+//   const { planId, plan_typeId } = req.params;
+//   const { price } = req.body;
 
-  const plan = await Plan.findById(planId);
-  if (!plan) return next(new ErrorHandler("Plan not found", 404));
+//   const plan = await Plan.findById(planId);
+//   if (!plan) return next(new ErrorHandler("Plan not found", 404));
 
-  const p_type = plan.prices.find((item) => {
-    if (item._id.toString() === plan_typeId.toString()) return item;
-  });
-  if (!p_type) return next(new ErrorHandler("Plan type not found", 404));
+//   const p_type = plan.prices.find((item) => {
+//     if (item._id.toString() === plan_typeId.toString()) return item;
+//   });
+//   if (!p_type) return next(new ErrorHandler("Plan type not found", 404));
 
-  if (price) p_type.price = price;
-  await plan.save();
+//   if (price) p_type.price = price;
+//   await plan.save();
 
-  res.status(200).json({
-    success: true,
-    message: "Plan Updated",
-  });
-});
+//   res.status(200).json({
+//     success: true,
+//     message: "Plan Updated",
+//   });
+// });
 
 exports.getAllPlan = catchAsyncError(async (req, res, next) => {
   const plans = await Plan.find().lean();
@@ -127,26 +127,26 @@ exports.deletePlan = catchAsyncError(async (req, res, next) => {
   });
 });
 
-exports.deletePlanType = catchAsyncError(async (req, res, next) => {
-  const { planId, plan_typeId } = req.params;
+// exports.deletePlanType = catchAsyncError(async (req, res, next) => {
+//   const { planId, plan_typeId } = req.params;
 
-  const plan = await Plan.findById(planId);
-  if (!plan) return next(new ErrorHandler("Plan not found", 404));
+//   const plan = await Plan.findById(planId);
+//   if (!plan) return next(new ErrorHandler("Plan not found", 404));
 
-  const p_type = plan.prices.find((item) => {
-    if (item._id.toString() === plan_typeId.toString()) return item;
-  });
-  if (!p_type) return next(new ErrorHandler("Plan type not found", 404));
+//   const p_type = plan.prices.find((item) => {
+//     if (item._id.toString() === plan_typeId.toString()) return item;
+//   });
+//   if (!p_type) return next(new ErrorHandler("Plan type not found", 404));
 
-  // remove the plan_type from the array of prices
-  plan.prices = plan.prices.filter((item) => {
-    if (item._id.toString() !== plan_typeId.toString()) return item;
-  });
+//   // remove the plan_type from the array of prices
+//   plan.prices = plan.prices.filter((item) => {
+//     if (item._id.toString() !== plan_typeId.toString()) return item;
+//   });
 
-  await plan.save();
+//   await plan.save();
 
-  res.status(200).json({
-    success: true,
-    message: "Deleted successfully",
-  });
-});
+//   res.status(200).json({
+//     success: true,
+//     message: "Deleted successfully",
+//   });
+// });
