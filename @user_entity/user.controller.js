@@ -117,6 +117,42 @@ const loginGoogle = async (req, res, next) => {
     email: { $regex: new RegExp(`^${email}$`, "i") },
   });
   if (!user) return next(new ErrorHandler("User not found", 404));
+  if (user.is_frozen) {
+    const last_attempt = user.last_attempt.getTime();
+    const current = Date.now();
+    if (current - last_attempt > parseInt(process.env.FROZEN_TIME)) {
+      user.is_frozen = false;
+      user.attempts = 0;
+      user.last_attempt = null;
+      await user.save();
+    } else {
+      return next(
+        new ErrorHandler(
+          "Your Account is temporary freeze due to too many unsuccessfull attempt",
+          429
+        )
+      );
+    }
+  }
+
+  if (
+    user.subscription_plans.plan_name &&
+    user.subscription_plans.allow_devices <= user.device_ids.length
+  ) {
+    return next(
+      new ErrorHandler(
+        "Maximum device login limit is reached, please Logout from one of your device",
+        429
+      )
+    );
+  }
+
+  //set unsuccessfull attempts to 0 as user login successfully
+  if (user.attempts) {
+    user.attempts = 0;
+    await user.save();
+  }
+
 
   sendData(res, 200, user, `Hey ${user.name}! Welcome Back`);
 };
@@ -180,7 +216,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
 
   if (
     user.subscription_plans.plan_name &&
-    user.subscription_plans.allow_devices == user.device_ids.length
+    user.subscription_plans.allow_devices <= user.device_ids.length
   ) {
     return next(
       new ErrorHandler(
