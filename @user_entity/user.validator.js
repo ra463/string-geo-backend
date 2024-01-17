@@ -15,7 +15,8 @@ const validator = (req, res, next) => {
         "oldPassword",
         "newPassword",
         "google_login",
-        "refreshToken"
+        "refreshToken",
+        "logout_from_other_device"
       ],
       allowQuery: [],
       allowParams: [],
