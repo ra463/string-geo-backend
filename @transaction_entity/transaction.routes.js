@@ -10,7 +10,7 @@ const {
 
 const router = express.Router();
 
-router.route("/get-all-transaction").get(auth, isAdmin, getAllTransaction);
+router.route("/get-all-transaction").get(getAllTransaction);
 router
   .route("/get-transaction/:transactionId")
   .get(auth, isAdmin, getTransactionById);
