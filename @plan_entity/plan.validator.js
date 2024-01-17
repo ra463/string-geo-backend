@@ -10,6 +10,8 @@ const validator = (req, res, next) => {
         "plan_type",
         "monthly_price",
         "yearly_price",
+        "usd_price_monthly",
+        "usd_price_yearly",
       ],
       allowQuery: [],
       allowParams: ["planId", "plan_typeId"],
