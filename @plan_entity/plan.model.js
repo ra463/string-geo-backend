@@ -5,6 +5,7 @@ const schema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, "Please provide plan type"],
+      unique: true,
     },
     allow_devices: {
       type: Number,

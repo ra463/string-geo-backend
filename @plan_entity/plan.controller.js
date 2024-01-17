@@ -3,43 +3,40 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 
 exports.createPlan = catchAsyncError(async (req, res, next) => {
-  const { name, allow_devices, description, plan_type, price, validity } =
+  const { name, allow_devices, description, monthly_price, yearly_price } =
     req.body;
   if (
     !name ||
-    !price ||
-    !validity ||
+    !yearly_price ||
     !description ||
     !allow_devices ||
-    !plan_type
+    !monthly_price
   ) {
     return next(new ErrorHandler("Please enter all fields", 400));
   }
 
-  if (price < 0 || isNaN(price))
-    return next(new ErrorHandler("Price must be a positive number", 400));
-
-  if (validity < 0 || isNaN(validity))
-    return next(new ErrorHandler("Validity must be a positive number", 400));
-
-  if (allow_devices < 0 || isNaN(allow_devices))
-    return next(new ErrorHandler("Devices must be a positive number", 400));
-
-  const plan = await Plan.findOne({ price });
-  if (plan)
-    return next(
-      new ErrorHandler("Plan with this Price tag already exists", 400)
-    );
+  // const plan = await Plan.findOne({ price });
+  // if (plan)
+  //   return next(
+  //     new ErrorHandler("Plan with this Price tag already exists", 400)
+  //   );
 
   await Plan.create({
     name: name,
     allow_devices: allow_devices,
     description: description,
-    prices: {
-      plan_type: plan_type,
-      price: price,
-      validity: validity,
-    },
+    prices: [
+      {
+        plan_type: "monthly",
+        price: monthly_price,
+        validity: 30,
+      },
+      {
+        plan_type: "annual",
+        price: yearly_price,
+        validity: 365,
+      },
+    ],
   });
 
   res.status(201).json({

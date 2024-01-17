@@ -8,6 +8,8 @@ const validator = (req, res, next) => {
         "description",
         "allow_devices",
         "plan_type",
+        "monthly_price",
+        "yearly_price",
       ],
       allowQuery: [],
       allowParams: ["planId", "plan_typeId"],
