@@ -129,7 +129,7 @@ const loginGoogle = async (req, res, next) => {
       return next(
         new ErrorHandler(
           "Your Account is temporary freeze due to too many unsuccessfull attempt, try after 5 minutes",
-          429
+          423
         )
       );
     }
@@ -199,7 +199,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
       return next(
         new ErrorHandler(
           "Your Account is temporary freeze due to too many unsuccessfull attempt, try after 5 minutes",
-          429
+          423
         )
       );
     }
