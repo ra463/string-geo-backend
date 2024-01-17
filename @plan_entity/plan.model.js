@@ -11,10 +11,6 @@ const schema = new mongoose.Schema(
       type: Number,
       required: [true, "Please provide number of devices allowed"],
     },
-    description: {
-      type: String,
-      required: [true, "Please provide description of plan"],
-    },
     prices: [
       {
         plan_type: {

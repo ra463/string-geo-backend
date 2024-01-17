@@ -3,12 +3,11 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 
 exports.createPlan = catchAsyncError(async (req, res, next) => {
-  const { name, allow_devices, description, monthly_price, yearly_price } =
+  const { name, allow_devices, monthly_price, yearly_price } =
     req.body;
   if (
     !name ||
     !yearly_price ||
-    !description ||
     !allow_devices ||
     !monthly_price
   ) {
@@ -24,7 +23,6 @@ exports.createPlan = catchAsyncError(async (req, res, next) => {
   await Plan.create({
     name: name,
     allow_devices: allow_devices,
-    description: description,
     prices: [
       {
         plan_type: "monthly",
