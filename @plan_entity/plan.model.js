@@ -18,7 +18,11 @@ const schema = new mongoose.Schema(
           enum: ["monthly", "annual"],
           required: true,
         },
-        price: {
+        inr_price: {
+          type: Number,
+          required: true,
+        },
+        usd_price: {
           type: Number,
           required: true,
         },
