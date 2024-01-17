@@ -73,9 +73,6 @@ const schema = new mongoose.Schema(
       allow_devices: {
         type: Number,
       },
-      description: {
-        type: String,
-      },
       plan_type: {
         type: String,
       },

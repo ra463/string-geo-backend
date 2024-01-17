@@ -98,7 +98,6 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
   const user = await User.findOne({ _id: order.user });
   user.subscription_plans.plan_name = order.plan.name;
   user.subscription_plans.allow_devices = order.plan.allow_devices;
-  user.subscription_plans.description = order.plan.description;
 
   // find the plan_type from Prices array
   // const p_type = order.plan.prices.find((item) => {
