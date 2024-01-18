@@ -3,6 +3,7 @@ const User = require("../@user_entity/user.model");
 const APIFeatures = require("../utils/apiFeatures");
 const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
+const { Parser } = require("json2csv");
 
 const sendData = async (res, statusCode, user, message) => {
   const accessToken = await user.getAccessToken();
@@ -38,9 +39,16 @@ exports.adminLogin = catchAsyncError(async (req, res, next) => {
 
 exports.getAllUsers = catchAsyncError(async (req, res, next) => {
   let query = {};
-  if (req.query.plan_name !== "all") query.plan_name = req.query.plan_name;
-  if (req.query.plan_type !== "all") query.plan_type = req.query.plan_type;
+  // if (req.query.plan_name !== "all") query.plan_name = req.query.plan_name;
+  // if (req.query.plan_type !== "all") query.plan_type = req.query.plan_type;
+  if (req.query.plan_type && req.query.plan_type != "all") {
+    query["subscription_plans.plan_type"] = req.query.plan_type;
+  }
 
+  if (req.query.plan_name && req.query.plan_name != "all") {
+    query["subscription_plans.plan_name"] = req.query.plan_name;
+  }
+  // console.log(query)
   const userCount = await User.countDocuments();
 
   const apiFeatures = new APIFeatures(
@@ -95,4 +103,33 @@ exports.getUserSubscriptionHistory = catchAsyncError(async (req, res, next) => {
     success: true,
     data: userData,
   });
+});
+
+exports.downloadAsCsv = catchAsyncError(async (req, res, next) => {
+  const allowModels = ["User", "Transaction"];
+  const models = {
+    "User":User,
+    "Transaction":Transaction
+  }
+
+  if (!allowModels.includes(req.query.Model)) {
+    return next(new ErrorHandler("Module Not Found", 404));
+  }
+  const allowfieleds = {
+    User: ["name", "email", "mobile", "state", "city", "role"],
+    Transaction: ["razorpay_payment_id", "gateway", "amount", "status"],
+  };
+  const data = await models[req.query.Model].find({});
+
+  if (data.length === 0) {
+    return next(new ErrorHandler(`No ${req.query.Model} Found`, 404));
+  }
+
+  const fields = allowfieleds[req.query.model];
+  const json2csvParser = new Parser({ fields });
+  const csv = json2csvParser.parse(data);
+
+  res.setHeader("Content-Type", "text/csv");
+  res.setHeader("Content-Disposition", "attachment; filename=users.csv");
+  res.status(200).send(csv);
 });

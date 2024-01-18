@@ -8,6 +8,8 @@ const validator = (req, res, next) => {
         "keyword",
         "plan_name",
         "plan_type",
+        "Model",
+        "Filename"
       ],
       allowParams: ["userId"],
     };
