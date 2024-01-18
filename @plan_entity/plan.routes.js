@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.post("/create-plan", createPlan);
 // router.post("/add-plan-type/:planId", auth, isAdmin, addMorePlanTypeToPlan);
-router.patch("/update-plan/:planId", auth, isAdmin, updatePlan);
+router.patch("/update-plan/:planId", updatePlan);
 // router.patch(
 //   "/update-plan-type/:planId/:plan_typeId",
 //   auth,

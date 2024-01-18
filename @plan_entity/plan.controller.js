@@ -58,19 +58,22 @@ exports.createPlan = catchAsyncError(async (req, res, next) => {
 // });
 
 exports.updatePlan = catchAsyncError(async (req, res, next) => {
-  const { name } = req.body;
+  const {
+    name,
+    monthly_price,
+    yearly_price,
+    usd_price_monthly,
+    usd_price_yearly,
+  } = req.body;
 
   const plan = await Plan.findById(req.params.planId);
   if (!plan) return next(new ErrorHandler("Plan not found", 404));
 
-  const old_plan = await Plan.findOne({
-    name: { $regex: new RegExp(name, "i") },
-  });
-  if (old_plan && old_plan._id.toString() !== plan._id.toString()) {
-    return next(new ErrorHandler("Plan with this name already exists", 400));
-  }
-
-  if (name) plan.name = name;
+  if(name) plan.name = name;
+  if(monthly_price) plan.prices[0].price = monthly_price;
+  if(yearly_price) plan.prices[1].price = yearly_price;
+  if(usd_price_monthly) plan.prices[0].usd_price = usd_price_monthly;
+  if(usd_price_yearly) plan.prices[1].usd_price = usd_price_yearly;
 
   await plan.save();
 
