@@ -108,9 +108,9 @@ exports.getUserSubscriptionHistory = catchAsyncError(async (req, res, next) => {
 exports.downloadAsCsv = catchAsyncError(async (req, res, next) => {
   const allowModels = ["User", "Transaction"];
   const models = {
-    "User":User,
-    "Transaction":Transaction
-  }
+    User: User,
+    Transaction: Transaction,
+  };
 
   if (!allowModels.includes(req.query.Model)) {
     return next(new ErrorHandler("Module Not Found", 404));
@@ -132,4 +132,15 @@ exports.downloadAsCsv = catchAsyncError(async (req, res, next) => {
   res.setHeader("Content-Type", "text/csv");
   res.setHeader("Content-Disposition", "attachment; filename=users.csv");
   res.status(200).send(csv);
+});
+
+exports.deleteUser = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.params.userId);
+  if (!user) return next(new ErrorHandler("User not found", 404));
+
+  await user.deleteOne();
+  res.status(200).json({
+    success: true,
+    message: "User Deleted Successfully",
+  });
 });

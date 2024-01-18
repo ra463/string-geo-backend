@@ -8,6 +8,7 @@ const validator = (req, res, next) => {
         "resultPerPage",
         "currentPage",
         "keyword",
+        "from",
       ],
       allowParams: ["transactionId"],
     };

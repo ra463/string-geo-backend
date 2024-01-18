@@ -6,7 +6,23 @@ const ErrorHandler = require("../utils/errorHandler");
 
 exports.getAllTransaction = catchAsyncError(async (req, res, next) => {
   let query = {};
-  if (req.query.gateway !== "all") query.gateway = req.query.gateway;
+  if (req.query.gateway && req.query.gateway != "all") {
+    query["gateway"] = req.query.gateway;
+  }
+
+  // filter by createdAt
+  if (req.query.from !== null) {
+    const f = new Date(req.query.from);
+    if (!isNaN(f)) {
+      const startDay = new Date(f.getFullYear(), f.getMonth(), f.getDate());
+      const endDay = new Date(f.getFullYear(), f.getMonth(), f.getDate() + 1);
+
+      query["createdAt"] = {
+        $gte: startDay,
+        $lt: endDay,
+      };
+    }
+  }
 
   const transactionCount = await Transaction.countDocuments();
 

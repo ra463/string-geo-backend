@@ -449,3 +449,14 @@ exports.logoutFromFirstDevice = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("User Not Found", 404));
   }
 });
+
+exports.deleteAccount = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.userId);
+  if (!user) return next(new ErrorHandler("User not Found", 400));
+
+  await user.deleteOne();
+  res.status(200).json({
+    success: true,
+    message: "Account Deleted Successfully",
+  });
+});
