@@ -214,7 +214,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
       user.is_frozen = true;
       user.last_attempt = new Date();
       await user.save();
-      return next(new ErrorHandler("Too many unsuccessfull attempt", 429));
+      return next(new ErrorHandler("Too many unsuccessfull attempt", 423));
     }
     return next(new ErrorHandler("Invalid Credentials", 400));
   }
