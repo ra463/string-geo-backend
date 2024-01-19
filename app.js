@@ -30,7 +30,7 @@ app.use(
   cors({
     origin: [
       "https://string-geo.vercel.app",
-      "http://string-geo-admin.vercel.app",
+      "https://string-geo-admin.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   })
