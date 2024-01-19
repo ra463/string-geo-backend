@@ -116,9 +116,13 @@ schema.methods.matchPassword = async function (password) {
 };
 
 schema.methods.getAccessToken = async function () {
-  return jwt.sign({ userId: this._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE,
-  });
+  if (this.role === "user") {
+    return jwt.sign({ userId: this._id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRE,
+    });
+  } else {
+    return jwt.sign({ userId: this._id }, process.env.JWT_SECRET);
+  }
 };
 
 schema.methods.getRefreshToken = async function () {
