@@ -496,7 +496,7 @@ exports.logoutFromFirstDevice = catchAsyncError(async (req, res, next) => {
 });
 
 exports.deleteAccount = catchAsyncError(async (req, res, next) => {
-  const user = await User.findById(req.userId);
+  const user = await User.findById(req.params.userId);
   if (!user) return next(new ErrorHandler("User not Found", 400));
 
   await user.deleteOne();

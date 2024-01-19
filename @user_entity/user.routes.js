@@ -31,6 +31,6 @@ router.route("/update-profile").patch(auth, updateProfile);
 router.route("/get-my-plan").get(auth, getMyPlan);
 router.route("/logout").post(auth, logout);
 router.route("/logout-from-first-device").post(auth, logoutFromFirstDevice);
-router.route("/delete-account").delete(auth, deleteAccount);
+router.route("/delete-account/:userId").delete(auth, deleteAccount);
 
 module.exports = router;
