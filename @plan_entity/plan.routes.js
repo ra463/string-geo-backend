@@ -19,7 +19,7 @@ router.patch("/update-plan/:planId", updatePlan);
 //   updatePlanType
 // );
 router.get("/get-plans", getAllPlan);
-router.get("/get-plan", getPlanById);
+router.get("/get-plan/:planId", getPlanById);
 router.delete("/delete-plan/:planId", deletePlan);
 // router.delete(
 //   "/delete-plan-type/:planId/:plan_typeId",
