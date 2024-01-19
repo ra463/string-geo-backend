@@ -50,7 +50,7 @@ const schema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    district: {
+    country: {
       type: String,
       required: true,
     },

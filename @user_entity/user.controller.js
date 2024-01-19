@@ -35,7 +35,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     confirmPassword,
     mobile,
     states,
-    district,
+    country,
     city,
   } = req.body;
   if (
@@ -45,7 +45,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     !confirmPassword ||
     !mobile ||
     !states ||
-    !district ||
+    !country ||
     !city
   ) {
     return next(new ErrorHandler("Please enter all fields", 400));
@@ -71,7 +71,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     password,
     mobile,
     states,
-    district,
+    country,
     city,
   });
 
@@ -359,7 +359,7 @@ exports.getProfile = catchAsyncError(async (req, res, next) => {
     role: user.role,
     dob: user.dob,
     states: user.states,
-    district: user.district,
+    country: user.country,
     city: user.city,
     subscription_plans: user.subscription_plans,
   };
@@ -405,7 +405,7 @@ exports.getMyPlan = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.userId).lean();
   if (!user) return next(new ErrorHandler("User not Found", 400));
 
-  if (!user.subscription_plans) {
+  if (!user.subscription_plans.plan_name) {
     return res.status(200).json({
       success: true,
       data: null,
