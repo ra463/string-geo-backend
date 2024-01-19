@@ -6,6 +6,8 @@ const {
   getUserSubscriptionHistory,
   downloadAsCsv,
   deleteUser,
+  getUser,
+  updateUserProfile,
 } = require("./admin.controller");
 
 const router = express.Router();
@@ -17,5 +19,7 @@ router
   .get(getUserSubscriptionHistory);
 router.get("/download-as-csv", downloadAsCsv);
 router.delete("/delete-user/:userId", deleteUser);
+router.get("/get-user/:userId", auth, isAdmin, getUser);
+router.patch("/update-user/:userId",updateUserProfile);
 
 module.exports = router;

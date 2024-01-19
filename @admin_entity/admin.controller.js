@@ -137,10 +137,38 @@ exports.downloadAsCsv = catchAsyncError(async (req, res, next) => {
 exports.deleteUser = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.params.userId);
   if (!user) return next(new ErrorHandler("User not found", 404));
-
-  await user.deleteOne();
   res.status(200).json({
     success: true,
     message: "User Deleted Successfully",
+  });
+});
+
+exports.getUser = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.params.userId);
+  if (!user) return next(new ErrorHandler("User not found", 404));
+  res.status(200).json({
+    success: true,
+    message: "User Found Successfully",
+    user,
+  });
+});
+
+exports.updateUserProfile = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.params.userId);
+  if (!user) return next(new ErrorHandler("User not found", 400));
+  const { name, email, password, mobile, states, country, city } = req.body;
+  if (name) user.name = name;
+  if (email) user.email = email;
+  if (password) user.password = password;
+  if (mobile) user.mobile = mobile;
+  if (states) user.states = states;
+  if (country) user.country = country;
+  if (city) user.city = city;
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Profile Updated Successfully",
   });
 });
