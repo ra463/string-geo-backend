@@ -9,7 +9,7 @@ const validator = (req, res, next) => {
         "code",
         "mobile",
         "states",
-        "district",
+        "country",
         "city",
         "dob",
         "oldPassword",
