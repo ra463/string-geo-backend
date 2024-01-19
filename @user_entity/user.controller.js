@@ -450,7 +450,7 @@ exports.getMyPlan = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.userId).lean();
   if (!user) return next(new ErrorHandler("User not Found", 400));
 
-  if (!user.subscription_plans.plan_name) {
+  if (!user.subscription_plans) {
     return res.status(200).json({
       success: true,
       data: null,
