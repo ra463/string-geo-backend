@@ -9,6 +9,24 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 const userModel = require("./user.model");
 
+const isStrongPassword = async (password) => {
+  const uppercaseRegex = /[A-Z]/;
+  const lowercaseRegex = /[a-z]/;
+  const numericRegex = /\d/;
+  const specialCharRegex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/;
+
+  if (
+    uppercaseRegex.test(password) &&
+    lowercaseRegex.test(password) &&
+    numericRegex.test(password) &&
+    specialCharRegex.test(password)
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
 const sendData = async (res, statusCode, user, message) => {
   const accessToken = await user.getAccessToken();
   const refreshToken = await user.getRefreshToken();
@@ -49,6 +67,15 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     !city
   ) {
     return next(new ErrorHandler("Please enter all fields", 400));
+  }
+
+  if (!isStrongPassword(password)) {
+    return next(
+      new ErrorHandler(
+        "Password must contain one Uppercase, Lowercase, Numeric and Special Character",
+        400
+      )
+    );
   }
 
   if (password.length < 8)
@@ -287,6 +314,15 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
   if (!email || !password || !confirmPassword)
     return next(new ErrorHandler("Please enter all fields", 400));
 
+  if (!isStrongPassword(password)) {
+    return next(
+      new ErrorHandler(
+        "Password must contain one Uppercase, Lowercase, Numeric and Special Character",
+        400
+      )
+    );
+  }
+
   if (password.length < 8)
     return next(new ErrorHandler("Password must be atleast 8 characters", 400));
 
@@ -317,6 +353,15 @@ exports.updatePassword = catchAsyncError(async (req, res, next) => {
   const { oldPassword, newPassword, confirmPassword } = req.body;
   if (!oldPassword || !newPassword || !confirmPassword)
     return next(new ErrorHandler("Please enter all fields", 400));
+
+  if (!isStrongPassword(newPassword)) {
+    return next(
+      new ErrorHandler(
+        "Password must contain one Uppercase, Lowercase, Numeric and Special Character",
+        400
+      )
+    );
+  }
 
   if (newPassword.length < 8)
     return next(new ErrorHandler("Password must be atleast 8 characters", 400));

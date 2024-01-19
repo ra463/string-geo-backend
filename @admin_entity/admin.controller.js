@@ -7,12 +7,12 @@ const { Parser } = require("json2csv");
 
 const sendData = async (res, statusCode, user, message) => {
   const accessToken = await user.getAccessToken();
-  const refreshToken = await user.getRefreshToken();
+  // const refreshToken = await user.getRefreshToken();
   res.status(statusCode).json({
     success: true,
     user,
     accessToken,
-    refreshToken,
+    // refreshToken,
     message,
   });
 };
