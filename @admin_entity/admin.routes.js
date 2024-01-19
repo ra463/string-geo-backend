@@ -13,13 +13,13 @@ const {
 const router = express.Router();
 
 router.route("/admin-login").post(adminLogin);
-router.route("/get-all-users").get(getAllUsers);
+router.route("/get-all-users").get(auth, isAdmin, getAllUsers);
 router
   .route("/get-user-subscription-history/:userId")
-  .get(getUserSubscriptionHistory);
-router.get("/download-as-csv", downloadAsCsv);
-router.delete("/delete-user/:userId", deleteUser);
+  .get(auth, isAdmin, getUserSubscriptionHistory);
+router.get("/download-as-csv", auth, isAdmin, downloadAsCsv);
+router.delete("/delete-user/:userId", auth, isAdmin, deleteUser);
 router.get("/get-user/:userId", auth, isAdmin, getUser);
-router.patch("/update-user/:userId",updateUserProfile);
+router.patch("/update-user/:userId", auth, isAdmin, updateUserProfile);
 
 module.exports = router;
