@@ -9,7 +9,7 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 const userModel = require("./user.model");
 
-const isStrongPassword =  (password) => {
+const isStrongPassword = (password) => {
   const uppercaseRegex = /[A-Z]/;
   const lowercaseRegex = /[a-z]/;
   const numericRegex = /\d/;
