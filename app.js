@@ -29,8 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: [
-      "https://string-geo.vercel.app",
-      "https://string-geo-admin.vercel.app",
+      "*",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   })
