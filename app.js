@@ -5,7 +5,7 @@ const { error } = require("./middlewares/error");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
 // const ip = require("ip");
-const requestIp = require('request-ip');
+const requestIp = require("request-ip");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
@@ -28,12 +28,13 @@ app.use(limiter);
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: "*",
+    origin: [
+      "https://string-geo.vercel.app",
+      "http://string-geo-admin.vercel.app",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   })
 );
-
-
 
 // import routes
 const userRoutes = require("./@user_entity/user.index");
