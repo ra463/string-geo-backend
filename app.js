@@ -39,19 +39,20 @@ const planRoutes = require("./@plan_entity/plan.index");
 const orderRoutes = require("./@order_entity/order.index");
 const adminRoutes = require("./@admin_entity/admin.index");
 const transactionRoutes = require("./@transaction_entity/transaction.index");
-
+const languageRoutes = require("./@language_entity/language.index");
 //import validators
 const userValidator = require("./@user_entity/user.validator");
 const planValidator = require("./@plan_entity/plan.validator");
 const adminValidator = require("./@admin_entity/admin.validator");
 const transactionValidator = require("./@transaction_entity/transaction.validator");
-
+const languageValidator = require("./@language_entity/language.validator");
 // use routes
 app.use("/api/user", userValidator, userRoutes);
 app.use("/api/plan", planValidator, planRoutes);
 app.use("/api/order", orderRoutes);
 app.use("/api/admin", adminValidator, adminRoutes);
 app.use("/api/transaction", transactionValidator, transactionRoutes);
+app.use("/api/language", languageValidator, languageRoutes);
 
 app.get("/", (req, res) =>
   res.send(`<h1>Its working. Click to visit Link.</h1>`)
