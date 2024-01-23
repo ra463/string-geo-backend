@@ -21,6 +21,9 @@ const schema = new mongoose.Schema(
       trim: true,
       select: false,
     },
+    country_code: {
+      type: String,
+    },
     mobile: {
       type: Number,
       required: [true, "Please enter your mobile number"],

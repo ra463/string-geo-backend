@@ -93,6 +93,7 @@ exports.getUserSubscriptionHistory = catchAsyncError(async (req, res, next) => {
   const userData = {
     name: user.name,
     email: user.email,
+    country_code: user.country_code ? user.country_code : "",
     mobile: user.mobile,
     avatar: user.avatar,
     address: user.city + " " + user.district + " " + user.states,

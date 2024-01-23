@@ -55,6 +55,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     states,
     country,
     city,
+    country_code,
   } = req.body;
   if (
     !name ||
@@ -64,7 +65,8 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     !mobile ||
     !states ||
     !country ||
-    !city
+    !city ||
+    !country_code
   ) {
     return next(new ErrorHandler("Please enter all fields", 400));
   }
@@ -100,12 +102,13 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     states,
     country,
     city,
+    country_code,
   });
 
   const code = generateCode();
   await sendVerificationCode(user.email, code);
 
-  user.temp_code = code; 
+  user.temp_code = code;
   await user.save();
 
   user.password = undefined;
@@ -399,6 +402,7 @@ exports.getProfile = catchAsyncError(async (req, res, next) => {
   const data = {
     name: user.name,
     email: user.email,
+    country_code: user.country_code ? user.country_code : "",
     mobile: user.mobile,
     avatar: user.avatar,
     role: user.role,
@@ -415,7 +419,7 @@ exports.getProfile = catchAsyncError(async (req, res, next) => {
 });
 
 exports.updateProfile = catchAsyncError(async (req, res, next) => {
-  const { name, email, mobile, dob } = req.body;
+  const { name, email, mobile, dob, country_code } = req.body;
 
   const user = await User.findById(req.userId);
   if (!user) return next(new ErrorHandler("User not Found", 400));
@@ -437,6 +441,7 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
   if (email) user.email = email.toLowerCase();
   if (mobile) user.mobile = mobile;
   if (dob) user.dob = dob;
+  if (country_code) user.country_code = country_code;
 
   await user.save();
 
