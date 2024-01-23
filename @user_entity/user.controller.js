@@ -80,8 +80,8 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
 
   if (password.length < 8)
     return next(new ErrorHandler("Password must be atleast 8 characters", 400));
-  if (mobile.length !== 10)
-    return next(new ErrorHandler("Mobile number must be 10 digits", 400));
+  // if (mobile.length !== 10)
+  //   return next(new ErrorHandler("Mobile number must be 10 digits", 400));
 
   if (password !== confirmPassword)
     return next(new ErrorHandler("Confirm Password does not match", 400));
