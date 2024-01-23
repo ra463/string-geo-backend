@@ -105,7 +105,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
   const code = generateCode();
   await sendVerificationCode(user.email, code);
 
-  user.temp_code = code;
+  user.temp_code = code; 
   await user.save();
 
   user.password = undefined;
