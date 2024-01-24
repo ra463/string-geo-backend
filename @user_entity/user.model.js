@@ -24,6 +24,7 @@ const schema = new mongoose.Schema(
     },
     country_code: {
       type: String,
+      required: [true, "Please enter your country code"],
     },
     mobile: {
       type: Number,
