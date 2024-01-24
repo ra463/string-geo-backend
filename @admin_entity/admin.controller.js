@@ -136,8 +136,9 @@ exports.downloadAsCsv = catchAsyncError(async (req, res, next) => {
 });
 
 exports.deleteUser = catchAsyncError(async (req, res, next) => {
-  const user = await User.findById(req.params.userId);
+  const user = await User.findByIdAndDelete(req.params.userId);
   if (!user) return next(new ErrorHandler("User not found", 404));
+
   res.status(200).json({
     success: true,
     message: "User Deleted Successfully",
