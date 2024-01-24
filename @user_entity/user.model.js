@@ -12,12 +12,13 @@ const schema = new mongoose.Schema(
     email: {
       type: String,
       required: [true, "Please enter your email"],
-      unique: true,
+      unique: [true, "Email already exists"],
       validate: [validator.isEmail, "Please enter valid email address"],
     },
     password: {
       type: String,
       required: [true, "Please enter your password"],
+      minLength: [8, "Password must be atleast 8 characters"],
       trim: true,
       select: false,
     },
@@ -27,7 +28,7 @@ const schema = new mongoose.Schema(
     mobile: {
       type: Number,
       required: [true, "Please enter your mobile number"],
-      unique: true,
+      unique: [true, "Mobile number already exists"],
     },
     avatar: {
       type: String,

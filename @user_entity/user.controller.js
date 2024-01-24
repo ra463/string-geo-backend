@@ -57,19 +57,6 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     city,
     country_code,
   } = req.body;
-  if (
-    !name ||
-    !email ||
-    !password ||
-    !confirmPassword ||
-    !mobile ||
-    !states ||
-    !country ||
-    !city ||
-    !country_code
-  ) {
-    return next(new ErrorHandler("Please enter all fields", 400));
-  }
 
   if (!isStrongPassword(password)) {
     return next(
@@ -80,20 +67,22 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     );
   }
 
-  if (password.length < 8)
-    return next(new ErrorHandler("Password must be atleast 8 characters", 400));
-  // if (mobile.length !== 10)
-  //   return next(new ErrorHandler("Mobile number must be 10 digits", 400));
-
   if (password !== confirmPassword)
     return next(new ErrorHandler("Confirm Password does not match", 400));
 
   let user1 = await User.findOne({
     email: { $regex: new RegExp(email, "i") },
   });
-  if (user1) return next(new ErrorHandler("Email already exists", 400));
   let user2 = await User.findOne({ mobile });
-  if (user2) return next(new ErrorHandler("Mobile number already exists", 400));
+
+  if (user1 || user2) {
+    return next(
+      new ErrorHandler(
+        `User already exists with this ${user1 ? "email" : "mobile"}`,
+        400
+      )
+    );
+  }
   const user = await User.create({
     name,
     email: email.toLowerCase(),
@@ -445,9 +434,24 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
 
   await user.save();
 
+  const data = {
+    name: user.name,
+    email: user.email,
+    country_code: user.country_code ? user.country_code : "",
+    mobile: user.mobile,
+    avatar: user.avatar,
+    role: user.role,
+    dob: user.dob,
+    states: user.states,
+    country: user.country,
+    city: user.city,
+    subscription_plans: user.subscription_plans,
+  };
+
   res.status(200).json({
     success: true,
     message: "User Updated Successfully",
+    data,
   });
 });
 
