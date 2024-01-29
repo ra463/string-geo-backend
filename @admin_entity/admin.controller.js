@@ -4,6 +4,7 @@ const APIFeatures = require("../utils/apiFeatures");
 const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 const { Parser } = require("json2csv");
+const { generateUploadURL } = require("../utils/s3");
 
 const sendData = async (res, statusCode, user, message) => {
   const accessToken = await user.getAccessToken();
@@ -39,8 +40,6 @@ exports.adminLogin = catchAsyncError(async (req, res, next) => {
 
 exports.getAllUsers = catchAsyncError(async (req, res, next) => {
   let query = {};
-  // if (req.query.plan_name !== "all") query.plan_name = req.query.plan_name;
-  // if (req.query.plan_type !== "all") query.plan_type = req.query.plan_type;
   if (req.query.plan_type && req.query.plan_type != "all") {
     query["subscription_plans.plan_type"] = req.query.plan_type;
   }
@@ -172,5 +171,15 @@ exports.updateUserProfile = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "Profile Updated Successfully",
+  });
+});
+
+exports.getURL = catchAsyncError(async (req, res, next) => {
+  const url = await generateUploadURL();
+  if (!url) return next(new ErrorHandler("URL not found", 404));
+
+  res.status(200).json({
+    success: true,
+    url,
   });
 });
