@@ -8,6 +8,7 @@ const {
 const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 const userModel = require("./user.model");
+const { s3Uploadv4 } = require("../utils/s3");
 
 const isStrongPassword = (password) => {
   const uppercaseRegex = /[A-Z]/;
@@ -470,6 +471,40 @@ exports.getMyPlan = catchAsyncError(async (req, res, next) => {
       data: user.subscription_plans,
     });
   }
+});
+
+exports.updateProfilePicture = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.userId);
+  if (!user) return next(new ErrorHandler("User not Found", 400));
+
+  const file = req.file;
+  if (!file) return next(new ErrorHandler("Please upload an image", 400));
+
+  const result = await s3Uploadv4(file, user._id);
+  const location = result.Location && result.Location;
+
+  user.avatar = location;
+  await user.save();
+
+  const data = {
+    name: user.name,
+    email: user.email,
+    country_code: user.country_code ? user.country_code : "",
+    mobile: user.mobile,
+    avatar: user.avatar,
+    role: user.role,
+    dob: user.dob,
+    states: user.states,
+    country: user.country,
+    city: user.city,
+    subscription_plans: user.subscription_plans,
+  };
+
+  res.status(200).json({
+    success: true,
+    message: "Profile Picture Uploaded successfully",
+    data,
+  });
 });
 
 exports.logout = catchAsyncError(async (req, res, next) => {

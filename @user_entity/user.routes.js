@@ -14,7 +14,9 @@ const {
   getMyPlan,
   logoutFromFirstDevice,
   deleteAccount,
+  updateProfilePicture,
 } = require("./user.controller");
+const { upload } = require("../utils/s3");
 
 const router = express.Router();
 
@@ -28,6 +30,9 @@ router.route("/reset-password").post(resetPassword);
 router.route("/update-password").patch(auth, updatePassword);
 router.route("/get-profile").get(auth, getProfile);
 router.route("/update-profile").patch(auth, updateProfile);
+router
+  .route("/update-photo")
+  .patch(auth, upload.single("image"), updateProfilePicture);
 router.route("/get-my-plan").get(auth, getMyPlan);
 router.route("/logout").post(auth, logout);
 router.route("/logout-from-first-device").post(auth, logoutFromFirstDevice);
