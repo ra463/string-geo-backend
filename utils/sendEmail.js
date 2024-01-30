@@ -89,7 +89,7 @@ exports.sendInvoice = async (user,transaction) => {
   const doc = new PDFDocument();
   const writeStream = fs.createWriteStream(`${user._id}.pdf`);
 
-  doc.text(`Name : ${user.name}\nEmail : ${user.email}\n Transaction Amount : ${transaction.amount}.\nTransaction id : ${transaction.razorpay_payment_id}`);
+  doc.text(`Name : ${user.name}\nEmail : ${user.email}\nTransaction Amount : ${transaction.amount}.\nTransaction id : ${transaction.razorpay_payment_id}`);
   
   doc.end();
 
