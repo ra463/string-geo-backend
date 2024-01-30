@@ -162,7 +162,7 @@ exports.updateUserProfile = catchAsyncError(async (req, res, next) => {
   const { name, email, password, mobile, states, country, city } = req.body;
   const user = await User.findById(req.params.userId);
   if (!user) return next(new ErrorHandler("User not found", 400));
-  
+
   if (name) user.name = name;
   if (email) user.email = email;
   if (password) user.password = password;
@@ -193,10 +193,10 @@ exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
   const key = process.env.KEY_CLOUD;
   const pemKey = `-----BEGIN PRIVATE KEY-----\n${key}\n-----END PRIVATE KEY-----`;
   const signedUrl = getSignedUrl({
-    keyPairId: "KBPPRD82FXL0H",
+    keyPairId: process.env.ID_CLOUD,
     privateKey: pemKey,
     url: "https://d3i0jph7swoo8z.cloudfront.net/file_example.mp4",
-    dateLessThan: new Date(Date.now() + 300000)
+    dateLessThan: new Date(Date.now() + process.env.EXPIRE_TIME),
   });
-  return res.status(200).json({ success: true, signedUrl });
+  return res.status(200).json({ success: true, signedUrl });
 });
