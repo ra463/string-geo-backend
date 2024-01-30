@@ -25,7 +25,7 @@ exports.generateUploadURL = async () => {
   const params = {
     Bucket: process.env.AWS_BUCKET_NAME,
     Key: imageName,
-    Expires: 60,
+    Expires: 2400,
   };
 
   const uploadURL = await s3.getSignedUrlPromise("putObject", params);
