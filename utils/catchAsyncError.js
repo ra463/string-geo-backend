@@ -13,7 +13,6 @@ module.exports = (fn) => {
         const errorMessage = err.errors[firstErrorField].message;
         return res.status(400).json({ message: errorMessage });
       }
-      console.log(err);
       next(err);
     }
   };

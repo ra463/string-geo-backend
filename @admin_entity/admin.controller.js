@@ -5,6 +5,10 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 const { Parser } = require("json2csv");
 const { generateUploadURL } = require("../utils/s3");
+const { getSignedUrl } = require("@aws-sdk/cloudfront-signer");
+const dotenv = require("dotenv");
+
+dotenv.config({ path: "../config/config.env" });
 
 const sendData = async (res, statusCode, user, message) => {
   const accessToken = await user.getAccessToken();
@@ -155,9 +159,10 @@ exports.getUser = catchAsyncError(async (req, res, next) => {
 });
 
 exports.updateUserProfile = catchAsyncError(async (req, res, next) => {
+  const { name, email, password, mobile, states, country, city } = req.body;
   const user = await User.findById(req.params.userId);
   if (!user) return next(new ErrorHandler("User not found", 400));
-  const { name, email, password, mobile, states, country, city } = req.body;
+  
   if (name) user.name = name;
   if (email) user.email = email;
   if (password) user.password = password;
@@ -182,4 +187,16 @@ exports.getURL = catchAsyncError(async (req, res, next) => {
     success: true,
     url,
   });
+});
+
+exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
+  const key = process.env.KEY_CLOUD;
+  const pemKey = `-----BEGIN PRIVATE KEY-----\n${key}\n-----END PRIVATE KEY-----`;
+  const signedUrl = getSignedUrl({
+    keyPairId: "KBPPRD82FXL0H",
+    privateKey: pemKey,
+    url: "https://d3i0jph7swoo8z.cloudfront.net/file_example.mp4",
+    dateLessThan: new Date(Date.now() + 300000)
+  });
+  return res.status(200).json({ success: true, signedUrl });
 });
