@@ -23,7 +23,7 @@ router.get("/download-as-csv", auth, isAdmin, downloadAsCsv);
 router.delete("/delete-user/:userId", auth, isAdmin, deleteUser);
 router.get("/get-user/:userId", auth, isAdmin, getUser);
 router.patch("/update-user/:userId", auth, isAdmin, updateUserProfile);
-router.get("/get-url", auth, isAdmin, getURL);
-router.get("/get-signed-url", getSingnedUrls);
+router.post("/get-url", auth, isAdmin, getURL);
+router.post("/get-signed-url", getSingnedUrls);
 
 module.exports = router;

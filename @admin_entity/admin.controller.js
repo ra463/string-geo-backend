@@ -180,12 +180,12 @@ exports.updateUserProfile = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getURL = catchAsyncError(async (req, res, next) => {
-  const url = await generateUploadURL();
-  if (!url) return next(new ErrorHandler("URL not found", 404));
+  const data = await generateUploadURL();
+  if (!data) return next(new ErrorHandler("URL not found", 404));
 
   res.status(200).json({
     success: true,
-    url,
+    data,
   });
 });
 

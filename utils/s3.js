@@ -22,7 +22,7 @@ const s3 = new aws.S3({
 exports.generateUploadURL = async () => {
   const rawBytes = await randomBytes(16);
   const imageName = rawBytes.toString("hex");
-
+  console.log(imageName);
   const params = {
     Bucket: process.env.AWS_BUCKET_NAME,
     Key: imageName,
@@ -30,7 +30,7 @@ exports.generateUploadURL = async () => {
   };
 
   const uploadURL = await s3.getSignedUrlPromise("putObject", params);
-  return uploadURL;
+  return { uploadURL, imageName };
 };
 
 exports.s3Uploadv4 = async (file, id) => {
