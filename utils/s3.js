@@ -40,7 +40,7 @@ exports.s3Uploadv4 = async (file, id) => {
     region: process.env.AWS_CAR_BUCKET_REGION,
   });
 
-  if (file.mimetype.split("/")[0] === "image") {
+  if (file?.mimetype?.split("/")[0] === "image") {
     const params = {
       Bucket: process.env.AWS_CAR_BUCKET_NAME,
       Key: `uploads/user-${id}/profile/${Date.now().toString()}-${
@@ -52,14 +52,11 @@ exports.s3Uploadv4 = async (file, id) => {
     return await s3.upload(params).promise();
   }
 
-  // for pdf
-  if (file.mimetype.split("/")[0] === "application") {
+  else  {
     const params = {
       Bucket: process.env.AWS_CAR_BUCKET_NAME,
-      Key: `uploads/user-${id}/pdf/${Date.now().toString()}-${
-        file.originalname
-      }`,
-      Body: file.buffer,
+      Key: `uploads/user-${id}/pdf/${Date.now().toString()}-invoice.pdf`,
+      Body: file,
     };
 
     return await s3.upload(params).promise();

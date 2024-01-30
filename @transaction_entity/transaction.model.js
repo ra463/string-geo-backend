@@ -24,6 +24,9 @@ const schema = new mongoose.Schema(
     status: {
       type: String,
     },
+    invoice_url:{
+      type:String
+    }
   },
   {
     timestamps: true,

@@ -1,6 +1,8 @@
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
+const PDFDocument = require("pdfkit");
 dotenv.config({ path: "../config/config.env" });
+const fs = require("fs")
 
 exports.sendVerificationCode = async (email, code) => {
   try {
@@ -81,3 +83,59 @@ exports.sendForgotPasswordCode = async (name, email, code) => {
     console.log(error);
   }
 };
+
+exports.sendInvoice = async (user,transaction) => {
+  return new Promise((resolve, reject) => {
+  const doc = new PDFDocument();
+  const writeStream = fs.createWriteStream(`${user._id}.pdf`);
+
+  doc.text(`Name : ${user.name}\nEmail : ${user.email}\n Transaction Amount : ${transaction.amount}.\nTransaction id : ${transaction.razorpay_payment_id}`);
+  
+  doc.end();
+
+  doc.pipe(writeStream);
+
+  writeStream.on("finish", () => {
+    fs.readFile(`${user._id}.pdf`, async (err, data) => {
+      if (err) {
+        console.log(err);
+      } else {
+        const transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: process.env.EMAIL,
+            pass: process.env.PASSWORD,
+          },
+        });
+        
+        const msg = {
+          to: user.email,
+          from: process.env.EMAIL,
+          subject: "Sending an Invoice",
+          text: `Welcome ${user.name}, Thankyou for join us. Please find an attachment below which contain your Transaction details.`,
+          attachments: [
+            {
+              content: data.toString("base64"),
+              filename: `${user._id}.pdf`,
+              path: `${user._id}.pdf`,
+              encoding: "base64",
+            },
+          ],
+        };
+
+        try {
+          await transporter.sendMail(msg);
+          console.log(data);
+          fs.unlink(`${user._id}.pdf`, (err) => {});
+          resolve(data);
+        } catch (error) {
+          console.log(error);
+          reject(error);
+        }
+      }
+    });
+  });
+})
+};
+
+

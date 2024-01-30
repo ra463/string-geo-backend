@@ -15,6 +15,7 @@ const {
   logoutFromFirstDevice,
   deleteAccount,
   updateProfilePicture,
+  sendInvoice,
 } = require("./user.controller");
 const { upload } = require("../utils/s3");
 
@@ -37,5 +38,5 @@ router.route("/get-my-plan").get(auth, getMyPlan);
 router.route("/logout").post(auth, logout);
 router.route("/logout-from-first-device").post(auth, logoutFromFirstDevice);
 router.route("/delete-account").delete(auth, deleteAccount);
-
+router.get("/send-invoice", sendInvoice);
 module.exports = router;
