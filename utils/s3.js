@@ -35,14 +35,14 @@ exports.generateUploadURL = async () => {
 
 exports.s3Uploadv4 = async (file, id) => {
   const s3 = new aws.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_SECRET_KEY,
-    region: process.env.AWS_BUCKET_REGION,
+    accessKeyId: process.env.AWS_CAR_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_CAR_SECRET_KEY,
+    region: process.env.AWS_CAR_BUCKET_REGION,
   });
 
   if (file.mimetype.split("/")[0] === "image") {
     const params = {
-      Bucket: process.env.AWS_BUCKET_NAME,
+      Bucket: process.env.AWS_CAR_BUCKET_NAME,
       Key: `uploads/user-${id}/profile/${Date.now().toString()}-${
         file.originalname
       }`,
@@ -55,7 +55,7 @@ exports.s3Uploadv4 = async (file, id) => {
   // for pdf
   if (file.mimetype.split("/")[0] === "application") {
     const params = {
-      Bucket: process.env.AWS_BUCKET_NAME,
+      Bucket: process.env.AWS_CAR_BUCKET_NAME,
       Key: `uploads/user-${id}/pdf/${Date.now().toString()}-${
         file.originalname
       }`,
