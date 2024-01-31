@@ -553,9 +553,10 @@ exports.deleteAccount = catchAsyncError(async (req, res, next) => {
 exports.sendInvoice = catchAsyncError(async (req, res, next) => {
   req.userId = "Rachit Patel";
   const data = await sendInvoice({name:"Shobhit",email:"shobhitchoudhary745@gmail.com",_id:"demoidvgvgvg"},{amount:99,razorpay_payment_id:"randomid"});
-  const location = await s3Uploadv4(data,"dummyuserid");
+  
+  // const location = await s3Uploadv4(data,"dummyuserid");
   res.status(200).json({
     success:true,
-    location
+    data
   })
 });
