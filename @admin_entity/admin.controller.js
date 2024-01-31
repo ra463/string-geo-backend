@@ -7,6 +7,7 @@ const { Parser } = require("json2csv");
 const { generateUploadURL } = require("../utils/s3");
 const { getSignedUrl } = require("@aws-sdk/cloudfront-signer");
 const dotenv = require("dotenv");
+const Video = require("../@video-entity/video.model");
 
 dotenv.config({ path: "../config/config.env" });
 
@@ -189,14 +190,41 @@ exports.getURL = catchAsyncError(async (req, res, next) => {
   });
 });
 
-exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
-  const key = process.env.KEY_CLOUD;
-  const pemKey = `-----BEGIN PRIVATE KEY-----\n${key}\n-----END PRIVATE KEY-----`;
-  const signedUrl = getSignedUrl({
-    keyPairId: process.env.ID_CLOUD,
-    privateKey: pemKey,
-    url: "https://d3i0jph7swoo8z.cloudfront.net/file_example.mp4",
-    dateLessThan: new Date(Date.now() + process.env.EXPIRE_TIME),
+exports.createVideo = catchAsyncError(async (req, res, next) => {
+  const {
+    title,
+    description,
+    thumbnail_url,
+    video_url,
+    category,
+    language,
+    keywords,
+  } = req.body;
+
+  const video = Video.create({
+    title,
+    description,
+    thumbnail_url,
+    video_url,
+    category,
+    language,
+    keywords,
   });
-  return res.status(200).json({ success: true, signedUrl });
+
+  res.status(200).json({
+    success: true,
+    video,
+  });
 });
+
+// exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
+//   const key = process.env.KEY_CLOUD;
+//   const pemKey = `-----BEGIN PRIVATE KEY-----\n${key}\n-----END PRIVATE KEY-----`;
+//   const signedUrl = getSignedUrl({
+//     keyPairId: process.env.ID_CLOUD,
+//     privateKey: pemKey,
+//     url: "https://d3i0jph7swoo8z.cloudfront.net/file_example.mp4",
+//     dateLessThan: new Date(Date.now() + process.env.EXPIRE_TIME),
+//   });
+//   return res.status(200).json({ success: true, signedUrl });
+// });

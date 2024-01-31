@@ -1,7 +1,22 @@
 const validator = (req, res, next) => {
   try {
     const fieleds = {
-      allowBody: ["email", "password","name","mobile","city","states","country"],
+      allowBody: [
+        "email",
+        "password",
+        "name",
+        "mobile",
+        "city",
+        "states",
+        "country",
+        "title",
+        "description",
+        "thumbnail_url",
+        "video_url",
+        "category",
+        "language",
+        "keywords",
+      ],
       allowQuery: [
         "resultPerPage",
         "currentPage",
@@ -9,7 +24,7 @@ const validator = (req, res, next) => {
         "plan_name",
         "plan_type",
         "Model",
-        "Filename"
+        "Filename",
       ],
       allowParams: ["userId"],
     };

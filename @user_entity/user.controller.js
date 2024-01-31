@@ -10,6 +10,11 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 const userModel = require("./user.model");
 const { s3Uploadv4 } = require("../utils/s3");
+const { getSignedUrl } = require("@aws-sdk/cloudfront-signer");
+const dotenv = require("dotenv");
+const Video = require("../@video-entity/video.model");
+
+dotenv.config({ path: "../config/config.env" });
 
 const isStrongPassword = (password) => {
   const uppercaseRegex = /[A-Z]/;
@@ -508,6 +513,41 @@ exports.updateProfilePicture = catchAsyncError(async (req, res, next) => {
   });
 });
 
+exports.getSingleVideo = catchAsyncError(async (req, res, next) => {
+  const video = await Video.findById(req.params.videoId);
+  if (!video) return next(new ErrorHandler("Video not found", 404));
+
+  const user = await User.findById(req.userId);
+  if (!user) return next(new ErrorHandler("User not found", 404));
+
+  if (!user.subscription_plans.plan_name) {
+    return next(new ErrorHandler("Please subscribe to a plan", 400));
+  }
+
+  // generate signed url of video
+  const key = process.env.KEY_CLOUD;
+  const pemKey = `-----BEGIN PRIVATE KEY-----\n${key}\n-----END PRIVATE KEY-----`;
+  const signedUrl = getSignedUrl({
+    keyPairId: process.env.ID_CLOUD,
+    privateKey: pemKey,
+    url: `${process.env.URL_CLOUD}/${video.video_url}`,
+    dateLessThan: new Date(Date.now() + process.env.EXPIRE_TIME),
+  });
+
+  const videoData = {
+    _id: video._id,
+    title: video.title,
+    description: video.description,
+    thumbnail_url: video.thumbnail_url,
+    video_url: signedUrl,
+    category: video.category,
+    language: video.language,
+    keywords: video.keywords,
+  };
+
+  res.status(200).json({ success: true, videoData });
+});
+
 exports.logout = catchAsyncError(async (req, res, next) => {
   // const clientIp = req.clientIp;
   const { refreshToken } = req.body;
@@ -549,15 +589,21 @@ exports.deleteAccount = catchAsyncError(async (req, res, next) => {
   });
 });
 
-
 exports.sendInvoice = catchAsyncError(async (req, res, next) => {
   req.userId = "Rachit Patel";
-  const data = await sendInvoice({name:"Shobhit",email:"shobhitchoudhary745@gmail.com",_id:"demoidvgvgvg"},{amount:99,razorpay_payment_id:"randomid"});
-  
-  const location = await s3Uploadv4(data,"dummyuserid");
+  const data = await sendInvoice(
+    {
+      name: "Shobhit",
+      email: "shobhitchoudhary745@gmail.com",
+      _id: "demoidvgvgvg",
+    },
+    { amount: 99, razorpay_payment_id: "randomid" }
+  );
+
+  const location = await s3Uploadv4(data, "dummyuserid");
   res.status(200).json({
-    success:true,
+    success: true,
     location,
-    data
-  })
+    data,
+  });
 });

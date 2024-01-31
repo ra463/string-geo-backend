@@ -9,7 +9,7 @@ const {
   getUser,
   updateUserProfile,
   getURL,
-  getSingnedUrls,
+  createVideo,
 } = require("./admin.controller");
 
 const router = express.Router();
@@ -24,6 +24,6 @@ router.delete("/delete-user/:userId", auth, isAdmin, deleteUser);
 router.get("/get-user/:userId", auth, isAdmin, getUser);
 router.patch("/update-user/:userId", auth, isAdmin, updateUserProfile);
 router.post("/get-url", auth, isAdmin, getURL);
-router.post("/get-signed-url", getSingnedUrls);
+router.post("/create-video", auth, isAdmin, createVideo);
 
 module.exports = router;
