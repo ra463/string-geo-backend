@@ -214,7 +214,7 @@ th {
     </tr>
     <tr>
       <td>Transaction Amount</td>
-      <td>${transaction.amount}</td>
+      <td>₹ ${transaction.amount/100}</td>
     </tr>
     <tr>
       <td>Transaction ID</td>
