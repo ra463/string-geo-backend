@@ -514,12 +514,14 @@ exports.updateProfilePicture = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getSingleVideo = catchAsyncError(async (req, res, next) => {
-  const video = await Video.findById(req.params.videoId);
+  const [video, user] = await Promise.all([
+    Video.findById(req.params.videoId),
+    User.findById(req.userId),
+  ]);
+
   if (!video) return next(new ErrorHandler("Video not found", 404));
-
-  const user = await User.findById(req.userId);
   if (!user) return next(new ErrorHandler("User not found", 404));
-
+  
   if (!user.subscription_plans.plan_name) {
     return next(new ErrorHandler("Please subscribe to a plan", 400));
   }

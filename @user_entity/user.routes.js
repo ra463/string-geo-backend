@@ -36,7 +36,7 @@ router
   .route("/update-photo")
   .patch(auth, upload.single("image"), updateProfilePicture);
 router.route("/get-my-plan").get(auth, getMyPlan);
-router.route("/get-single-video").get(auth, getSingleVideo);
+router.route("/get-single-video/:videoId").get(auth, getSingleVideo);
 router.route("/logout").post(auth, logout);
 router.route("/logout-from-first-device").post(auth, logoutFromFirstDevice);
 router.route("/delete-account").delete(auth, deleteAccount);
