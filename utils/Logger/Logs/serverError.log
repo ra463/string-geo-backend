@@ -284,3 +284,15 @@ info: Info - ❌ : Jan-31-2024 09:57:43: Process 86648 is online on port number 
 info: Info - ❌ : Jan-31-2024 09:57:43: Process 67248 is online on port number 4000
 info: Info - ❌ : Jan-31-2024 09:57:43: Process 76572 is online on port number 4000
 info: Info - ❌ : Jan-31-2024 09:57:43: Process 78800 is online on port number 4000
+info: Info - ❌ : Jan-31-2024 11:02:26: Worker 81792 has died!
+error: Error - ❌ : Jan-31-2024 11:02:26: Worker 81792 has died!
+error: Info - ❌ : Jan-31-2024 11:02:26: Worker 81792 has died!
+info: Info - ❌ : Jan-31-2024 11:02:26: Creating a new Worker
+error: Error - ❌ : Jan-31-2024 11:02:26: Worker 86052 has died!
+info: Info - ❌ : Jan-31-2024 11:02:26: Worker 86052 has died!
+error: Info - ❌ : Jan-31-2024 11:02:26: Worker 86052 has died!
+info: Info - ❌ : Jan-31-2024 11:02:26: Creating a new Worker
+info: Info - ❌ : Jan-31-2024 11:02:32: Process 33964 is online on port number 4000
+info: Info - ❌ : Jan-31-2024 11:02:32: Process 79108 is online on port number 4000
+info: Info - ❌ : Jan-31-2024 11:02:32: Process 40420 is online on port number 4000
+info: Info - ❌ : Jan-31-2024 11:02:33: Process 79580 is online on port number 4000

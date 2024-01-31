@@ -124,8 +124,8 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
   });
 
   const data = await sendInvoice(user, transaction);
-  const result = await s3Uploadv4(data, user._id);
-  transaction.invoice_url = result.Location;
+  // const result = await s3Uploadv4(data, user._id);
+  // transaction.invoice_url = result.Location;
 
   await transaction.save();
 

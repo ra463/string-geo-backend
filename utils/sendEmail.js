@@ -226,11 +226,6 @@ th {
   </div>
 </body>
 </html>
-
-    
-    
-
-
     `;
 
     const pdfOptions = {
