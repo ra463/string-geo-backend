@@ -8,7 +8,7 @@ const Razorpay = require("razorpay");
 const dotenv = require("dotenv");
 const crypto = require("crypto");
 const { sendInvoice } = require("../utils/sendEmail");
-const {s3Uploadv4} = require("../utils/s3")
+const { s3Uploadv4 } = require("../utils/s3");
 
 dotenv.config({
   path: "../config/config.env",
@@ -123,8 +123,8 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
     gateway: "Razorpay",
   });
 
-  const data = await sendInvoice(user,transaction);
-  const result = await s3Uploadv4(data,user._id);
+  const data = await sendInvoice(user, transaction);
+  const result = await s3Uploadv4(data, user._id);
   transaction.invoice_url = result.Location;
 
   await transaction.save();
