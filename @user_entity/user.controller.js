@@ -521,10 +521,13 @@ exports.getSingleVideo = catchAsyncError(async (req, res, next) => {
 
   if (!video) return next(new ErrorHandler("Video not found", 404));
   if (!user) return next(new ErrorHandler("User not found", 404));
-  
+
   if (!user.subscription_plans.plan_name) {
     return next(new ErrorHandler("Please subscribe to a plan", 400));
   }
+
+  const expirationTime = new Date();
+  expirationTime.setHours(expirationTime.getHours() + 1);
 
   // generate signed url of video
   const key = process.env.KEY_CLOUD;
@@ -533,7 +536,7 @@ exports.getSingleVideo = catchAsyncError(async (req, res, next) => {
     keyPairId: process.env.ID_CLOUD,
     privateKey: pemKey,
     url: `${process.env.URL_CLOUD}/${video.video_url}`,
-    dateLessThan: new Date(Date.now() + process.env.EXPIRE_TIME),
+    dateLessThan: expirationTime,
   });
 
   const videoData = {
