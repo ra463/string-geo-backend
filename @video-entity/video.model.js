@@ -27,7 +27,7 @@ const schema = new mongoose.Schema(
       required: [true, "Please enter language"],
     },
     keywords: {
-      type: String,
+      type: Array,
       required: [true, "Please enter keywords"],
     },
   },
