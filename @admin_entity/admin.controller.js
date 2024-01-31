@@ -201,6 +201,8 @@ exports.createVideo = catchAsyncError(async (req, res, next) => {
     keywords,
   } = req.body;
 
+  let keywordsArray = keywords;
+
   const video = Video.create({
     title,
     description,
@@ -208,7 +210,7 @@ exports.createVideo = catchAsyncError(async (req, res, next) => {
     video_url,
     category,
     language,
-    keywords,
+    keywords: keywordsArray,
   });
 
   res.status(200).json({
