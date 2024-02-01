@@ -11,6 +11,7 @@ const {
   getURL,
   createVideo,
 } = require("./admin.controller");
+const { upload } = require("../utils/s3");
 
 const router = express.Router();
 
@@ -24,6 +25,12 @@ router.delete("/delete-user/:userId", auth, isAdmin, deleteUser);
 router.get("/get-user/:userId", auth, isAdmin, getUser);
 router.patch("/update-user/:userId", auth, isAdmin, updateUserProfile);
 router.post("/get-url", auth, isAdmin, getURL);
-router.post("/create-video", auth, isAdmin, createVideo);
+router.post(
+  "/create-video",
+  auth,
+  isAdmin,
+  upload.single("image"),
+  createVideo
+);
 
 module.exports = router;

@@ -4,7 +4,7 @@ const APIFeatures = require("../utils/apiFeatures");
 const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 const { Parser } = require("json2csv");
-const { generateUploadURL } = require("../utils/s3");
+const { generateUploadURL, s3Uploadv4 } = require("../utils/s3");
 const { getSignedUrl } = require("@aws-sdk/cloudfront-signer");
 const dotenv = require("dotenv");
 const Video = require("../@video-entity/video.model");
@@ -194,7 +194,6 @@ exports.createVideo = catchAsyncError(async (req, res, next) => {
   const {
     title,
     description,
-    thumbnail_url,
     video_url,
     category,
     language,
@@ -202,11 +201,11 @@ exports.createVideo = catchAsyncError(async (req, res, next) => {
   } = req.body;
 
   let keywordsArray = keywords;
-
+  const result = await s3Uploadv4(req.file,req.userId);
   const video = Video.create({
     title,
     description,
-    thumbnail_url,
+    thumbnail_url:result.Location,
     video_url,
     category,
     language,
