@@ -19,7 +19,7 @@ const schema = new mongoose.Schema(
       required: [true, "Please enter video url"],
     },
     category: {
-      type: String,
+      type: Array,
       required: [true, "Please enter category"],
     },
     language: {
@@ -29,6 +29,10 @@ const schema = new mongoose.Schema(
     keywords: {
       type: Array,
       required: [true, "Please enter keywords"],
+    },
+    views: {
+      type: Number,
+      default: 0,
     },
   },
   {
