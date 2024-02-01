@@ -18,7 +18,7 @@ const schema = new mongoose.Schema(
       type: String,
       required: [true, "Please enter video url"],
     },
-    category: {
+    categories: {
       type: Array,
       required: [true, "Please enter category"],
     },

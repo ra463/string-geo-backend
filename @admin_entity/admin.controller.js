@@ -191,11 +191,11 @@ exports.getURL = catchAsyncError(async (req, res, next) => {
 });
 
 exports.createVideo = catchAsyncError(async (req, res, next) => {
-  const { title, description, video_url, category, language, keywords } =
+  const { title, description, video_url, categories, language, keywords } =
     req.body;
 
   let keywordsArray = keywords;
-  let categoryArray = category;
+  let categoryArray = categories;
   const result = await s3Uploadv4(req.file, req.userId);
   const video = Video.create({
     title,
