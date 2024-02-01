@@ -202,7 +202,7 @@ exports.createVideo = catchAsyncError(async (req, res, next) => {
     description,
     thumbnail_url: result.Location,
     video_url,
-    category: categoryArray,
+    categories: categoryArray,
     language,
     keywords: keywordsArray,
   });
