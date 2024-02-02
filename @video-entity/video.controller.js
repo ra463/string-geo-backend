@@ -96,10 +96,26 @@ exports.getVideo = catchAsyncError(async (req, res, next) => {
 
 exports.updateVideo = catchAsyncError(async (req, res, next) => {
   const video = await videoModel.findById(req.params.id);
-  const { name, status } = req.body;
+
   if (!video) {
     return next(new ErrorHandler("Video not found", 404));
   }
+  let url = "";
+  if (req.file) {
+    const result = await s3Uploadv4(req.file, req.userId);
+    url = result.Location;
+  }
+
+  const { title, description, video_url, categories, language, keywords } =
+    req.body;
+
+  if (title) video.title = title;
+  if (description) video.description = description;
+  if (video_url) video.video_url = video_url;
+  if (categories) video.categories = categories;
+  if (language) video.language = language;
+  if (keywords) video.keywords = keywords;
+  if (url) video.thumbnail_url = url;
 
   await video.save();
   res.status(200).json({
