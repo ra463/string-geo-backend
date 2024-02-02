@@ -545,7 +545,7 @@ exports.getSingleVideo = catchAsyncError(async (req, res, next) => {
     description: video.description,
     thumbnail_url: video.thumbnail_url,
     video_url: signedUrl,
-    category: video.category,
+    categories: video.categories,
     language: video.language,
     keywords: video.keywords,
   };
