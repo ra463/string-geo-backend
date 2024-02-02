@@ -5,7 +5,7 @@ const { createGenre, getGenres, deleteGenre, getGenre, updateGenre } = require("
 const router = express.Router();
 
 router.post("/create-genre", auth, isAdmin, createGenre);
-router.get("/get-genres", auth, isAdmin, getGenres);
+router.get("/get-genres", auth,  getGenres);
 router.delete("/delete-genre/:id", auth, isAdmin, deleteGenre);
 router.get("/get-genre/:id", auth, isAdmin, getGenre);
 router.patch("/update-genre/:id", auth, isAdmin, updateGenre);

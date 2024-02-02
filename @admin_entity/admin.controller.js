@@ -190,30 +190,7 @@ exports.getURL = catchAsyncError(async (req, res, next) => {
   });
 });
 
-exports.createVideo = catchAsyncError(async (req, res, next) => {
-  const { title, description, video_url, categories, language, keywords } =
-    req.body;
 
-  const result = await s3Uploadv4(req.file, req.userId);
-
-  let categoryArray = categories.split(",");
-  let keywordsArray = keywords.split(",");
-
-  const video = Video.create({
-    title,
-    description,
-    thumbnail_url: result.Location,
-    video_url,
-    categories: categoryArray,
-    language,
-    keywords: keywordsArray,
-  });
-
-  res.status(200).json({
-    success: true,
-    video,
-  });
-});
 
 // exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
 //   const key = process.env.KEY_CLOUD;

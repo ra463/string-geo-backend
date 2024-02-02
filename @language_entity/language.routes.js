@@ -10,7 +10,7 @@ const {
 const router = express.Router();
 
 router.post("/create-language", auth, isAdmin, createLanguage);
-router.get("/get-languages", auth, isAdmin, getLanguages);
+router.get("/get-languages", auth, getLanguages);
 router.delete("/delete-language/:id", auth, isAdmin, deleteLanguage);
 router.get("/get-language/:id", auth, isAdmin, getLanguage);
 router.patch("/update-language/:id", auth, isAdmin, updateLanguage);
