@@ -42,6 +42,9 @@ const transactionRoutes = require("./@transaction_entity/transaction.index");
 const languageRoutes = require("./@language_entity/language.index");
 const genreRoutes = require("./@genre_entity/genre.index");
 const videoRoutes = require("./@video-entity/video.index");
+const actorRoutes = require("./@actor_entity/actor.index");
+const directorRoutes = require("./@director_entity/director.index");
+
 //import validators
 const userValidator = require("./@user_entity/user.validator");
 const planValidator = require("./@plan_entity/plan.validator");
@@ -50,6 +53,9 @@ const transactionValidator = require("./@transaction_entity/transaction.validato
 const languageValidator = require("./@language_entity/language.validator");
 const genreValidator = require("./@genre_entity/genre.validator");
 const videoValidator = require("./@video-entity/video.validator");
+const actorValidator = require("./@actor_entity/actor.validator");
+const directorValidator = require("./@director_entity/director.validator");
+
 // use routes
 app.use("/api/user", userValidator, userRoutes);
 app.use("/api/plan", planValidator, planRoutes);
@@ -59,6 +65,8 @@ app.use("/api/transaction", transactionValidator, transactionRoutes);
 app.use("/api/language", languageValidator, languageRoutes);
 app.use("/api/genre", genreValidator, genreRoutes);
 app.use("/api/video", videoValidator, videoRoutes);
+app.use("/api/actor", actorValidator, actorRoutes);
+app.use("/api/director", directorValidator, directorRoutes);
 
 app.get("/", (req, res) =>
   res.send(`<h1>Its working. Click to visit Link.</h1>`)
