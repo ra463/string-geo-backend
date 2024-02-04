@@ -5,8 +5,15 @@ const { s3Uploadv4 } = require("../utils/s3");
 const videoModel = require("./video.model");
 
 exports.createVideo = catchAsyncError(async (req, res, next) => {
-  const { title, description, video_url, categories, language, keywords } =
-    req.body;
+  const {
+    title,
+    description,
+    video_url,
+    categories,
+    language,
+    keywords,
+    access,
+  } = req.body;
 
   const result = await s3Uploadv4(req.file, req.userId);
 
@@ -21,6 +28,7 @@ exports.createVideo = catchAsyncError(async (req, res, next) => {
     categories: categoryArray,
     language,
     keywords: keywordsArray,
+    access,
   });
 
   res.status(200).json({
@@ -106,8 +114,15 @@ exports.updateVideo = catchAsyncError(async (req, res, next) => {
     url = result.Location;
   }
 
-  const { title, description, video_url, categories, language, keywords } =
-    req.body;
+  const {
+    title,
+    description,
+    video_url,
+    categories,
+    language,
+    keywords,
+    access,
+  } = req.body;
 
   if (title) video.title = title;
   if (description) video.description = description;
@@ -116,6 +131,7 @@ exports.updateVideo = catchAsyncError(async (req, res, next) => {
   if (language) video.language = language;
   if (keywords) video.keywords = keywords;
   if (url) video.thumbnail_url = url;
+  if (access) video.access = access;
 
   await video.save();
   res.status(200).json({
