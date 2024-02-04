@@ -37,6 +37,7 @@ const schema = new mongoose.Schema(
     access: {
       type: String,
       enum: ["free", "paid"],
+      default: "free",
     },
   },
   {
