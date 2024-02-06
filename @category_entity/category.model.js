@@ -4,8 +4,8 @@ const schema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Please provide genre name"],
-      unique: [true, "Genre already exists"],
+      unique: [true, "Category already exists"],
+      required: [true, "Please enter category name"],
     },
     status: {
       type: String,
@@ -18,4 +18,4 @@ const schema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Genre", schema);
+module.exports = mongoose.model("Category", schema);

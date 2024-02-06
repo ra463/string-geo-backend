@@ -5,19 +5,12 @@ const { s3Uploadv4 } = require("../utils/s3");
 const videoModel = require("./video.model");
 
 exports.createVideo = catchAsyncError(async (req, res, next) => {
-  const {
-    title,
-    description,
-    video_url,
-    categories,
-    language,
-    keywords,
-    access,
-  } = req.body;
+  const { title, description, video_url, genres, language, keywords, access } =
+    req.body;
 
   const result = await s3Uploadv4(req.file, req.userId);
 
-  let categoryArray = categories.split(",");
+  let genreArray = genres.split(",");
   let keywordsArray = keywords.split(",");
 
   const video = videoModel.create({
@@ -25,7 +18,7 @@ exports.createVideo = catchAsyncError(async (req, res, next) => {
     description,
     thumbnail_url: result.Location,
     video_url,
-    categories: categoryArray,
+    genres: genreArray,
     language,
     keywords: keywordsArray,
     access,
@@ -38,13 +31,13 @@ exports.createVideo = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getVideos = catchAsyncError(async (req, res, next) => {
-  const { language, category, keyword } = req.query;
+  const { language, genres, keyword } = req.query;
   const query = {};
   if (language && language != "all") {
     query.language = language;
   }
-  if (category && category != "all") {
-    query.categories = { $in: [category] };
+  if (genres && genres != "all") {
+    query.genres = { $in: [genres] };
   }
 
   if (keyword) {
@@ -59,7 +52,6 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     success: true,
     videos,
-    message: "Videos fetch successfully",
   });
 });
 
@@ -98,7 +90,6 @@ exports.getVideo = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     success: true,
     video,
-    message: "Video find successfully",
   });
 });
 
@@ -114,20 +105,13 @@ exports.updateVideo = catchAsyncError(async (req, res, next) => {
     url = result.Location;
   }
 
-  const {
-    title,
-    description,
-    video_url,
-    categories,
-    language,
-    keywords,
-    access,
-  } = req.body;
+  const { title, description, video_url, genres, language, keywords, access } =
+    req.body;
 
   if (title) video.title = title;
   if (description) video.description = description;
   if (video_url) video.video_url = video_url;
-  if (categories) video.categories = categories;
+  if (genres) video.genres = genres;
   if (language) video.language = language;
   if (keywords) video.keywords = keywords;
   if (url) video.thumbnail_url = url;

@@ -18,13 +18,17 @@ const schema = new mongoose.Schema(
       type: String,
       required: [true, "Please enter video url"],
     },
-    categories: {
+    genres: {
       type: Array,
       required: [true, "Please enter category"],
     },
     language: {
       type: String,
       required: [true, "Please enter language"],
+    },
+    category: {
+      type: String,
+      default: "Recently Added",
     },
     keywords: {
       type: Array,
