@@ -31,7 +31,7 @@ exports.createVideo = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getVideos = catchAsyncError(async (req, res, next) => {
-  const { language, genres, keyword } = req.query;
+  const { language, genres, keyword, resultPerPage, currentPage } = req.query;
   const query = {};
   if (language && language != "all") {
     query.language = language;
@@ -47,11 +47,19 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
       { description: { $regex: keywordRegExp } },
     ];
   }
-  const videos = await videoModel.find(query).lean();
-  //   console.log(videos)
+
+  const totalVideoCount = await videoModel.countDocuments(query);
+
+  const limit = Number(resultPerPage);
+  const page = Number(currentPage);
+  const skip = (page - 1) * limit;
+
+  let videos = await videoModel.find(query).skip(skip).limit(limit).lean();
+
   res.status(200).json({
     success: true,
     videos,
+    totalVideoCount,
   });
 });
 

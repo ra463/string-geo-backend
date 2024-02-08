@@ -12,7 +12,13 @@ const validator = (req, res, next) => {
         "keywords",
         "access",
       ],
-      allowQuery: ["language", "genres", "keyword"],
+      allowQuery: [
+        "language",
+        "genres",
+        "keyword",
+        "resultPerPage",
+        "currentPage",
+      ],
       allowParams: ["id"],
     };
     const body = Object.keys(req.body);

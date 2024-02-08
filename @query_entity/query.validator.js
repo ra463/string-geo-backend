@@ -9,7 +9,7 @@ const validator = (req, res, next) => {
         "company_name",
         "message",
       ],
-      allowQuery: [],
+      allowQuery: ["keyword", "resultPerPage", "currentPage"],
       allowParams: ["id"],
     };
     const body = Object.keys(req.body);
