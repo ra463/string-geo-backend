@@ -4,6 +4,7 @@ const schema = new mongoose.Schema(
   {
     name: {
       type: String,
+      required: [true, "Please provide actor name"],
     },
     profile_url: {
       type: String,
