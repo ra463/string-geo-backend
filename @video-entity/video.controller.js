@@ -5,15 +5,24 @@ const { s3Uploadv4 } = require("../utils/s3");
 const videoModel = require("./video.model");
 
 exports.createVideo = catchAsyncError(async (req, res, next) => {
-  const { title, description, video_url, genres, language, keywords, access } =
-    req.body;
+  const {
+    title,
+    description,
+    video_url,
+    genres,
+    language,
+    keywords,
+    access,
+    categories,
+  } = req.body;
 
   const result = await s3Uploadv4(req.file, req.userId);
 
   let genreArray = genres.split(",");
   let keywordsArray = keywords.split(",");
+  let categoryArray = categories.split(",");
 
-  const video = videoModel.create({
+  const video = await videoModel.create({
     title,
     description,
     thumbnail_url: result.Location,
@@ -22,6 +31,7 @@ exports.createVideo = catchAsyncError(async (req, res, next) => {
     language,
     keywords: keywordsArray,
     access,
+    category: categoryArray,
   });
 
   res.status(200).json({
@@ -54,7 +64,12 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
   const page = Number(currentPage);
   const skip = (page - 1) * limit;
 
-  let videos = await videoModel.find(query).skip(skip).limit(limit).lean();
+  let videos = await videoModel
+    .find(query)
+    .skip(skip)
+    .limit(limit)
+    .sort({ createdAt: -1 })
+    .lean();
 
   res.status(200).json({
     success: true,
@@ -113,17 +128,30 @@ exports.updateVideo = catchAsyncError(async (req, res, next) => {
     url = result.Location;
   }
 
-  const { title, description, video_url, genres, language, keywords, access } =
-    req.body;
+  const {
+    title,
+    description,
+    video_url,
+    genres,
+    language,
+    keywords,
+    access,
+    categories,
+  } = req.body;
+
+  let genreArray = genres.split(",");
+  let keywordsArray = keywords.split(",");
+  let categoryArray = categories.split(",");
 
   if (title) video.title = title;
   if (description) video.description = description;
   if (video_url) video.video_url = video_url;
-  if (genres) video.genres = genres;
   if (language) video.language = language;
-  if (keywords) video.keywords = keywords;
   if (url) video.thumbnail_url = url;
   if (access) video.access = access;
+  if (genres) video.genres = genreArray;
+  if (keywords) video.keywords = keywordsArray;
+  if (categories) video.category = categoryArray;
 
   await video.save();
   res.status(200).json({

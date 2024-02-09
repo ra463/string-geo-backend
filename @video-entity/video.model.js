@@ -27,8 +27,7 @@ const schema = new mongoose.Schema(
       required: [true, "Please enter language"],
     },
     category: {
-      type: String,
-      default: "Recently Added",
+      type: Array,
     },
     keywords: {
       type: Array,

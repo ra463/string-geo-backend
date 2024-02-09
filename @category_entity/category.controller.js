@@ -1,10 +1,18 @@
 const catchAsyncError = require("../utils/catchAsyncError");
 const Category = require("./category.model");
+const Sequence = require("../@sequnce_entity/sequence.model");
 const ErrorHandler = require("../utils/errorHandler");
 
 exports.createCategory = catchAsyncError(async (req, res, next) => {
   const { name, status } = req.body;
-  const category = await Category.create({ name, status });
+
+  const [category, sequence] = await Promise.all([
+    Category.create({ name, status }),
+    Sequence.create({
+      name: name,
+      video_array: [],
+    }),
+  ]);
 
   res.status(201).json({
     success: true,
@@ -24,7 +32,7 @@ exports.getCategories = catchAsyncError(async (req, res, next) => {
 
 exports.getCategory = catchAsyncError(async (req, res, next) => {
   const category = await Category.findById(req.params.id);
-  if(!category) return next(new ErrorHandler("Category not found", 404));
+  if (!category) return next(new ErrorHandler("Category not found", 404));
 
   res.status(200).json({
     success: true,
@@ -33,7 +41,7 @@ exports.getCategory = catchAsyncError(async (req, res, next) => {
 });
 
 exports.updateCategory = catchAsyncError(async (req, res, next) => {
-  const { name,status } = req.body;
+  const { name, status } = req.body;
 
   const category = await Category.findById(req.params.id);
   if (!category) return next(new ErrorHandler("Category not found", 404));
