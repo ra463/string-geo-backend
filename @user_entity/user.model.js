@@ -8,6 +8,9 @@ const schema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, "Please enter your name"],
+      minLength: [8, "Name must be atleast 8 characters"],
+      maxLength: [25, "Name must be atmost 25 characters"],
+      trim: true,
     },
     email: {
       type: String,
@@ -68,11 +71,7 @@ const schema = new mongoose.Schema(
     temp_code: {
       type: String,
     },
-    device_ids: [
-      {
-        type: String,
-      },
-    ],
+    device_ids: [{ type: String }],
     subscription_plans: {
       plan_name: {
         type: String,

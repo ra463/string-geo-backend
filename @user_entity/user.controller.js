@@ -1,6 +1,5 @@
 const User = require("./user.model");
 const { generateCode } = require("../utils/generateCode");
-// const ip = require("ip");
 const {
   sendVerificationCode,
   sendForgotPasswordCode,
@@ -10,9 +9,7 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 const userModel = require("./user.model");
 const { s3Uploadv4 } = require("../utils/s3");
-const { getSignedUrl } = require("@aws-sdk/cloudfront-signer");
 const dotenv = require("dotenv");
-const Video = require("../@video-entity/video.model");
 
 dotenv.config({ path: "../config/config.env" });
 
@@ -77,15 +74,14 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
   if (password !== confirmPassword)
     return next(new ErrorHandler("Confirm Password does not match", 400));
 
-  let user1 = await User.findOne({
-    email: { $regex: new RegExp(email, "i") },
+  const user_exist = await User.findOne({
+    $or: [{ email: { $regex: new RegExp(email, "i") } }, { mobile }],
   });
-  let user2 = await User.findOne({ mobile });
 
-  if (user1 || user2) {
+  if (user_exist) {
     return next(
       new ErrorHandler(
-        `User already exists with this ${user1 ? "email" : "mobile"}`,
+        `${user_exist.email ? "Email" : "Mobile"} already exists`,
         400
       )
     );
@@ -188,29 +184,19 @@ const loginGoogle = async (req, res, next) => {
 };
 
 exports.loginUser = catchAsyncError(async (req, res, next) => {
-  // console.log(req.ip, req.connection.remoteAddress);
-  // const clientIp = req.clientIp;
-  // console.log("in this route")
   const { email, mobile, password, google_login, logout_from_other_device } =
     req.body;
 
   if (google_login) return await loginGoogle(req, res, next);
+
   if (!email && !mobile)
     return next(new ErrorHandler("Please Enter Email or Mobile Number", 400));
   if (!password) return next(new ErrorHandler("Please Enter Password", 400));
+
   const user = await User.findOne({
     $or: [{ email: { $regex: new RegExp(`^${email}$`, "i") } }, { mobile }],
   }).select("+password");
   if (!user) return next(new ErrorHandler("Invalid Credentials", 400));
-
-  //check if user try to login with new device & the max device login acc to subscription plan
-  // if (
-  //   user.subscription_plans &&
-  //   !user.device_ids.includes(clientIp) &&
-  //   user.subscription_plans.allow_devices == user.device_ids.length
-  // ) {
-  //   return next(new ErrorHandler("Maximum device login limit is reached", 429));
-  // }
 
   //check if user account is freeze
   if (user.is_frozen) {
@@ -398,7 +384,7 @@ exports.getProfile = catchAsyncError(async (req, res, next) => {
   const data = {
     name: user.name,
     email: user.email,
-    country_code: user.country_code ? user.country_code : "",
+    country_code: user.country_code,
     mobile: user.mobile,
     avatar: user.avatar,
     role: user.role,
@@ -420,16 +406,16 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.userId);
   if (!user) return next(new ErrorHandler("User not Found", 400));
 
-  const user_1 = await User.findOne({
-    email: { $regex: new RegExp(`^${email}$`, "i") },
+  const existing_user = await User.findOne({
+    $or: [{ email: { $regex: new RegExp(`^${email}$`, "i") } }, { mobile }],
   });
-  if (user_1 && user_1._id.toString() !== user._id.toString())
-    return next(new ErrorHandler("User with this email already exists", 400));
 
-  const user_2 = await User.findOne({ mobile });
-  if (user_2 && user_2._id.toString() !== user._id.toString()) {
+  if (existing_user && existing_user._id.toString() !== user._id.toString()) {
     return next(
-      new ErrorHandler("User with this mobile number already exists", 400)
+      new ErrorHandler(
+        `${existing_user.email ? "Email" : "Mobile number"} already exists`,
+        400
+      )
     );
   }
 
@@ -444,7 +430,7 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
   const data = {
     name: user.name,
     email: user.email,
-    country_code: user.country_code ? user.country_code : "",
+    country_code: user.country_code,
     mobile: user.mobile,
     avatar: user.avatar,
     role: user.role,
@@ -495,7 +481,7 @@ exports.updateProfilePicture = catchAsyncError(async (req, res, next) => {
   const data = {
     name: user.name,
     email: user.email,
-    country_code: user.country_code ? user.country_code : "",
+    country_code: user.country_code,
     mobile: user.mobile,
     avatar: user.avatar,
     role: user.role,
@@ -514,13 +500,10 @@ exports.updateProfilePicture = catchAsyncError(async (req, res, next) => {
 });
 
 exports.logout = catchAsyncError(async (req, res, next) => {
-  // const clientIp = req.clientIp;
   const { refreshToken } = req.body;
   const user = await User.findById(req.userId);
   if (!user) return next(new ErrorHandler("Unauthorize", 401));
 
-  // pull the clientId from the user devices_id array
-  // console.log(req.headers.authorization.split(" ")[1]);
   if (user.subscription_plans.plan_name) {
     user.device_ids = user.device_ids.filter((data) => data != refreshToken);
     await user.save();
@@ -543,11 +526,17 @@ exports.logoutFromFirstDevice = catchAsyncError(async (req, res, next) => {
   if (!user) {
     return next(new ErrorHandler("User Not Found", 404));
   }
+
+  res.status(200).json({
+    success: true,
+    message: "Logout successfully",
+  });
 });
 
 exports.deleteAccount = catchAsyncError(async (req, res, next) => {
   const user = await User.findByIdAndDelete(req.userId);
   if (!user) return next(new ErrorHandler("User not Found", 400));
+
   res.status(200).json({
     success: true,
     message: "Account Deleted Successfully",

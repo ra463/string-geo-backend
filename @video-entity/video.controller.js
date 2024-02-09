@@ -70,7 +70,12 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
     .skip(skip)
     .limit(limit)
     .sort({ createdAt: -1 })
+    .populate("language", "name")
+    .populate("genres", "name")
+    .populate("category", "name")
     .lean();
+
+  console.log(videos);
 
   res.status(200).json({
     success: true,
@@ -92,7 +97,11 @@ exports.deleteVideo = catchAsyncError(async (req, res, next) => {
 
 exports.getVideo = catchAsyncError(async (req, res, next) => {
   const [video, user] = await Promise.all([
-    videoModel.findById(req.params.id),
+    videoModel
+      .findById(req.params.id)
+      .populate("language", "name")
+      .populate("genres", "name")
+      .populate("category", "name"),
     User.findById(req.userId),
   ]);
 
@@ -100,9 +109,6 @@ exports.getVideo = catchAsyncError(async (req, res, next) => {
     return next(
       new ErrorHandler(`${!video ? "Video" : "User"} not found`, 404)
     );
-
-  if (!user.subscription_plans.plan_name)
-    return next(new ErrorHandler("Please subscribe to a plan", 400));
 
   const expirationTime = new Date();
   expirationTime.setHours(expirationTime.getHours() + 1);

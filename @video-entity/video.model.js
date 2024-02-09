@@ -19,15 +19,16 @@ const schema = new mongoose.Schema(
       required: [true, "Please enter video url"],
     },
     genres: {
-      type: Array,
-      required: [true, "Please enter category"],
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Genre" }],
+      required: [true, "Please select genres"],
     },
     language: {
-      type: String,
-      required: [true, "Please enter language"],
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Language",
+      required: [true, "Please select language"],
     },
     category: {
-      type: Array,
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Category" }],
     },
     keywords: {
       type: Array,
@@ -40,7 +41,7 @@ const schema = new mongoose.Schema(
     access: {
       type: String,
       enum: ["free", "paid"],
-      default: "free",
+      default: "paid",
     },
   },
   {
