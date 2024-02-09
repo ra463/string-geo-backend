@@ -92,7 +92,7 @@ exports.deleteVideo = catchAsyncError(async (req, res, next) => {
 
 exports.getVideo = catchAsyncError(async (req, res, next) => {
   const [video, user] = await Promise.all([
-    videoModel.findById(req.params.videoId),
+    videoModel.findById(req.params.id),
     User.findById(req.userId),
   ]);
 
