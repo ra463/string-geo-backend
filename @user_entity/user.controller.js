@@ -513,46 +513,6 @@ exports.updateProfilePicture = catchAsyncError(async (req, res, next) => {
   });
 });
 
-exports.getSingleVideo = catchAsyncError(async (req, res, next) => {
-  const [video, user] = await Promise.all([
-    Video.findById(req.params.videoId),
-    User.findById(req.userId),
-  ]);
-
-  if (!video) return next(new ErrorHandler("Video not found", 404));
-  if (!user) return next(new ErrorHandler("User not found", 404));
-
-  if (!user.subscription_plans.plan_name) {
-    return next(new ErrorHandler("Please subscribe to a plan", 400));
-  }
-
-  const expirationTime = new Date();
-  expirationTime.setHours(expirationTime.getHours() + 1);
-
-  // generate signed url of video
-  const key = process.env.KEY_CLOUD;
-  const pemKey = `-----BEGIN PRIVATE KEY-----\n${key}\n-----END PRIVATE KEY-----`;
-  const signedUrl = getSignedUrl({
-    keyPairId: process.env.ID_CLOUD,
-    privateKey: pemKey,
-    url: `${process.env.URL_CLOUD}/${video.video_url}`,
-    dateLessThan: expirationTime,
-  });
-
-  const videoData = {
-    _id: video._id,
-    title: video.title,
-    description: video.description,
-    thumbnail_url: video.thumbnail_url,
-    video_url: signedUrl,
-    categories: video.categories,
-    language: video.language,
-    keywords: video.keywords,
-  };
-
-  res.status(200).json({ success: true, videoData });
-});
-
 exports.logout = catchAsyncError(async (req, res, next) => {
   // const clientIp = req.clientIp;
   const { refreshToken } = req.body;

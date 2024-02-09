@@ -20,7 +20,7 @@ const validator = (req, res, next) => {
         "logout_from_other_device",
       ],
       allowQuery: [],
-      allowParams: ["videoId"],
+      allowParams: [],
     };
     const body = Object.keys(req.body);
     const query = Object.keys(req.query);

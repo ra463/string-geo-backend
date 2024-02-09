@@ -3,6 +3,7 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 const { s3Uploadv4 } = require("../utils/s3");
 const videoModel = require("./video.model");
+const User = require("../@user_entity/user.model");
 
 exports.createVideo = catchAsyncError(async (req, res, next) => {
   const {
@@ -90,10 +91,18 @@ exports.deleteVideo = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getVideo = catchAsyncError(async (req, res, next) => {
-  const video = await videoModel.findById(req.params.id);
-  if (!video) {
-    return next(new ErrorHandler("Video not found", 404));
-  }
+  const [video, user] = await Promise.all([
+    videoModel.findById(req.params.videoId),
+    User.findById(req.userId),
+  ]);
+
+  if (!video || !user)
+    return next(
+      new ErrorHandler(`${!video ? "Video" : "User"} not found`, 404)
+    );
+
+  if (!user.subscription_plans.plan_name)
+    return next(new ErrorHandler("Please subscribe to a plan", 400));
 
   const expirationTime = new Date();
   expirationTime.setHours(expirationTime.getHours() + 1);

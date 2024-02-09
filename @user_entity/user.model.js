@@ -14,6 +14,7 @@ const schema = new mongoose.Schema(
       required: [true, "Please enter your email"],
       unique: [true, "Email already exists"],
       validate: [validator.isEmail, "Please enter valid email address"],
+      trim: true,
     },
     password: {
       type: String,
@@ -30,6 +31,7 @@ const schema = new mongoose.Schema(
       type: Number,
       required: [true, "Please enter your mobile number"],
       unique: [true, "Mobile number already exists"],
+      trim: true,
     },
     avatar: {
       type: String,

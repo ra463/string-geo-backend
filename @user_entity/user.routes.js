@@ -16,7 +16,6 @@ const {
   deleteAccount,
   updateProfilePicture,
   sendInvoice,
-  getSingleVideo,
 } = require("./user.controller");
 const { upload } = require("../utils/s3");
 
@@ -36,7 +35,6 @@ router
   .route("/update-photo")
   .patch(auth, upload.single("image"), updateProfilePicture);
 router.route("/get-my-plan").get(auth, getMyPlan);
-router.route("/get-single-video/:videoId").get(auth, getSingleVideo);
 router.route("/logout").post(auth, logout);
 router.route("/logout-from-first-device").post(auth, logoutFromFirstDevice);
 router.route("/delete-account").delete(auth, deleteAccount);
