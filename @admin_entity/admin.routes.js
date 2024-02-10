@@ -9,7 +9,6 @@ const {
   getUser,
   updateUserProfile,
   getURL,
-  
 } = require("./admin.controller");
 const { upload } = require("../utils/s3");
 
@@ -23,8 +22,13 @@ router
 router.get("/download-as-csv", auth, isAdmin, downloadAsCsv);
 router.delete("/delete-user/:userId", auth, isAdmin, deleteUser);
 router.get("/get-user/:userId", auth, isAdmin, getUser);
-router.patch("/update-user/:userId", auth, isAdmin, updateUserProfile);
+router.patch(
+  "/update-user",
+  auth,
+  isAdmin,
+  upload.single("image"),
+  updateUserProfile
+);
 router.post("/get-url", auth, isAdmin, getURL);
-
 
 module.exports = router;

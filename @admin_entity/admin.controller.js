@@ -160,23 +160,33 @@ exports.getUser = catchAsyncError(async (req, res, next) => {
 });
 
 exports.updateUserProfile = catchAsyncError(async (req, res, next) => {
-  const { name, email, password, mobile, states, country, city } = req.body;
-  const user = await User.findById(req.params.userId);
+  const { name, email, password, mobile } = req.body;
+  const user = await User.findById(req.userId);
   if (!user) return next(new ErrorHandler("User not found", 400));
 
+  let location = "";
+  if (req.file) {
+    const result = await s3Uploadv4(req.file, req.userId);
+    location = result.Location;
+  }
   if (name) user.name = name;
   if (email) user.email = email;
   if (password) user.password = password;
   if (mobile) user.mobile = mobile;
-  if (states) user.states = states;
-  if (country) user.country = country;
-  if (city) user.city = city;
+  user.country_code = "+91";
+  if (location) user.avatar = location;
 
   await user.save();
 
   res.status(200).json({
     success: true,
     message: "Profile Updated Successfully",
+    user: {
+      email: user.email,
+      name: user.name,
+      mobile: user.mobile,
+      avatar: user.avatar,
+    },
   });
 });
 
@@ -189,8 +199,6 @@ exports.getURL = catchAsyncError(async (req, res, next) => {
     data,
   });
 });
-
-
 
 // exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
 //   const key = process.env.KEY_CLOUD;
