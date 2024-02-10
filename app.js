@@ -46,6 +46,7 @@ const actorRoutes = require("./@actor_entity/actor.index");
 const directorRoutes = require("./@director_entity/director.index");
 const categoryRoutes = require("./@category_entity/category.index");
 const queryRoutes = require("./@query_entity/query.index");
+const couponRoutes = require("./@coupon_entity/coupon.index");
 
 //import validators
 const userValidator = require("./@user_entity/user.validator");
@@ -59,6 +60,7 @@ const actorValidator = require("./@actor_entity/actor.validator");
 const directorValidator = require("./@director_entity/director.validator");
 const categoryValidator = require("./@category_entity/category.validator");
 const queryValidator = require("./@query_entity/query.validator");
+const couponValidator = require("./@coupon_entity/coupon.validator");
 
 // use routes
 app.use("/api/user", userValidator, userRoutes);
@@ -73,6 +75,7 @@ app.use("/api/actor", actorValidator, actorRoutes);
 app.use("/api/director", directorValidator, directorRoutes);
 app.use("/api/category", categoryValidator, categoryRoutes);
 app.use("/api/query", queryValidator, queryRoutes);
+app.use("/api/coupon", couponValidator, couponRoutes);
 
 app.get("/", (req, res) =>
   res.send(`<h1>Its working. Click to visit Link.</h1>`)
