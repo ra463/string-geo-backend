@@ -12,6 +12,17 @@ const schema = new mongoose.Schema(
       default: "Active",
       enum: ["Active", "Inactive"],
     },
+    video_array: [
+      {
+        video: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Video",
+        },
+        sequence: {
+          type: Number,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

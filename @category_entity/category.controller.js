@@ -1,18 +1,11 @@
 const catchAsyncError = require("../utils/catchAsyncError");
 const Category = require("./category.model");
-const Sequence = require("../@sequnce_entity/sequence.model");
 const ErrorHandler = require("../utils/errorHandler");
 
 exports.createCategory = catchAsyncError(async (req, res, next) => {
   const { name, status } = req.body;
 
-  const [category, sequence] = await Promise.all([
-    Category.create({ name, status }),
-    Sequence.create({
-      name: name,
-      video_array: [],
-    }),
-  ]);
+  const category = await Category.create({ name, status, video_array: [] });
 
   res.status(201).json({
     success: true,
