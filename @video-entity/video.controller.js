@@ -95,6 +95,15 @@ exports.deleteVideo = catchAsyncError(async (req, res, next) => {
   });
 });
 
+exports.getVideosOfCategory = catchAsyncError(async (req, res, next) => {
+  const videos = await videoModel.find({ category: { $in: [req.params.id] } });
+
+  res.status(200).json({
+    success: true,
+    videos_category: videos,
+  });
+});
+
 exports.getVideo = catchAsyncError(async (req, res, next) => {
   const [video, user] = await Promise.all([
     videoModel

@@ -53,7 +53,8 @@ exports.updateCategory = catchAsyncError(async (req, res, next) => {
 
 exports.getCategoryWithVideo = catchAsyncError(async (req, res, next) => {
   const category = await Category.findById(req.params.id).populate(
-    "video_array.video"
+    "video_array.video",
+    "title description thumbnail_url video_url views"
   );
   if (!category) return next(new ErrorHandler("Category not found", 404));
 
@@ -88,6 +89,8 @@ exports.addVideoToCategory = catchAsyncError(async (req, res, next) => {
         video: video_id,
         sequence: category.video_array.length + 1,
       });
+    } else {
+      return next(new ErrorHandler("Video already added to category", 400));
     }
   }
 
@@ -125,16 +128,27 @@ exports.addVideoToCategory = catchAsyncError(async (req, res, next) => {
 //   });
 // });
 
-// exports.removeVideoFromCategory = catchAsyncError(async (req, res, next) => {
-//   const category = await Category.findById(req.params.id);
-//   if (!category) return next(new ErrorHandler("Category not found", 404));
+exports.removeVideoFromCategory = catchAsyncError(async (req, res, next) => {
+  const category = await Category.findById(req.params.id);
+  if (!category) return next(new ErrorHandler("Category not found", 404));
 
-//   const { video_id } = req.body;
+  const { video_id } = req.body;
 
-//   const selected_video = category.video_array.find(
-//     (video) => video.video.toString() === video_id
-//   );
-// });
+  const selected_video = category.video_array.find(
+    (video) => video.video.toString() === video_id
+  );
+  if (!selected_video) return next(new ErrorHandler("Video not found", 404));
+
+  category.video_array = category.video_array.filter(
+    (video) => video.video.toString() !== video_id
+  );
+
+  await category.save();
+  res.status(200).json({
+    success: true,
+    message: "Video removed from category",
+  });
+});
 
 exports.deleteCategory = catchAsyncError(async (req, res, next) => {
   const category = await Category.findById(req.params.id);
