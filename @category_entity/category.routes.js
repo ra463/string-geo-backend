@@ -9,6 +9,7 @@ const {
   addVideoToCategory,
   getCategoryWithVideo,
   removeVideoFromCategory,
+  shuffleCategorySequence,
 } = require("./category.controller");
 
 const router = express.Router();
@@ -25,6 +26,12 @@ router.post(
   auth,
   isAdmin,
   removeVideoFromCategory
+);
+router.patch(
+  "/shuffle-category-sequence/:id",
+  auth,
+  isAdmin,
+  shuffleCategorySequence
 );
 
 module.exports = router;

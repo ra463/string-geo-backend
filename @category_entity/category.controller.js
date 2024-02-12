@@ -25,7 +25,9 @@ exports.getCategories = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getCategory = catchAsyncError(async (req, res, next) => {
-  const category = await Category.findById(req.params.id);
+  const category = await Category.findById(req.params.id).populate(
+    "video_array.video"
+  );
   if (!category) return next(new ErrorHandler("Category not found", 404));
 
   res.status(200).json({
@@ -155,6 +157,21 @@ exports.deleteCategory = catchAsyncError(async (req, res, next) => {
   if (!category) return next(new ErrorHandler("Category not found", 404));
 
   await category.deleteOne();
+
+  res.status(200).json({
+    success: true,
+    message: "Category Deleted successfully",
+  });
+});
+
+exports.shuffleCategorySequence = catchAsyncError(async (req, res, next) => {
+  const category = await Category.findById(req.params.id);
+  if (!category) return next(new ErrorHandler("Category not found", 404));
+  const {video_array} = req.body
+  // console.log(video_array);
+
+   category.video_array = video_array;
+   await category.save();
 
   res.status(200).json({
     success: true,
