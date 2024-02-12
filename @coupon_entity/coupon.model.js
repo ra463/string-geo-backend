@@ -22,6 +22,9 @@ const schema = new mongoose.Schema(
     expiry: {
       type: Date,
     },
+    discount: {
+      type: Number,
+    },
   },
   {
     timestamps: true,
