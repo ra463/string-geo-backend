@@ -145,6 +145,13 @@ exports.removeVideoFromCategory = catchAsyncError(async (req, res, next) => {
     (video) => video.video.toString() !== video_id
   );
 
+  category.video_array = category.video_array.sort(
+    (a, b) => a.sequence - b.sequence
+  );
+  category.video_array = category.video_array.map((data, index) => {
+    return { ...data, sequence: index + 1 };
+  });
+
   await category.save();
   res.status(200).json({
     success: true,
@@ -167,11 +174,16 @@ exports.deleteCategory = catchAsyncError(async (req, res, next) => {
 exports.shuffleCategorySequence = catchAsyncError(async (req, res, next) => {
   const category = await Category.findById(req.params.id);
   if (!category) return next(new ErrorHandler("Category not found", 404));
-  const {video_array} = req.body
+  let { video_array } = req.body;
   // console.log(video_array);
+  video_array = video_array.sort((a, b) => a.sequence - b.sequence);
+  video_array = video_array.map((data, index) => {
+    return { ...data, sequence: index + 1 };
+  });
+  // console.log(video_array);
+  category.video_array = video_array;
 
-   category.video_array = video_array;
-   await category.save();
+  await category.save();
 
   res.status(200).json({
     success: true,

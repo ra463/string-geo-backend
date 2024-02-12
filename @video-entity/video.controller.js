@@ -75,7 +75,7 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
     .populate("category", "name")
     .lean();
 
-  console.log(videos);
+  // console.log(videos);
 
   res.status(200).json({
     success: true,
