@@ -161,12 +161,12 @@ exports.getUser = catchAsyncError(async (req, res, next) => {
 
 exports.updateUserProfile = catchAsyncError(async (req, res, next) => {
   const { name, email, password, mobile } = req.body;
-  const user = await User.findById(req.userId);
+  const user = await User.findById(req.params.id);
   if (!user) return next(new ErrorHandler("User not found", 400));
 
   let location = "";
   if (req.file) {
-    const result = await s3Uploadv4(req.file, req.userId);
+    const result = await s3Uploadv4(req.file, req.params.id);
     location = result.Location;
   }
   if (name) user.name = name;

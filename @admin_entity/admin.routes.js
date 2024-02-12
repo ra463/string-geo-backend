@@ -23,7 +23,7 @@ router.get("/download-as-csv", auth, isAdmin, downloadAsCsv);
 router.delete("/delete-user/:userId", auth, isAdmin, deleteUser);
 router.get("/get-user/:userId", auth, isAdmin, getUser);
 router.patch(
-  "/update-user",
+  "/update-user/:id",
   auth,
   isAdmin,
   upload.single("image"),
