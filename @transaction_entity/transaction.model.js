@@ -10,7 +10,7 @@ const schema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    razorpay_payment_id: {
+    payment_id: {
       type: String,
       required: true,
     },

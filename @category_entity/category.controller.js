@@ -19,7 +19,6 @@ exports.getCategories = catchAsyncError(async (req, res, next) => {
   const categories = await Category.find()
     .populate("video_array.video", "title description thumbnail_url video_url")
     .lean();
-
   res.status(200).json({
     success: true,
     categories,
