@@ -6,17 +6,10 @@ const schema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    plan: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Plan",
-    },
     order_id: {
       type: String,
     },
     razorpay_signature: {
-      type: String,
-    },
-    plan_type_id: {
       type: String,
     },
     plan_name: {
@@ -28,10 +21,10 @@ const schema = new mongoose.Schema(
     plan_type: {
       type: String,
     },
-    price: {
+    usd_price: {
       type: Number,
     },
-    validity: {
+    inr_price: {
       type: Number,
     },
     expiry_date: {

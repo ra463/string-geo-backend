@@ -79,14 +79,7 @@ exports.getUserTransactions = catchAsyncError(async (req, res, next) => {
       createdAt: -1,
     })
     .populate("user", "name email")
-    .populate({
-      path: "order",
-      select: "plan_type validity",
-      populate: {
-        path: "plan",
-        select: "name",
-      },
-    })
+    .populate("order", "-razorpay_signature")
     .lean();
 
   res.status(200).json({
@@ -112,21 +105,5 @@ exports.getUserTransactionDetails = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     success: true,
     transaction,
-  });
-});
-
-exports.test = catchAsyncError(async (req, res, next) => {
-  const transcation = await User.find();
-  transcation.forEach(async (t) => {
-    if (t.role === "User") {
-      t.role = "user";
-      t.save();
-    } else if (t.role === "Admin") {
-      t.role = "admin";
-      t.save();
-    }
-  });
-  res.status(200).json({
-    succes: true,
   });
 });

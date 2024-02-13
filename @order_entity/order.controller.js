@@ -10,6 +10,7 @@ const crypto = require("crypto");
 const { sendInvoice } = require("../utils/sendEmail");
 const { s3Uploadv4 } = require("../utils/s3");
 const generateAccessToken = require("../utils/paypal");
+const axios = require("axios");
 
 dotenv.config({
   path: "../config/config.env",
@@ -44,13 +45,18 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
 
   const order = await instance.orders.create(options);
 
+  let expiry_date = new Date();
+  expiry_date.setDate(expiry_date.getDate() + p_type.validity);
+
   const newOrder = new Order({
     user: req.userId,
-    plan: plan._id,
     order_id: order.id,
-    plan_type_id: plan_typeId,
-    // status: order.status,
-    status: "Pending",
+    plan_name: plan.name,
+    allow_devices: plan.allow_devices,
+    plan_type: p_type.plan_type,
+    inr_price: p_type.price,
+    expiry_date: expiry_date,
+    status: "PENDING",
   });
 
   await newOrder.save();
@@ -79,43 +85,33 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
     .digest("hex");
 
   if (isAuthentic !== razorpay_signature) {
-    await Order.findOneAndUpdate(
-      { order_id: razorpay_order_id },
-      {
-        status: "Failed",
-        razorpay_signature,
-      }
-    );
+    const failed_order = await Order.findOne({ order_id: razorpay_order_id });
+    const failed_transaction = new Transaction({
+      order: failed_order._id,
+      user: failed_order.user,
+      payment_id: razorpay_payment_id,
+      gateway: "Razorpay",
+      amount: failed_order.inr_price,
+      status: "FAILED",
+    });
+    await failed_transaction.save();
+    await failed_order.deleteOne();
     return next(new ErrorHandler("Invalid Signature: Payment Failed", 400));
   }
 
-  const order = await Order.findOne({ order_id: razorpay_order_id }).populate(
-    "plan"
-  );
+  const order = await Order.findOne({ order_id: razorpay_order_id });
   const user = await User.findById(order.user);
-  const plan = await Plan.findById(order.plan._id);
-  const p_type = plan.prices.find((item) => {
-    if (item._id.toString() === order.plan_type_id.toString()) return item;
-  });
 
-  let expiry_date = new Date();
-  expiry_date.setDate(expiry_date.getDate() + p_type.validity);
   order.razorpay_signature = razorpay_signature;
-  order.plan_name = order.plan.name;
-  order.allow_devices = order.plan.allow_devices;
-  order.plan_type = p_type.plan_type;
-  order.price = p_type.price / 100;
-  order.validity = p_type.validity;
-  order.expiry_date = expiry_date;
-
   await order.save();
 
   const transaction = new Transaction({
     order: order._id,
     user: order.user,
     payment_id: razorpay_payment_id,
-    amount: order.price,
     gateway: "Razorpay",
+    amount: order.inr_price,
+    status: "PENDING",
   });
 
   const data = await sendInvoice(user, transaction);
@@ -170,15 +166,28 @@ exports.createPayapalOrder = catchAsyncError(async (req, res, next) => {
     }
   );
 
+  let expiry_date = new Date();
+  expiry_date.setDate(expiry_date.getDate() + p_type.validity);
+
+  const newOrder = new Order({
+    user: req.userId,
+    order_id: data.id,
+    plan_name: plan.name,
+    allow_devices: plan.allow_devices,
+    plan_type: p_type.plan_type,
+    usd_price: p_type.usd_price,
+    expiry_date: expiry_date,
+    status: "PENDING",
+  });
+
+  await newOrder.save();
+
   res.status(201).json({ success: true, order: data });
 });
 
 exports.capturePaypalOrder = catchAsyncError(async (req, res, next) => {
-  const { planId, plan_typeId } = req.body;
-  if (!planId) return next(new ErrorHandler("PlanId is Required", 404));
-
   const accessToken = await generateAccessToken();
-  const url = `${base}/v2/checkout/orders/${req.body.orderId}/capture`;
+  const url = `${base}/v2/checkout/orders/${req.params.orderId}/capture`;
 
   const { data } = await axios.post(
     url,
@@ -191,40 +200,18 @@ exports.capturePaypalOrder = catchAsyncError(async (req, res, next) => {
     }
   );
 
-  const plan = await Plan.findById(planId);
-  const p_type = plan.prices.find((item) => {
-    if (item._id.toString() === order.plan_type_id.toString()) return item;
-  });
-
-  let expiry_date = new Date();
-  expiry_date.setDate(expiry_date.getDate() + p_type.validity);
-
-  const order = new Order({
-    user: req.userId,
-    plan: planId,
-    order_id: data.id,
-    plan_type_id: plan_typeId,
-    plan_name: plan.name,
-    allow_devices: plan.allow_devices,
-    plan_type: p_type.plan_type,
-    price: p_type.usd_price,
-    validity: p_type.validity,
-    expiry_date: expiry_date,
-    status: "Pending",
-  });
-
-  const newOrder = await order.save();
+  const order = await Order.findOne({ order_id: req.params.orderId });
 
   const transaction = new Transaction({
-    order: newOrder._id,
-    user: req.userId,
+    order: order._id,
+    user: order.user,
     payment_id: data.purchase_units[0].payments.captures[0].id,
-    amount: p_type.usd_price,
     gateway: "Paypal",
-    status: "Pending",
+    amount: order.usd_price,
+    status: "PENDING",
   });
 
-  const user = await User.findById(newOrder.user);
+  const user = await User.findById(order.user);
   const invoice_data = await sendInvoice(user, transaction);
   const result = await s3Uploadv4(invoice_data, user._id);
   transaction.invoice_url = result.Location;
@@ -248,13 +235,10 @@ exports.paymentWebhook = catchAsyncError(async (req, res, next) => {
     });
 
     transaction.status = req.body.payload.payment.entity.status;
-    order.status = "success";
+    order.status = "SUCCESS";
 
     await transaction.save();
     await order.save();
-
-    // send mail to user is pending
-    // ------------> <--------------
 
     res.status(200).json({
       success: true,
@@ -276,7 +260,7 @@ exports.paypalPaymentWebhook = catchAsyncError(async (req, res, next) => {
     if (!transaction)
       return next(new ErrorHandler("Transaction not found", 404));
 
-    order.status = "Success";
+    order.status = "SUCCESS";
     await order.save();
 
     transaction.status = req.body.resource.status;
