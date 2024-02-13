@@ -10,25 +10,32 @@ const schema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Plan",
     },
-    razorpay_order_id: {
+    order_id: {
       type: String,
-      required: true,
-    },
-    plan_type_id: {
-      type: String,
-    },
-    plan_type: {
-      type: String,
-    },
-    validity: {
-      type: Number,
     },
     razorpay_signature: {
       type: String,
     },
-    amount: {
+    plan_type_id: {
+      type: String,
+    },
+    plan_name: {
+      type: String,
+    },
+    allow_devices: {
       type: Number,
-      required: true,
+    },
+    plan_type: {
+      type: String,
+    },
+    price: {
+      type: Number,
+    },
+    validity: {
+      type: Number,
+    },
+    expiry_date: {
+      type: Date,
     },
     status: {
       type: String,
