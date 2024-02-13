@@ -78,7 +78,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     $or: [{ email: { $regex: new RegExp(email, "i") } }, { mobile }],
   });
 
-  if (user_exist) {
+  if (user_exist && user_exist.is_verified) {
     return next(
       new ErrorHandler(
         `${user_exist.email ? "Email" : "Mobile"} already exists`,
@@ -86,22 +86,35 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
       )
     );
   }
-  const user = await User.create({
-    name,
-    email: email.toLowerCase(),
-    password,
-    mobile,
-    states,
-    country,
-    city,
-    country_code,
-  });
+
+  let user;
+  if (!user_exist) {
+    user = await User.create({
+      name,
+      email: email.toLowerCase(),
+      password,
+      mobile,
+      states,
+      country,
+      city,
+      country_code,
+    });
+  } else {
+    user_exist.name = name;
+    user_exist.password = password;
+    user_exist.mobile = mobile;
+    user_exist.states = states;
+    user_exist.country = country;
+    user_exist.city = city;
+    user_exist.country_code = country_code;
+    user = user_exist;
+
+  }
 
   const code = generateCode();
-  await sendVerificationCode(user.email, code);
-
   user.temp_code = code;
   await user.save();
+  await sendVerificationCode(user.email, code);
 
   user.password = undefined;
   res.status(200).json({
@@ -138,7 +151,11 @@ const loginGoogle = async (req, res, next) => {
   const user = await User.findOne({
     email: { $regex: new RegExp(`^${email}$`, "i") },
   });
+  
   if (!user) return next(new ErrorHandler("User not found", 404));
+  if (!user.is_verified) {
+    return next(new ErrorHandler("Account Not Found", 400));
+  }
   if (user.is_frozen) {
     const last_attempt = user.last_attempt.getTime();
     const current = Date.now();
@@ -197,7 +214,9 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
     $or: [{ email: { $regex: new RegExp(`^${email}$`, "i") } }, { mobile }],
   }).select("+password");
   if (!user) return next(new ErrorHandler("Invalid Credentials", 400));
-
+  if (!user.is_verified) {
+    return next(new ErrorHandler("Account Not Found", 400));
+  }
   //check if user account is freeze
   if (user.is_frozen) {
     const last_attempt = user.last_attempt.getTime();
