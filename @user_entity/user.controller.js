@@ -10,6 +10,7 @@ const ErrorHandler = require("../utils/errorHandler");
 const userModel = require("./user.model");
 const { s3Uploadv4 } = require("../utils/s3");
 const dotenv = require("dotenv");
+const Order = require("../@order_entity/order.model");
 
 dotenv.config({ path: "../config/config.env" });
 
@@ -108,7 +109,6 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     user_exist.city = city;
     user_exist.country_code = country_code;
     user = user_exist;
-
   }
 
   const code = generateCode();
@@ -151,7 +151,7 @@ const loginGoogle = async (req, res, next) => {
   const user = await User.findOne({
     email: { $regex: new RegExp(`^${email}$`, "i") },
   });
-  
+
   if (!user) return next(new ErrorHandler("User not found", 404));
   if (!user.is_verified) {
     return next(new ErrorHandler("Account Not Found", 400));
@@ -400,6 +400,19 @@ exports.getProfile = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.userId).lean();
   if (!user) return next(new ErrorHandler("User not Found", 400));
 
+  const subscription_plans = await Order.find({ user }).sort({ createdAt: -1 });
+
+  let plan = {};
+  let status = "";
+  if (subscription_plans.length > 0) {
+    plan = subscription_plans[0];
+    if (plan.expiry_date > Date.now()) {
+      status = "Active Plan";
+    } else {
+      status = "Plan Expired";
+    }
+  }
+
   const data = {
     name: user.name,
     email: user.email,
@@ -411,7 +424,7 @@ exports.getProfile = catchAsyncError(async (req, res, next) => {
     states: user.states,
     country: user.country,
     city: user.city,
-    subscription_plans: user.subscription_plans,
+    subscription_plans: subscription_plans.length === 0 ? "No plan" : status,
   };
   res.status(200).json({
     success: true,
@@ -446,6 +459,19 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
 
   await user.save();
 
+  const subscription_plans = await Order.find({ user }).sort({ createdAt: -1 });
+
+  let plan = {};
+  let status = "";
+  if (subscription_plans.length > 0) {
+    plan = subscription_plans[0];
+    if (plan.expiry_date > Date.now()) {
+      status = "Active Plan";
+    } else {
+      status = "Plan Expired";
+    }
+  }
+
   const data = {
     name: user.name,
     email: user.email,
@@ -457,7 +483,7 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
     states: user.states,
     country: user.country,
     city: user.city,
-    subscription_plans: user.subscription_plans,
+    subscription_plans: subscription_plans.length === 0 ? "No plan" : status,
   };
 
   res.status(200).json({
