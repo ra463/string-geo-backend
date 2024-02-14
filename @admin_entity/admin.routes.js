@@ -9,6 +9,7 @@ const {
   getUser,
   updateUserProfile,
   getURL,
+  getHomeData,
 } = require("./admin.controller");
 const { upload } = require("../utils/s3");
 
@@ -30,5 +31,6 @@ router.patch(
   updateUserProfile
 );
 router.post("/get-url", auth, isAdmin, getURL);
+router.get("/get-home-data", auth, isAdmin, getHomeData);
 
 module.exports = router;

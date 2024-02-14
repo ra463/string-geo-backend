@@ -9,6 +9,11 @@ const { getSignedUrl } = require("@aws-sdk/cloudfront-signer");
 const dotenv = require("dotenv");
 const Video = require("../@video-entity/video.model");
 
+const transactionModel = require("../@transaction_entity/transaction.model");
+const genreModel = require("../@genre_entity/genre.model");
+const languageModel = require("../@language_entity/language.model");
+const categoriesModel = require("../@category_entity/category.model");
+
 dotenv.config({ path: "../config/config.env" });
 
 const sendData = async (res, statusCode, user, message) => {
@@ -211,3 +216,20 @@ exports.getURL = catchAsyncError(async (req, res, next) => {
 //   });
 //   return res.status(200).json({ success: true, signedUrl });
 // });
+
+exports.getHomeData = catchAsyncError(async (req, res, next) => {
+  const [users, transactions, genres, languages, categories, videos] =
+    await Promise.all([
+      User.countDocuments(),
+      transactionModel.countDocuments(),
+      genreModel.countDocuments(),
+      languageModel.countDocuments(),
+      categoriesModel.countDocuments(),
+      Video.countDocuments(),
+    ]);
+
+  res.status(200).json({
+    success: true,
+    data: { users, transactions, genres, languages, categories, videos },
+  });
+});
