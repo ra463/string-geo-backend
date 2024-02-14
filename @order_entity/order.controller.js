@@ -153,7 +153,7 @@ exports.createPayapalOrder = catchAsyncError(async (req, res, next) => {
         {
           amount: {
             currency_code: "USD",
-            value: price.toFixed(2),
+            value: price,
           },
         },
       ],
