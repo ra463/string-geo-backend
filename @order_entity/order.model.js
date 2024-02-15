@@ -32,6 +32,10 @@ const schema = new mongoose.Schema(
     },
     status: {
       type: String,
+      enum:["Active","Expire","Pending","Upcoming"]
+    },
+    start_date: {
+      type: Date,
     },
   },
   {

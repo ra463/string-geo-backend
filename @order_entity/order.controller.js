@@ -46,7 +46,37 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
   const order = await instance.orders.create(options);
 
   let expiry_date = new Date();
-  expiry_date.setDate(expiry_date.getDate() + p_type.validity);
+  let start_date = new Date();
+
+  const [upcoming, active] = await Promise.all([
+    Order.findOne({ user: req.userId, status: "Upcoming" }),
+    Order.findOne({ user: req.userId, status: "Active" }),
+  ]);
+  let price = 0;
+
+  if (upcoming) {
+    return next(new ErrorHandler("You Already have One Upcoming Plan", 400));
+  } else if (active) {
+    const startDate = new Date(active.expiry_date.getTime());
+    start_date = startDate.setDate(startDate.getDate() + 1);
+    expiry_date = new Date(start_date);
+    expiry_date = expiry_date.setDate(
+      expiry_date.getDate() + p_type.validity - 1
+    );
+
+    // if (active.plan_name === "Individual" && plan.name === "Family") {
+
+    //   let expiry = new Date(active.expiry_date);
+    //   let current = Date.now();
+    //   let remaining = expiry - current;
+    //   remaining = Math.ceil(remaining / (1000 * 60 * 60 * 24));
+    //   let days = active.plan_type === "monthly" ? 30 : 365;
+    //   price = Math.floor((active.inr_price / days) * remaining);
+    //   console.log(price);
+    // }
+  } else {
+    expiry_date.setDate(expiry_date.getDate() + p_type.validity);
+  }
 
   const newOrder = new Order({
     user: req.userId,
@@ -54,9 +84,10 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
     plan_name: plan.name,
     allow_devices: plan.allow_devices,
     plan_type: p_type.plan_type,
-    inr_price: p_type.inr_price,
-    expiry_date: expiry_date,
-    status: "PENDING",
+    inr_price: p_type.inr_price-price,
+    start_date,
+    expiry_date,
+    status: "Pending",
   });
 
   await newOrder.save();

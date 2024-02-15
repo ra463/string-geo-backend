@@ -11,6 +11,7 @@ const userModel = require("./user.model");
 const { s3Uploadv4 } = require("../utils/s3");
 const dotenv = require("dotenv");
 const Order = require("../@order_entity/order.model");
+const orderModel = require("../@order_entity/order.model");
 
 dotenv.config({ path: "../config/config.env" });
 
@@ -32,10 +33,10 @@ const isStrongPassword = (password) => {
   }
 };
 
-const sendData = async (res, statusCode, user, message) => {
+const sendData = async (res, statusCode, user, message, isActivePlan) => {
   const accessToken = await user.getAccessToken();
   const refreshToken = await user.getRefreshToken();
-  if (user.subscription_plans.plan_name) {
+  if (isActivePlan) {
     user.device_ids.push(refreshToken);
     await user.save();
   }
@@ -44,6 +45,7 @@ const sendData = async (res, statusCode, user, message) => {
   res.status(statusCode).json({
     success: true,
     user,
+    isActivePlan,
     accessToken,
     refreshToken,
     message,
@@ -179,10 +181,9 @@ const loginGoogle = async (req, res, next) => {
     await user.save();
   }
 
-  if (
-    user.subscription_plans.plan_name &&
-    user.subscription_plans.allow_devices <= user.device_ids.length
-  ) {
+  const order = await orderModel.findOne({ user: user._id, status: "Active" });
+
+  if (order && order.allow_devices === user.device_ids.length) {
     return next(
       new ErrorHandler(
         "Maximum device login limit is reached, please Logout from one of your device",
@@ -196,8 +197,12 @@ const loginGoogle = async (req, res, next) => {
     user.attempts = 0;
     await user.save();
   }
+  let isActivePlan = false;
+  if (order) {
+    isActivePlan = true;
+  }
 
-  sendData(res, 200, user, `Hey ${user.name}! Welcome Back`);
+  sendData(res, 200, user, `Hey ${user.name}! Welcome Back`, isActivePlan);
 };
 
 exports.loginUser = catchAsyncError(async (req, res, next) => {
@@ -255,10 +260,9 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
     await user.save();
   }
 
-  if (
-    user.subscription_plans.plan_name &&
-    user.subscription_plans.allow_devices <= user.device_ids.length
-  ) {
+  const order = await orderModel.findOne({ user: user._id, status: "Active" });
+
+  if (order && order.allow_devices === user.device_ids.length) {
     return next(
       new ErrorHandler(
         "Maximum device login limit is reached, please Logout from one of your device",
@@ -272,8 +276,12 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
     user.attempts = 0;
     await user.save();
   }
+  let isActivePlan = false;
+  if (order) {
+    isActivePlan = true;
+  }
 
-  sendData(res, 200, user, `Hey ${user.name}! Welcome Back`);
+  sendData(res, 200, user, `Hey ${user.name}! Welcome Back`, isActivePlan);
 });
 
 exports.sendForgotPasswordCode = catchAsyncError(async (req, res, next) => {
