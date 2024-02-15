@@ -5,7 +5,7 @@ const { error } = require("./middlewares/error");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
 // const ip = require("ip");
-const requestIp = require("request-ip");
+// const requestIp = require("request-ip");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
@@ -30,6 +30,7 @@ app.use(
   cors({
     origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    credentials: true,
   })
 );
 

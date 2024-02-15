@@ -39,7 +39,7 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
   if (!p_type) return next(new ErrorHandler("Plan type not found", 404));
 
   const options = {
-    amount: p_type.price * 100, // amount is in paisa (lowest currency unit)
+    amount: p_type.inr_price * 100, // amount is in paisa (lowest currency unit)
     currency: "INR",
   };
 
@@ -54,7 +54,7 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
     plan_name: plan.name,
     allow_devices: plan.allow_devices,
     plan_type: p_type.plan_type,
-    inr_price: p_type.price,
+    inr_price: p_type.inr_price,
     expiry_date: expiry_date,
     status: "PENDING",
   });

@@ -72,26 +72,7 @@ const schema = new mongoose.Schema(
       type: String,
     },
     device_ids: [{ type: String }],
-    subscription_plans: {
-      plan_name: {
-        type: String,
-      },
-      allow_devices: {
-        type: Number,
-      },
-      plan_type: {
-        type: String,
-      },
-      price: {
-        type: Number,
-      },
-      validity: {
-        type: Number,
-      },
-      expiry_date: {
-        type: Date,
-      },
-    },
+    watch_list: [{ type: mongoose.Schema.Types.ObjectId, ref: "Video" }],
     attempts: {
       type: Number,
       default: 0,
