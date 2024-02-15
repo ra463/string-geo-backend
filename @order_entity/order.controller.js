@@ -55,7 +55,7 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
       active.plan_name === "Individual" &&
       active.plan_type === "annual" &&
       plan.name === "Family" &&
-      plan.plan_type === "monthly"
+      p_type.plan_type === "monthly"
     ) {
       return next(
         new ErrorHandler(
@@ -214,7 +214,7 @@ exports.createPayapalOrder = catchAsyncError(async (req, res, next) => {
       active.plan_name === "Individual" &&
       active.plan_type === "annual" &&
       plan.name === "Family" &&
-      plan.plan_type === "monthly"
+      p_type.plan_type === "monthly"
     ) {
       return next(
         new ErrorHandler(
