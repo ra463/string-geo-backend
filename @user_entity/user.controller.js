@@ -11,7 +11,6 @@ const userModel = require("./user.model");
 const { s3Uploadv4 } = require("../utils/s3");
 const dotenv = require("dotenv");
 const Order = require("../@order_entity/order.model");
-const orderModel = require("../@order_entity/order.model");
 
 dotenv.config({ path: "../config/config.env" });
 
@@ -181,8 +180,7 @@ const loginGoogle = async (req, res, next) => {
     await user.save();
   }
 
-  const order = await orderModel.findOne({ user: user._id, status: "Active" });
-
+  const order = await Order.findOne({ user: user._id, status: "Active" });
   if (order && order.allow_devices === user.device_ids.length) {
     return next(
       new ErrorHandler(
@@ -192,14 +190,15 @@ const loginGoogle = async (req, res, next) => {
     );
   }
 
+  let isActivePlan = false;
+  if (order) {
+    isActivePlan = true;
+  }
+
   //set unsuccessfull attempts to 0 as user login successfully
   if (user.attempts) {
     user.attempts = 0;
     await user.save();
-  }
-  let isActivePlan = false;
-  if (order) {
-    isActivePlan = true;
   }
 
   sendData(res, 200, user, `Hey ${user.name}! Welcome Back`, isActivePlan);
@@ -222,6 +221,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   if (!user.is_verified) {
     return next(new ErrorHandler("Account Not Found", 400));
   }
+
   //check if user account is freeze
   if (user.is_frozen) {
     const last_attempt = user.last_attempt.getTime();
@@ -260,8 +260,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
     await user.save();
   }
 
-  const order = await orderModel.findOne({ user: user._id, status: "Active" });
-
+  const order = await Order.findOne({ user: user._id, status: "Active" });
   if (order && order.allow_devices === user.device_ids.length) {
     return next(
       new ErrorHandler(
@@ -271,14 +270,15 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
     );
   }
 
+  let isActivePlan = false;
+  if (order) {
+    isActivePlan = true;
+  }
+
   //set unsuccessfull attempts to 0 as user login successfully
   if (user.attempts) {
     user.attempts = 0;
     await user.save();
-  }
-  let isActivePlan = false;
-  if (order) {
-    isActivePlan = true;
   }
 
   sendData(res, 200, user, `Hey ${user.name}! Welcome Back`, isActivePlan);
@@ -408,19 +408,6 @@ exports.getProfile = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.userId).lean();
   if (!user) return next(new ErrorHandler("User not Found", 400));
 
-  const subscription_plans = await Order.find({ user }).sort({ createdAt: -1 });
-
-  let plan = {};
-  let status = "";
-  if (subscription_plans.length > 0) {
-    plan = subscription_plans[0];
-    if (plan.expiry_date > Date.now()) {
-      status = "Active Plan";
-    } else {
-      status = "Plan Expired";
-    }
-  }
-
   const data = {
     name: user.name,
     email: user.email,
@@ -432,8 +419,8 @@ exports.getProfile = catchAsyncError(async (req, res, next) => {
     states: user.states,
     country: user.country,
     city: user.city,
-    subscription_plans: subscription_plans.length === 0 ? "No plan" : status,
   };
+
   res.status(200).json({
     success: true,
     data,
@@ -467,19 +454,6 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
 
   await user.save();
 
-  const subscription_plans = await Order.find({ user }).sort({ createdAt: -1 });
-
-  let plan = {};
-  let status = "";
-  if (subscription_plans.length > 0) {
-    plan = subscription_plans[0];
-    if (plan.expiry_date > Date.now()) {
-      status = "Active Plan";
-    } else {
-      status = "Plan Expired";
-    }
-  }
-
   const data = {
     name: user.name,
     email: user.email,
@@ -491,7 +465,6 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
     states: user.states,
     country: user.country,
     city: user.city,
-    subscription_plans: subscription_plans.length === 0 ? "No plan" : status,
   };
 
   res.status(200).json({
@@ -505,17 +478,12 @@ exports.getMyPlan = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.userId).lean();
   if (!user) return next(new ErrorHandler("User not Found", 400));
 
-  if (!user.subscription_plans) {
-    return res.status(200).json({
-      success: true,
-      data: null,
-    });
-  } else {
-    return res.status(200).json({
-      success: true,
-      data: user.subscription_plans,
-    });
-  }
+  const active_plan = Order.findOne({ user: user._id, status: "Active" });
+
+  return res.status(200).json({
+    success: true,
+    data: active_plan ? active_plan : null,
+  });
 });
 
 exports.updateProfilePicture = catchAsyncError(async (req, res, next) => {
@@ -542,7 +510,6 @@ exports.updateProfilePicture = catchAsyncError(async (req, res, next) => {
     states: user.states,
     country: user.country,
     city: user.city,
-    subscription_plans: user.subscription_plans,
   };
 
   res.status(200).json({
@@ -555,9 +522,9 @@ exports.updateProfilePicture = catchAsyncError(async (req, res, next) => {
 exports.logout = catchAsyncError(async (req, res, next) => {
   const { refreshToken } = req.body;
   const user = await User.findById(req.userId);
-  
   if (!user) return next(new ErrorHandler("Unauthorize", 401));
-  const order = await orderModel.findOne({user:user._id,status:"Active"})
+
+  const order = await Order.findOne({ user: user._id, status: "Active" });
   if (order) {
     user.device_ids = user.device_ids.filter((data) => data != refreshToken);
     await user.save();
@@ -577,9 +544,7 @@ exports.logoutFromFirstDevice = catchAsyncError(async (req, res, next) => {
     { new: true }
   );
 
-  if (!user) {
-    return next(new ErrorHandler("User Not Found", 404));
-  }
+  if (!user) return next(new ErrorHandler("User Not Found", 404));
 
   res.status(200).json({
     success: true,
