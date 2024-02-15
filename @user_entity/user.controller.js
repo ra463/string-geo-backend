@@ -555,9 +555,10 @@ exports.updateProfilePicture = catchAsyncError(async (req, res, next) => {
 exports.logout = catchAsyncError(async (req, res, next) => {
   const { refreshToken } = req.body;
   const user = await User.findById(req.userId);
+  
   if (!user) return next(new ErrorHandler("Unauthorize", 401));
-
-  if (user.subscription_plans.plan_name) {
+  const order = await orderModel.findOne({user:user._id,status:"Active"})
+  if (order) {
     user.device_ids = user.device_ids.filter((data) => data != refreshToken);
     await user.save();
   }
