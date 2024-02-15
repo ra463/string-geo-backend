@@ -38,15 +38,9 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
   });
   if (!p_type) return next(new ErrorHandler("Plan type not found", 404));
 
-  const options = {
-    amount: p_type.inr_price * 100, // amount is in paisa (lowest currency unit)
-    currency: "INR",
-  };
-
-  const order = await instance.orders.create(options);
-
   let expiry_date = new Date();
   let start_date = new Date();
+  let upgrade = false;
 
   const [upcoming, active] = await Promise.all([
     Order.findOne({ user: req.userId, status: "Upcoming" }),
@@ -57,26 +51,56 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
   if (upcoming) {
     return next(new ErrorHandler("You Already have One Upcoming Plan", 400));
   } else if (active) {
-    const startDate = new Date(active.expiry_date.getTime());
-    start_date = startDate.setDate(startDate.getDate() + 1);
-    expiry_date = new Date(start_date);
-    expiry_date = expiry_date.setDate(
-      expiry_date.getDate() + p_type.validity - 1
-    );
+    if (
+      active.plan_name === "Individual" &&
+      active.plan_type === "yearly" &&
+      plan.name === "Family" &&
+      plan.plan_type === "monthly"
+    ) {
+      return next(
+        new ErrorHandler(
+          "You Can Upgrade your plan from yearly to yearly only",
+          400
+        )
+      );
+    }
 
-    // if (active.plan_name === "Individual" && plan.name === "Family") {
+    if (active.plan_name === "Family" && plan.name === "Individual") {
+      return next(
+        new ErrorHandler(
+          "You Can not downgrade your plan",
+          400
+        )
+      );
+    }
 
-    //   let expiry = new Date(active.expiry_date);
-    //   let current = Date.now();
-    //   let remaining = expiry - current;
-    //   remaining = Math.ceil(remaining / (1000 * 60 * 60 * 24));
-    //   let days = active.plan_type === "monthly" ? 30 : 365;
-    //   price = Math.floor((active.inr_price / days) * remaining);
-    //   console.log(price);
-    // }
+    if (active.plan_name === "Individual" && plan.name === "Family") {
+      let expiry = new Date(active.expiry_date);
+      let current = Date.now();
+      let remaining = expiry - current;
+      remaining = Math.ceil(remaining / (1000 * 60 * 60 * 24));
+      let days = active.plan_type === "monthly" ? 30 : 365;
+      price = Math.floor((active.inr_price / days) * remaining);
+      expiry_date.setDate(expiry_date.getDate() + p_type.validity);
+      upgrade = true;
+    } else {
+      const startDate = new Date(active.expiry_date.getTime());
+      start_date = startDate.setDate(startDate.getDate() + 1);
+      expiry_date = new Date(start_date);
+      expiry_date = expiry_date.setDate(
+        expiry_date.getDate() + p_type.validity - 1
+      );
+    }
   } else {
     expiry_date.setDate(expiry_date.getDate() + p_type.validity);
   }
+
+  const options = {
+    amount: p_type.inr_price * 100 - Number(parseFloat(price*100).toFixed(2)), // amount is in paisa (lowest currency unit)
+    currency: "INR",
+  };
+
+  const order = await instance.orders.create(options);
 
   const newOrder = new Order({
     user: req.userId,
@@ -84,8 +108,9 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
     plan_name: plan.name,
     allow_devices: plan.allow_devices,
     plan_type: p_type.plan_type,
-    inr_price: p_type.inr_price-price,
+    inr_price: p_type.inr_price - price,
     start_date,
+    is_upgrade: upgrade,
     expiry_date,
     status: "Pending",
   });
@@ -172,7 +197,64 @@ exports.createPayapalOrder = catchAsyncError(async (req, res, next) => {
   });
   if (!p_type) return next(new ErrorHandler("Plan type not found", 404));
 
-  const price = p_type.usd_price;
+  // const price = p_type.usd_price;
+  let expiry_date = new Date();
+  let start_date = new Date();
+  let upgrade = false;
+  let price = 0;
+
+  const [upcoming, active] = await Promise.all([
+    Order.findOne({ user: req.userId, status: "Upcoming" }),
+    Order.findOne({ user: req.userId, status: "Active" }),
+  ]);
+  
+
+  if (upcoming) {
+    return next(new ErrorHandler("You Already have One Upcoming Plan", 400));
+  } else if (active) {
+    if (
+      active.plan_name === "Individual" &&
+      active.plan_type === "yearly" &&
+      plan.name === "Family" &&
+      plan.plan_type === "monthly"
+    ) {
+      return next(
+        new ErrorHandler(
+          "You Can Upgrade your plan from yearly to yearly only",
+          400
+        )
+      );
+    }
+
+    if (active.plan_name === "Family" && plan.name === "Individual") {
+      return next(
+        new ErrorHandler(
+          "You Can not downgrade your plan",
+          400
+        )
+      );
+    }
+
+    if (active.plan_name === "Individual" && plan.name === "Family") {
+      let expiry = new Date(active.expiry_date);
+      let current = Date.now();
+      let remaining = expiry - current;
+      remaining = Math.ceil(remaining / (1000 * 60 * 60 * 24));
+      let days = active.plan_type === "monthly" ? 30 : 365;
+      price = Math.floor((active.inr_price / days) * remaining);
+      expiry_date.setDate(expiry_date.getDate() + p_type.validity);
+      upgrade = true;
+    } else {
+      const startDate = new Date(active.expiry_date.getTime());
+      start_date = startDate.setDate(startDate.getDate() + 1);
+      expiry_date = new Date(start_date);
+      expiry_date = expiry_date.setDate(
+        expiry_date.getDate() + p_type.validity - 1
+      );
+    }
+  } else {
+    expiry_date.setDate(expiry_date.getDate() + p_type.validity);
+  }
   const accessToken = await generateAccessToken();
   const url = `${base}/v2/checkout/orders`;
 
@@ -184,7 +266,7 @@ exports.createPayapalOrder = catchAsyncError(async (req, res, next) => {
         {
           amount: {
             currency_code: "USD",
-            value: price,
+            value: parseFloat(p_type.usd_price-price).toFixed(2),
           },
         },
       ],
@@ -197,8 +279,7 @@ exports.createPayapalOrder = catchAsyncError(async (req, res, next) => {
     }
   );
 
-  let expiry_date = new Date();
-  expiry_date.setDate(expiry_date.getDate() + p_type.validity);
+
 
   const newOrder = new Order({
     user: req.userId,
@@ -206,9 +287,11 @@ exports.createPayapalOrder = catchAsyncError(async (req, res, next) => {
     plan_name: plan.name,
     allow_devices: plan.allow_devices,
     plan_type: p_type.plan_type,
-    usd_price: p_type.usd_price,
+    usd_price: parseFloat(p_type.usd_price-price).toFixed(2),
+    start_date,
     expiry_date: expiry_date,
-    status: "PENDING",
+    is_upgrade:upgrade,
+    status: "Pending",
   });
 
   await newOrder.save();
@@ -266,10 +349,24 @@ exports.paymentWebhook = catchAsyncError(async (req, res, next) => {
     });
 
     transaction.status = req.body.payload.payment.entity.status;
-    order.status = "SUCCESS";
-
+    const activeOrder = await Order.find({
+      user: order.user,
+      status: "Active",
+    });
+    if (activeOrder && !order.is_upgrade) order.status = "Upcoming";
+    if (!activeOrder && !order.is_upgrade) {
+      order.status = "Active";
+    }
     await transaction.save();
     await order.save();
+
+    if (order.is_upgrade) {
+      const orders = await Order.find();
+      const deleteOrder = orders[orders.length - 2];
+      await deleteOrder.deleteOne();
+      order.status = "Active";
+      await order.save();
+    }
 
     res.status(200).json({
       success: true,

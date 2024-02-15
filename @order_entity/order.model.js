@@ -32,10 +32,14 @@ const schema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum:["Active","Expire","Pending","Upcoming"]
+      enum: ["Active", "Expire", "Pending", "Upcoming"],
     },
     start_date: {
       type: Date,
+    },
+    is_upgrade: {
+      type: Boolean,
+      default: false,
     },
   },
   {
