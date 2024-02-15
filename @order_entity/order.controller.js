@@ -53,13 +53,13 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
   } else if (active) {
     if (
       active.plan_name === "Individual" &&
-      active.plan_type === "yearly" &&
+      active.plan_type === "annual" &&
       plan.name === "Family" &&
       plan.plan_type === "monthly"
     ) {
       return next(
         new ErrorHandler(
-          "You can upgrade your plan from yearly to yearly only",
+          "You can upgrade your plan from annual to annual only",
           400
         )
       );
@@ -212,13 +212,13 @@ exports.createPayapalOrder = catchAsyncError(async (req, res, next) => {
   } else if (active) {
     if (
       active.plan_name === "Individual" &&
-      active.plan_type === "yearly" &&
+      active.plan_type === "annual" &&
       plan.name === "Family" &&
       plan.plan_type === "monthly"
     ) {
       return next(
         new ErrorHandler(
-          "You can upgrade your plan from yearly to yearly only",
+          "You can upgrade your plan from annual to annual only",
           400
         )
       );
