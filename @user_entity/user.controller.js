@@ -217,7 +217,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   const user = await User.findOne({
     $or: [{ email: { $regex: new RegExp(`^${email}$`, "i") } }, { mobile }],
   }).select("+password");
-  if (!user) return next(new ErrorHandler("Invalid Credentials", 400));
+  if (!user) return next(new ErrorHandler("Account Not Found", 400));
   if (!user.is_verified) {
     return next(new ErrorHandler("Account Not Found", 400));
   }
