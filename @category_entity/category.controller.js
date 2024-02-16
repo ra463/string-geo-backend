@@ -43,8 +43,8 @@ exports.getAllCategories = catchAsyncError(async (req, res, next) => {
   });
 });
 
-exports.getLastCategory = catchAsyncError(async (req, res, next) => {
-  const categories = await Category.find()
+exports.getWhatEveywhereCategory = catchAsyncError(async (req, res, next) => {
+  const category = await Category.findOne({ name: "What Everywhere" })
     .populate({
       path: "video_array.video",
       select:
@@ -65,14 +65,14 @@ exports.getLastCategory = catchAsyncError(async (req, res, next) => {
       ],
     })
     .lean();
-  const category = categories[categories.length - 1];
+
   res.status(200).json({
     success: true,
     category,
   });
 });
 
-exports.getRemainingCategories = catchAsyncError(async (req, res, next) => {
+exports.getpopularRecentCategories = catchAsyncError(async (req, res, next) => {
   const categories = await Category.find()
     .populate({
       path: "video_array.video",

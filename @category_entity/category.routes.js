@@ -10,16 +10,16 @@ const {
   getCategoryWithVideo,
   removeVideoFromCategory,
   shuffleCategorySequence,
-  getLastCategory,
-  getRemainingCategories,
+  getWhatEveywhereCategory,
+  getpopularRecentCategories,
 } = require("./category.controller");
 
 const router = express.Router();
 
 router.post("/create-category", auth, isAdmin, createCategory);
 router.get("/get-categories", auth, getAllCategories);
-router.get("/get-last-category", getLastCategory);
-router.get("/get-remaining-categories", getRemainingCategories);
+router.get("/get-what-everywhere-category", getWhatEveywhereCategory);
+router.get("/get-popular-recent-categories", getpopularRecentCategories);
 router.get("/get-category/:id", auth, getCategory);
 router.delete("/delete-category/:id", auth, isAdmin, deleteCategory);
 router.patch("/update-category/:id", auth, isAdmin, updateCategory);
