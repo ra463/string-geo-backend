@@ -238,6 +238,6 @@ exports.shuffleCategorySequence = catchAsyncError(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: "Category Deleted successfully",
+    message: "Category Sequence shuffled successfully",
   });
 });
