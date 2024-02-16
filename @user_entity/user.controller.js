@@ -478,7 +478,7 @@ exports.getMyPlan = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.userId).lean();
   if (!user) return next(new ErrorHandler("User not Found", 400));
 
-  const active_plan = Order.findOne({ user: user._id, status: "Active" });
+  const active_plan = await Order.findOne({ user: user._id, status: "Active" });
 
   return res.status(200).json({
     success: true,
