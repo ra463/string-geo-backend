@@ -2,7 +2,7 @@ const express = require("express");
 const { isAdmin, auth } = require("../middlewares/auth");
 const {
   createCategory,
-  getCategories,
+  getAllCategories,
   deleteCategory,
   updateCategory,
   getCategory,
@@ -10,12 +10,16 @@ const {
   getCategoryWithVideo,
   removeVideoFromCategory,
   shuffleCategorySequence,
+  getLastCategory,
+  getRemainingCategories,
 } = require("./category.controller");
 
 const router = express.Router();
 
 router.post("/create-category", auth, isAdmin, createCategory);
-router.get("/get-categories", auth, getCategories);
+router.get("/get-categories", auth, getAllCategories);
+router.get("/get-last-category", getLastCategory);
+router.get("/get-remaining-categories", getRemainingCategories);
 router.get("/get-category/:id", auth, getCategory);
 router.delete("/delete-category/:id", auth, isAdmin, deleteCategory);
 router.patch("/update-category/:id", auth, isAdmin, updateCategory);

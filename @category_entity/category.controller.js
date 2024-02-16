@@ -15,10 +15,87 @@ exports.createCategory = catchAsyncError(async (req, res, next) => {
   });
 });
 
-exports.getCategories = catchAsyncError(async (req, res, next) => {
+exports.getAllCategories = catchAsyncError(async (req, res, next) => {
   const categories = await Category.find()
-    .populate("video_array.video", "title description thumbnail_url video_url")
+    .populate({
+      path: "video_array.video",
+      select:
+        "title description thumbnail_url video_url category genres language access keywords",
+      populate: [
+        {
+          path: "category",
+          select: "name",
+        },
+        {
+          path: "language",
+          select: "name",
+        },
+        {
+          path: "genres",
+          select: "name",
+        },
+      ],
+    })
     .lean();
+  res.status(200).json({
+    success: true,
+    categories,
+  });
+});
+
+exports.getLastCategory = catchAsyncError(async (req, res, next) => {
+  const categories = await Category.find()
+    .populate({
+      path: "video_array.video",
+      select:
+        "title description thumbnail_url video_url category genres language access keywords",
+      populate: [
+        {
+          path: "category",
+          select: "name",
+        },
+        {
+          path: "language",
+          select: "name",
+        },
+        {
+          path: "genres",
+          select: "name",
+        },
+      ],
+    })
+    .lean();
+  const category = categories[categories.length - 1];
+  res.status(200).json({
+    success: true,
+    category,
+  });
+});
+
+exports.getRemainingCategories = catchAsyncError(async (req, res, next) => {
+  const categories = await Category.find()
+    .populate({
+      path: "video_array.video",
+      select:
+        "title description thumbnail_url video_url category genres language access keywords",
+      populate: [
+        {
+          path: "category",
+          select: "name",
+        },
+        {
+          path: "language",
+          select: "name",
+        },
+        {
+          path: "genres",
+          select: "name",
+        },
+      ],
+    })
+    .lean();
+
+  categories.splice(2, 3);
   res.status(200).json({
     success: true,
     categories,
