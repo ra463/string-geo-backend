@@ -181,33 +181,6 @@ exports.addVideoToCategory = catchAsyncError(async (req, res, next) => {
   });
 });
 
-// exports.editCategorySequence = catchAsyncError(async (req, res, next) => {
-//   const category = await Category.findById(req.params.id);
-//   if (!category) return next(new ErrorHandler("Category not found", 404));
-
-//   const { video_id_1, video_id_2, sequence_1, sequence_2 } = req.body;
-
-//   const video_1 = category.video_array.find(
-//     (video) => video.video.toString() === video_id_1
-//   );
-//   const video_2 = category.video_array.find(
-//     (video) => video.video.toString() === video_id_2
-//   );
-
-//   if (!video_1 || !video_2) {
-//     return next(new ErrorHandler("Video not found", 404));
-//   }
-
-//   video_1.sequence = sequence_1;
-//   video_2.sequence = sequence_2;
-
-//   await category.save();
-//   res.status(200).json({
-//     success: true,
-//     category,
-//   });
-// });
-
 exports.removeVideoFromCategory = catchAsyncError(async (req, res, next) => {
   const category = await Category.findById(req.params.id);
   if (!category) return next(new ErrorHandler("Category not found", 404));
