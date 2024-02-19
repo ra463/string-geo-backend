@@ -8,8 +8,6 @@ const { generateUploadURL, s3Uploadv4 } = require("../utils/s3");
 const { getSignedUrl } = require("@aws-sdk/cloudfront-signer");
 const dotenv = require("dotenv");
 const Video = require("../@video-entity/video.model");
-
-const transactionModel = require("../@transaction_entity/transaction.model");
 const genreModel = require("../@genre_entity/genre.model");
 const languageModel = require("../@language_entity/language.model");
 const categoriesModel = require("../@category_entity/category.model");
@@ -158,10 +156,17 @@ exports.deleteUser = catchAsyncError(async (req, res, next) => {
 exports.getUser = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.params.userId);
   if (!user) return next(new ErrorHandler("User not found", 404));
+
+  const transactions = await Transaction.find({ user: user._id })
+    .populate("user", "email")
+    .populate("order")
+    .sort({ createdAt: -1 });
+
   res.status(200).json({
     success: true,
     message: "User Found Successfully",
     user,
+    user_transactions: transactions,
   });
 });
 
@@ -222,7 +227,7 @@ exports.getHomeData = catchAsyncError(async (req, res, next) => {
   const [users, transactions, genres, languages, categories, videos] =
     await Promise.all([
       User.countDocuments(),
-      transactionModel.countDocuments(),
+      Transaction.countDocuments(),
       genreModel.countDocuments(),
       languageModel.countDocuments(),
       categoriesModel.countDocuments(),
@@ -236,7 +241,7 @@ exports.getHomeData = catchAsyncError(async (req, res, next) => {
 });
 
 exports.sendBulkEmails = catchAsyncError(async (req, res, next) => {
-  const users = await User.find({ role: "user",is_verified:true });
+  const users = await User.find({ role: "user", is_verified: true });
   const { subject, description } = req.body;
   const emails = users.map((user) => user.email);
   // console.log(emails);
