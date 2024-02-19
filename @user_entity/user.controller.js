@@ -38,13 +38,13 @@ const sendData = async (res, statusCode, user, message, isActivePlan) => {
   if (isActivePlan) {
     user.device_ids.push(refreshToken);
     await user.save();
-    user.isActivePlan = isActivePlan;
   }
 
   user.password = undefined;
   res.status(statusCode).json({
     success: true,
     user,
+    isActivePlan,
     accessToken,
     refreshToken,
     message,
