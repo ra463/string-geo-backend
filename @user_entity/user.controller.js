@@ -38,7 +38,7 @@ const sendData = async (res, statusCode, user, message, isActivePlan) => {
   if (isActivePlan) {
     user.device_ids.push(refreshToken);
     await user.save();
-    user.isActivePlan = isActivePlan
+    user.isActivePlan = isActivePlan;
   }
 
   user.password = undefined;
@@ -318,6 +318,26 @@ exports.validateCode = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "Code Validated successfully",
+  });
+});
+
+exports.resendOtp = catchAsyncError(async (req, res, next) => {
+  const { email } = req.body;
+  if (!email) return next(new ErrorHandler("Please enter email", 400));
+
+  const user = await User.findOne({ email });
+  if (!user) return next(new ErrorHandler("User does not exist", 400));
+
+  if (user.is_verified === true)
+    return next(new ErrorHandler("Account already verified", 400));
+
+  const code = generateCode();
+  user.temp_code = code;
+  await user.save();
+  await sendVerificationCode(user.email, code);
+  res.status(200).json({
+    success: true,
+    message: "Code send Successfully",
   });
 });
 

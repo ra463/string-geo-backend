@@ -16,6 +16,7 @@ const {
   deleteAccount,
   updateProfilePicture,
   sendInvoice,
+  resendOtp,
 } = require("./user.controller");
 const { upload } = require("../utils/s3");
 
@@ -27,6 +28,7 @@ router.route("/get-new-access-token").get(getNewAccesstoken);
 router.route("/login").post(loginUser);
 router.route("/send-code").post(sendForgotPasswordCode);
 router.route("/validate-code").post(validateCode);
+router.post("/resend-otp", resendOtp);
 router.route("/reset-password").post(resetPassword);
 router.route("/update-password").patch(auth, updatePassword);
 router.route("/get-profile").get(auth, getProfile);
