@@ -10,6 +10,7 @@ const {
   updateUserProfile,
   getURL,
   getHomeData,
+  sendBulkEmails,
 } = require("./admin.controller");
 const { upload } = require("../utils/s3");
 
@@ -32,5 +33,6 @@ router.patch(
 );
 router.post("/get-url", auth, isAdmin, getURL);
 router.get("/get-home-data", auth, isAdmin, getHomeData);
+router.post("/send-bulk-email", auth, isAdmin, sendBulkEmails);
 
 module.exports = router;

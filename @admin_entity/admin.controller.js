@@ -13,6 +13,7 @@ const transactionModel = require("../@transaction_entity/transaction.model");
 const genreModel = require("../@genre_entity/genre.model");
 const languageModel = require("../@language_entity/language.model");
 const categoriesModel = require("../@category_entity/category.model");
+const { sendBulkEmail } = require("../utils/sendEmail");
 
 dotenv.config({ path: "../config/config.env" });
 
@@ -231,5 +232,18 @@ exports.getHomeData = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: { users, transactions, genres, languages, categories, videos },
+  });
+});
+
+exports.sendBulkEmails = catchAsyncError(async (req, res, next) => {
+  const users = await User.find({ role: "user",is_verified:true });
+  const { subject, description } = req.body;
+  const emails = users.map((user) => user.email);
+  // console.log(emails);
+
+  await sendBulkEmail(emails, subject, description);
+  res.status(200).json({
+    success: true,
+    message: "Email Send Successfully",
   });
 });

@@ -4,6 +4,9 @@ const PDFDocument = require("pdfkit");
 const pdf = require("html-pdf");
 dotenv.config({ path: "../config/config.env" });
 const fs = require("fs");
+const sg = require("@sendgrid/mail");
+const api = process.env.SENDGRIP_API;
+sg.setApiKey(api);
 
 exports.sendVerificationCode = async (email, code) => {
   try {
@@ -152,6 +155,15 @@ exports.sendInvoice = async (user, transaction) => {
         }
       });
     });
+  });
+};
+
+exports.sendBulkEmail = async (emails, subject, description) => {
+  return sg.send({
+    to: emails,
+    from: "shobhitchoudhary745@gmail.com",
+    subject: `${subject}`,
+    text: `${description}`,
   });
 };
 

@@ -16,6 +16,7 @@ const validator = (req, res, next) => {
         "category",
         "language",
         "keywords",
+        "subject"
       ],
       allowQuery: [
         "resultPerPage",
