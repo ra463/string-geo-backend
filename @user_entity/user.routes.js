@@ -18,6 +18,8 @@ const {
   sendInvoice,
   resendOtp,
   addVideoToWatchlist,
+  removeVideoFromWatchlist,
+  getWatchList,
 } = require("./user.controller");
 const { upload } = require("../utils/s3");
 
@@ -39,6 +41,10 @@ router
   .patch(auth, upload.single("image"), updateProfilePicture);
 router.route("/get-my-plan").get(auth, getMyPlan);
 router.route("/add-video-to-watchlist").post(auth, addVideoToWatchlist);
+router
+  .route("/remove-video-from-watchlist")
+  .post(auth, removeVideoFromWatchlist);
+router.route("/get-watchlist").get(auth, getWatchList);
 router.route("/logout").post(auth, logout);
 router.route("/logout-from-first-device").post(auth, logoutFromFirstDevice);
 router.route("/delete-account").delete(auth, deleteAccount);

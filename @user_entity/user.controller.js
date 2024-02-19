@@ -567,6 +567,60 @@ exports.addVideoToWatchlist = catchAsyncError(async (req, res, next) => {
   });
 });
 
+exports.removeVideoFromWatchlist = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.userId);
+  if (!user) return next(new ErrorHandler("User not Found", 400));
+
+  const { videoId } = req.body;
+  if (!videoId) return next(new ErrorHandler("Please provide video id", 400));
+
+  const video = await Video.findById(videoId);
+  if (!video) return next(new ErrorHandler("Video not Found", 400));
+
+  if (!user.watch_list.includes(video._id)) {
+    return next(new ErrorHandler("Video not in watch list", 400));
+  }
+
+  user.watch_list = user.watch_list.filter(
+    (data) => data.toString() !== video._id.toString()
+  );
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Video removed from watch list",
+  });
+});
+
+exports.getWatchList = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.userId).populate({
+    path: "watch_list",
+    select:
+      "category title description thumbnail_url createdAt category genres language keywords",
+    populate: [
+      {
+        path: "category",
+        select: "name",
+      },
+      {
+        path: "genres",
+        select: "name",
+      },
+      {
+        path: "language",
+        select: "name",
+      },
+    ],
+  });
+  if (!user) return next(new ErrorHandler("User not Found", 400));
+
+  res.status(200).json({
+    success: true,
+    watch_list: user.watch_list,
+  });
+});
+
 exports.logout = catchAsyncError(async (req, res, next) => {
   const { refreshToken } = req.body;
   const user = await User.findById(req.userId);
