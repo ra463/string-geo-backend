@@ -6,6 +6,7 @@ const {
   updateVideo,
   getVideo,
   getVideosOfCategory,
+  getSingnedUrls,
 } = require("./video.controller");
 const { auth, isAdmin } = require("../middlewares/auth");
 const { upload } = require("../utils/s3");
@@ -29,5 +30,6 @@ router.patch(
   upload.single("image"),
   updateVideo
 );
+router.post("/geturl", getSingnedUrls);
 
 module.exports = router;

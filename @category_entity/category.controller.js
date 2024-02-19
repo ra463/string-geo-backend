@@ -20,7 +20,7 @@ exports.getAllCategories = catchAsyncError(async (req, res, next) => {
     .populate({
       path: "video_array.video",
       select:
-        "title description thumbnail_url video_url category genres language access keywords",
+        "title description thumbnail_url video_url category genres language access keywords createdAt",
       populate: [
         {
           path: "category",
@@ -48,7 +48,7 @@ exports.getWhatEveywhereCategory = catchAsyncError(async (req, res, next) => {
     .populate({
       path: "video_array.video",
       select:
-        "title description thumbnail_url video_url category genres language access keywords",
+        "title description thumbnail_url video_url category genres language access keywords createdAt",
       populate: [
         {
           path: "category",
@@ -77,7 +77,7 @@ exports.getpopularRecentCategories = catchAsyncError(async (req, res, next) => {
     .populate({
       path: "video_array.video",
       select:
-        "title description thumbnail_url video_url category genres language access keywords",
+        "title description thumbnail_url video_url category genres language access keywords createdAt",
       populate: [
         {
           path: "category",

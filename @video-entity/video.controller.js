@@ -184,3 +184,15 @@ exports.updateVideo = catchAsyncError(async (req, res, next) => {
     message: "Video updated successfully",
   });
 });
+
+exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
+  const key = process.env.KEY_CLOUD;
+  const pemKey = `-----BEGIN PRIVATE KEY-----\n${key}\n-----END PRIVATE KEY-----`;
+  const signedUrl = getSignedUrl({
+    keyPairId: process.env.ID_CLOUD,
+    privateKey: pemKey,
+    url: "https://d3i0jph7swoo8z.cloudfront.net/file_example.mp4",
+    dateLessThan: new Date(Date.now() + process.env.EXPIRE_TIME),
+  });
+  return res.status(200).json({ success: true, signedUrl });
+});

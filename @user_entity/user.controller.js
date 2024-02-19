@@ -1,4 +1,5 @@
 const User = require("./user.model");
+const Video = require("../@video-entity/video.model");
 const { generateCode } = require("../utils/generateCode");
 const {
   sendVerificationCode,
@@ -38,13 +39,13 @@ const sendData = async (res, statusCode, user, message, isActivePlan) => {
   if (isActivePlan) {
     user.device_ids.push(refreshToken);
     await user.save();
+    user.isActivePlan = isActivePlan;
   }
 
   user.password = undefined;
   res.status(statusCode).json({
     success: true,
     user,
-    isActivePlan,
     accessToken,
     refreshToken,
     message,
@@ -536,6 +537,33 @@ exports.updateProfilePicture = catchAsyncError(async (req, res, next) => {
     success: true,
     message: "Profile Picture Uploaded successfully",
     data,
+  });
+});
+
+exports.addVideoToWatchlist = catchAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.userId);
+  if (!user) return next(new ErrorHandler("User not Found", 400));
+
+  const { videoId } = req.body;
+  if (!videoId) return next(new ErrorHandler("Please provide video id", 400));
+
+  const video = await Video.findById(videoId);
+  if (!video) return next(new ErrorHandler("Video not Found", 400));
+
+  if (user.watch_list.length === 0) {
+    user.watch_list.push(video._id);
+  } else {
+    if (user.watch_list.includes(video._id)) {
+      return next(new ErrorHandler("Video already in watch list", 400));
+    }
+    user.watch_list.push(video._id);
+  }
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Video added to watch list",
   });
 });
 

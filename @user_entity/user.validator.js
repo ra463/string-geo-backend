@@ -18,6 +18,7 @@ const validator = (req, res, next) => {
         "refreshToken",
         "country_code",
         "logout_from_other_device",
+        "videoId",
       ],
       allowQuery: [],
       allowParams: [],
