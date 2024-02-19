@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 info: Info - ❌ : Feb-16-2024 16:45:24: Process 23396 is online on port number 4000
 info: Info - ❌ : Feb-16-2024 16:45:24: Process 18492 is online on port number 4000
 info: Info - ❌ : Feb-16-2024 16:45:24: Process 19124 is online on port number 4000
@@ -96,3 +97,5 @@ info: Info - ❌ : Feb-19-2024 18:19:38: Process 9416 is online on port number 4
 info: Info - ❌ : Feb-19-2024 18:19:38: Process 36976 is online on port number 4000
 info: Info - ❌ : Feb-19-2024 18:20:16: Worker 36976 has died!
 error: Error - ❌ : Feb-19-2024 18:20:16: Worker 36976 has died!
+=======
+>>>>>>> 3ae51633e39e094d6911ca05ccada95f51924eed
