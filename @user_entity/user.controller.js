@@ -323,13 +323,17 @@ exports.validateCode = catchAsyncError(async (req, res, next) => {
 });
 
 exports.resendOtp = catchAsyncError(async (req, res, next) => {
-  const { email } = req.body;
+  const { email, forgotPassword } = req.body;
   if (!email) return next(new ErrorHandler("Please enter email", 400));
 
   const user = await User.findOne({ email });
-  if (!user) return next(new ErrorHandler("User does not exist", 400));
 
-  if (user.is_verified === true)
+  if (!user) return next(new ErrorHandler("User does not exist", 400));
+  if (!user.is_verified && forgotPassword) {
+    return next(new ErrorHandler("Account Not Found", 400));
+  }
+
+  if (user.is_verified === true && !forgotPassword)
     return next(new ErrorHandler("Account already verified", 400));
 
   const code = generateCode();

@@ -185,14 +185,52 @@ exports.updateVideo = catchAsyncError(async (req, res, next) => {
   });
 });
 
+// exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
+//   const domain = `localhost:3000`;
+//   const expirationTime = new Date();
+//   expirationTime.setHours(expirationTime.getHours() + 1);
+//   const policy = {
+//     Statement: [
+//       {
+//         Resource:
+//           "https://d3i0jph7swoo8z.cloudfront.net/fa54aed21cf981f2492407770838a9f9",
+//         Condition: {
+//           DateLessThan: {
+//             "AWS:EpochTime": Math.floor(new Date().getTime() / 1000) + 3600,
+//           },
+//           IpAddress: {
+//             "AWS:SourceIp": "171.60.192.241"
+//           }
+//           // Referer: {
+//           //   "AWS:Referer": "https://string-geo-admin.vercel.app",
+//           // },
+//         },
+//       },
+//     ],
+//   };
+
+//   const key = process.env.KEY_CLOUD;
+//   const pemKey = `-----BEGIN PRIVATE KEY-----\n${key}\n-----END PRIVATE KEY-----`;
+//   const signedUrl = getSignedUrl({
+//     keyPairId: process.env.ID_CLOUD,
+//     privateKey: pemKey,
+//     url: "https://d3i0jph7swoo8z.cloudfront.net/fa54aed21cf981f2492407770838a9f9",
+//     policy: JSON.stringify(policy),
+//   });
+//   return res.status(200).json({ success: true, signedUrl });
+// });
+
 exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
   const key = process.env.KEY_CLOUD;
+
+  const expirationTime = new Date();
+  expirationTime.setHours(expirationTime.getHours() + 1);
   const pemKey = `-----BEGIN PRIVATE KEY-----\n${key}\n-----END PRIVATE KEY-----`;
   const signedUrl = getSignedUrl({
     keyPairId: process.env.ID_CLOUD,
     privateKey: pemKey,
     url: "https://d3i0jph7swoo8z.cloudfront.net/file_example.mp4",
-    dateLessThan: new Date(Date.now() + process.env.EXPIRE_TIME),
+    dateLessThan: expirationTime,
   });
   return res.status(200).json({ success: true, signedUrl });
 });
