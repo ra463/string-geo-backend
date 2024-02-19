@@ -90,3 +90,9 @@ info: Info - ❌ : Feb-19-2024 17:00:53: Process 26988 is online on port number 
 info: Info - ❌ : Feb-19-2024 17:00:53: Process 3668 is online on port number 4000
 info: Info - ❌ : Feb-19-2024 17:00:53: Process 21388 is online on port number 4000
 info: Info - ❌ : Feb-19-2024 17:00:53: Process 16664 is online on port number 4000
+info: Info - ❌ : Feb-19-2024 18:19:38: Process 34572 is online on port number 4000
+info: Info - ❌ : Feb-19-2024 18:19:38: Process 10864 is online on port number 4000
+info: Info - ❌ : Feb-19-2024 18:19:38: Process 9416 is online on port number 4000
+info: Info - ❌ : Feb-19-2024 18:19:38: Process 36976 is online on port number 4000
+info: Info - ❌ : Feb-19-2024 18:20:16: Worker 36976 has died!
+error: Error - ❌ : Feb-19-2024 18:20:16: Worker 36976 has died!
