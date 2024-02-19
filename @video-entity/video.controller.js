@@ -56,6 +56,7 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
     query.$or = [
       { title: { $regex: keywordRegExp } },
       { description: { $regex: keywordRegExp } },
+      { keywords: { $in: [keyword] } },
     ];
   }
 
