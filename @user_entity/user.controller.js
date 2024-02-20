@@ -437,22 +437,22 @@ exports.getProfile = catchAsyncError(async (req, res, next) => {
   if (order) {
     isActivePlan = true;
   }
-  const data = {
-    name: user.name,
-    email: user.email,
-    country_code: user.country_code,
-    mobile: user.mobile,
-    avatar: user.avatar,
-    role: user.role,
-    dob: user.dob,
-    states: user.states,
-    country: user.country,
-    city: user.city,
-  };
-
+  // const data = {
+  //   name: user.name,
+  //   email: user.email,
+  //   country_code: user.country_code,
+  //   mobile: user.mobile,
+  //   avatar: user.avatar,
+  //   role: user.role,
+  //   dob: user.dob,
+  //   states: user.states,
+  //   country: user.country,
+  //   city: user.city,
+  // };
+  user.password = undefined;
   res.status(200).json({
     success: true,
-    data,
+    user,
     isActivePlan,
   });
 });
@@ -484,23 +484,24 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
 
   await user.save();
 
-  const data = {
-    name: user.name,
-    email: user.email,
-    country_code: user.country_code,
-    mobile: user.mobile,
-    avatar: user.avatar,
-    role: user.role,
-    dob: user.dob,
-    states: user.states,
-    country: user.country,
-    city: user.city,
-  };
+  // const data = {
+  //   name: user.name,
+  //   email: user.email,
+  //   country_code: user.country_code,
+  //   mobile: user.mobile,
+  //   avatar: user.avatar,
+  //   role: user.role,
+  //   dob: user.dob,
+  //   states: user.states,
+  //   country: user.country,
+  //   city: user.city,
+  // };
+  user.password = undefined;
 
   res.status(200).json({
     success: true,
     message: "User Updated Successfully",
-    data,
+    user,
   });
 });
 
@@ -529,23 +530,25 @@ exports.updateProfilePicture = catchAsyncError(async (req, res, next) => {
   user.avatar = location;
   await user.save();
 
-  const data = {
-    name: user.name,
-    email: user.email,
-    country_code: user.country_code,
-    mobile: user.mobile,
-    avatar: user.avatar,
-    role: user.role,
-    dob: user.dob,
-    states: user.states,
-    country: user.country,
-    city: user.city,
-  };
+  // const data = {
+  //   name: user.name,
+  //   email: user.email,
+  //   country_code: user.country_code,
+  //   mobile: user.mobile,
+  //   avatar: user.avatar,
+  //   role: user.role,
+  //   dob: user.dob,
+  //   states: user.states,
+  //   country: user.country,
+  //   city: user.city,
+  // };
+
+  user.password = undefined;
 
   res.status(200).json({
     success: true,
     message: "Profile Picture Uploaded successfully",
-    data,
+    user,
   });
 });
 
