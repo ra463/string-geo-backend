@@ -19,7 +19,7 @@ router.post(
   upload.single("image"),
   createVideo
 );
-router.get("/get-videos", auth, getVideos);
+router.get("/get-videos", getVideos);
 router.delete("/delete-video/:id", auth, isAdmin, deleteVideo);
 router.get("/get-video/:id", auth, getVideo);
 router.get("/get-video-category/:id", auth, isAdmin, getVideosOfCategory);

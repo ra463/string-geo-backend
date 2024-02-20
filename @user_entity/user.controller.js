@@ -39,13 +39,13 @@ const sendData = async (res, statusCode, user, message, isActivePlan) => {
   if (isActivePlan) {
     user.device_ids.push(refreshToken);
     await user.save();
-    user.isActivePlan = isActivePlan;
   }
 
   user.password = undefined;
   res.status(statusCode).json({
     success: true,
     user,
+    isActivePlan,
     accessToken,
     refreshToken,
     message,
@@ -432,7 +432,11 @@ exports.updatePassword = catchAsyncError(async (req, res, next) => {
 exports.getProfile = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.userId).lean();
   if (!user) return next(new ErrorHandler("User not Found", 400));
-
+  const order = await Order.findOne({ user: user._id, status: "Active" });
+  let isActivePlan = false;
+  if (order) {
+    isActivePlan = true;
+  }
   const data = {
     name: user.name,
     email: user.email,
@@ -449,6 +453,7 @@ exports.getProfile = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data,
+    isActivePlan,
   });
 });
 
