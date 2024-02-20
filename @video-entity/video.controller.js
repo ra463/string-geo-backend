@@ -49,6 +49,9 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
   if (sortBy == "latest") {
     orderBy = -1;
   }
+  else{
+    orderBy = 1
+  }
   if (language && language != "all") {
     query.language = language;
   }
@@ -76,7 +79,6 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
     .sort({ createdAt: orderBy })
     .skip(skip)
     .limit(limit)
-    .sort({ createdAt: -1 })
     .populate("language", "name")
     .populate("genres", "name")
     .populate("category", "name")
