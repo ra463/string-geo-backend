@@ -177,7 +177,7 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
   await transaction.save();
 
   // redirect to success page
-  res.redirect("https://string-geo.vercel.app");
+  res.redirect("https://string-geo.vercel.app/dashboard/account");
 
   res.status(200).json({
     success: true,
