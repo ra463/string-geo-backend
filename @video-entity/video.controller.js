@@ -42,8 +42,13 @@ exports.createVideo = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getVideos = catchAsyncError(async (req, res, next) => {
-  const { language, genres, keyword, resultPerPage, currentPage } = req.query;
+  const { language, genres, keyword, resultPerPage, currentPage, sortBy } =
+    req.query;
   const query = {};
+  let orderBy = 1;
+  if (sortBy == "latest") {
+    orderBy = -1;
+  }
   if (language && language != "all") {
     query.language = language;
   }
@@ -68,6 +73,7 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
 
   let videos = await videoModel
     .find(query)
+    .sort({ createdAt: orderBy })
     .skip(skip)
     .limit(limit)
     .sort({ createdAt: -1 })
