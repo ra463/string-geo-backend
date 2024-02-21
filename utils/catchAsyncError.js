@@ -3,6 +3,7 @@ module.exports = (fn) => {
     try {
       await fn(req, res, next);
     } catch (err) {
+      console.log(err)
       // if (err.name === "MongoServerError" && err.code === 11000) {
       //   const errorMessage = err.errmsg;
       //   console.log(errorMessage);

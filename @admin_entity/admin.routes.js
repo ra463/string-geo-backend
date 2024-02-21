@@ -11,6 +11,7 @@ const {
   getURL,
   getHomeData,
   sendBulkEmails,
+  createUser,
 } = require("./admin.controller");
 const { upload } = require("../utils/s3");
 
@@ -21,6 +22,7 @@ router.route("/get-all-users").get(auth, isAdmin, getAllUsers);
 router
   .route("/get-user-subscription-history/:userId")
   .get(auth, isAdmin, getUserSubscriptionHistory);
+router.post("/add-user", auth, isAdmin, createUser);
 router.get("/download-as-csv", auth, isAdmin, downloadAsCsv);
 router.delete("/delete-user/:userId", auth, isAdmin, deleteUser);
 router.get("/get-user/:userId", auth, isAdmin, getUser);

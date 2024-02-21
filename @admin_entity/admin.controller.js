@@ -201,6 +201,41 @@ exports.updateUserProfile = catchAsyncError(async (req, res, next) => {
   });
 });
 
+exports.createUser = catchAsyncError(async (req, res, next) => {
+  const { name, email, password, mobile, states, country, city } = req.body;
+
+  const user_exist = await User.findOne({
+    $or: [{ email: { $regex: new RegExp(email, "i") } }, { mobile }],
+  });
+
+  if (user_exist && user_exist.is_verified) {
+    return next(
+      new ErrorHandler(
+        `${user_exist.email ? "Email" : "Mobile"} already exists`,
+        400
+      )
+    );
+  }
+
+  const user = await User.create({
+    name,
+    email: email.toLowerCase(),
+    password,
+    mobile,
+    states,
+    country,
+    city,
+    country_code: "+91",
+    is_verified: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    user,
+    message: "User Created Successfully",
+  });
+});
+
 exports.getURL = catchAsyncError(async (req, res, next) => {
   const data = await generateUploadURL();
   if (!data) return next(new ErrorHandler("URL not found", 404));

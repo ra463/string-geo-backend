@@ -10,6 +10,8 @@ exports.getAllTransaction = catchAsyncError(async (req, res, next) => {
     query["gateway"] = req.query.gateway;
   }
 
+
+
   // filter by createdAt
   if (req.query.from !== null) {
     const f = new Date(req.query.from);
@@ -32,7 +34,7 @@ exports.getAllTransaction = catchAsyncError(async (req, res, next) => {
       .populate("user", "name email")
       .sort({ createdAt: -1 }),
     req.query
-  ).search("razorpay_payment_id");
+  ).search("payment_id");
 
   let transactions = await apiFeatures.query;
 
