@@ -46,11 +46,10 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
     req.query;
   const query = {};
   let orderBy = 1;
-  if (sortBy == "latest") {
+  if (sortBy && sortBy == "latest") {
     orderBy = -1;
-  }
-  else{
-    orderBy = 1
+  } else {
+    orderBy = 1;
   }
   if (language && language != "all") {
     query.language = language;
@@ -84,7 +83,7 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
     .populate("category", "name")
     .lean();
 
-  // console.log(videos);
+  console.log(videos);
 
   res.status(200).json({
     success: true,
@@ -137,7 +136,7 @@ exports.getVideo = catchAsyncError(async (req, res, next) => {
   const signedUrl = getSignedUrl({
     keyPairId: process.env.ID_CLOUD,
     privateKey: pemKey,
-    url: `${process.env.URL_CLOUD}/${video.video_url}`,
+    url: `${process.env.URL_CLOUD}/admin-uploads/${video.video_url}`,
     dateLessThan: expirationTime,
   });
 
@@ -232,12 +231,12 @@ exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
   const key = process.env.KEY_CLOUD;
 
   const expirationTime = new Date();
-  expirationTime.setHours(expirationTime.getHours() + 1);
+  expirationTime.setHours(expirationTime.getHours() + 23);
   const pemKey = `-----BEGIN PRIVATE KEY-----\n${key}\n-----END PRIVATE KEY-----`;
   const signedUrl = getSignedUrl({
     keyPairId: process.env.ID_CLOUD,
     privateKey: pemKey,
-    url: "https://d3i0jph7swoo8z.cloudfront.net/file_example.mp4",
+    url: "https://dewv7gdonips4.cloudfront.net/yvideo.m3u8",
     dateLessThan: expirationTime,
   });
   return res.status(200).json({ success: true, signedUrl });

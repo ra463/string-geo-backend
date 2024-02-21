@@ -25,7 +25,7 @@ exports.generateUploadURL = async () => {
   console.log(imageName);
   const params = {
     Bucket: process.env.AWS_BUCKET_NAME,
-    Key: imageName,
+    Key: `admin-uploads/${imageName}`,
     Expires: 2400,
   };
 
