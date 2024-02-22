@@ -19,6 +19,7 @@ const validator = (req, res, next) => {
         "country_code",
         "logout_from_other_device",
         "videoId",
+        "forgotPassword"
       ],
       allowQuery: [],
       allowParams: [],
