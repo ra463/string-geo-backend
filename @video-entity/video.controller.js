@@ -106,6 +106,9 @@ exports.deleteVideo = catchAsyncError(async (req, res, next) => {
     category.video_array = category.video_array.filter(
       (data) => data.video != req.params.id
     );
+    category.video_array = category.video_array.map((data, index) => {
+      return { ...data, sequence: index + 1 };
+    });
     await category.save();
   }
 
