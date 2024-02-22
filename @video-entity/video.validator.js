@@ -18,7 +18,8 @@ const validator = (req, res, next) => {
         "keyword",
         "resultPerPage",
         "currentPage",
-        "sortBy"
+        "sortBy",
+        "id"
       ],
       allowParams: ["id"],
     };
