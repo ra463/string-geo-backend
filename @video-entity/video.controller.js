@@ -75,6 +75,10 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
   const limit = Number(resultPerPage);
   const page = Number(currentPage);
   const skip = (page - 1) * limit;
+  let user;
+  if (req.query.id) {
+    user = await User.findById(req.query.id);
+  }
 
   let videos = await videoModel
     .find(query)
@@ -85,6 +89,20 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
     .populate("genres", "name")
     .populate("category", "name")
     .lean();
+
+  videos = videos.map((video) => {
+    if (user) {
+      if (user.watch_list.includes(video._id)) {
+        video.inWatchList = true;
+      } else {
+        video.inWatchList = false;
+      }
+    }
+    if (!user) {
+      video.inWatchList = false;
+    }
+    return video;
+  });
 
   // console.log(videos);
 
