@@ -30,6 +30,6 @@ router.patch(
   upload.single("image"),
   updateVideo
 );
-router.post("/geturl", getSingnedUrls);
+router.get("/geturl", getSingnedUrls);
 
 module.exports = router;

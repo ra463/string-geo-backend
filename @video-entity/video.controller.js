@@ -4,6 +4,8 @@ const ErrorHandler = require("../utils/errorHandler");
 const { s3Uploadv4 } = require("../utils/s3");
 const videoModel = require("./video.model");
 const User = require("../@user_entity/user.model");
+const axios = require("axios");
+const parseM3U8 = require("parse-m3u8");
 
 exports.createVideo = catchAsyncError(async (req, res, next) => {
   const {
@@ -239,5 +241,42 @@ exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
     url: "https://dewv7gdonips4.cloudfront.net/yvideo.m3u8",
     dateLessThan: expirationTime,
   });
-  return res.status(200).json({ success: true, signedUrl });
+
+  const { data } = await axios.get(signedUrl);
+  // const m3u8Text = await data.text();
+  const parsedPlaylist = parseM3U8(data);
+  const signedPlaylist = parsedPlaylist.segments.map(segment => {
+    const tsUrl = segment.uri;
+    const signedTsUrl = getSignedUrl({
+      keyPairId: process.env.ID_CLOUD,
+      privateKey: pemKey,
+      url: `https://dewv7gdonips4.cloudfront.net/${tsUrl}`,
+      dateLessThan: expirationTime,
+    });
+    return { ...segment, uri: signedTsUrl };
+  });
+
+  const updatedPlaylist = { ...parsedPlaylist, segments: signedPlaylist };
+
+  const m3u8Content = JSON.stringify(updatedPlaylist);
+    res.set({
+      'Content-Type': 'application/vnd.apple.mpegurl',
+      'Content-Disposition': 'attachment; filename="playlist.m3u8"'
+    }).status(200).send(m3u8Content);
+
+  // const m3u8Content = parseM3U8.write(updatedPlaylist);
+  //   const tempFilePath = '/file.m3u8';
+  //   fs.writeFileSync(tempFilePath, m3u8Content);
+
+    
+  //   const fileContent = fs.readFileSync(tempFilePath, 'utf-8');
+
+  //   fs.unlinkSync(tempFilePath)
+  //   res.set({
+  //     'Content-Type': 'application/vnd.apple.mpegurl',
+  //     'Content-Disposition': 'attachment; filename="playlist.m3u8"'
+  //   }).status(200).send(fileContent);
+
+
+  // return res.status(200).json({ success: true, playlist: updatedPlaylist });
 });
