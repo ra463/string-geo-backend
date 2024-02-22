@@ -6,6 +6,7 @@ const videoModel = require("./video.model");
 const User = require("../@user_entity/user.model");
 const axios = require("axios");
 const parseM3U8 = require("parse-m3u8");
+const Category = require("../@category_entity/category.model");
 
 exports.createVideo = catchAsyncError(async (req, res, next) => {
   const {
@@ -99,6 +100,15 @@ exports.deleteVideo = catchAsyncError(async (req, res, next) => {
   if (!video) {
     return next(new ErrorHandler("Video not found", 404));
   }
+
+  const categorys = await Category.find();
+  for (let category of categorys) {
+    category.video_array = category.video_array.filter(
+      (data) => data.video != req.params.id
+    );
+    await category.save();
+  }
+
   res.status(200).json({
     success: true,
     message: "Videos Deleted successfully",
@@ -245,7 +255,7 @@ exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
   const { data } = await axios.get(signedUrl);
   // const m3u8Text = await data.text();
   const parsedPlaylist = parseM3U8(data);
-  const signedPlaylist = parsedPlaylist.segments.map(segment => {
+  const signedPlaylist = parsedPlaylist.segments.map((segment) => {
     const tsUrl = segment.uri;
     const signedTsUrl = getSignedUrl({
       keyPairId: process.env.ID_CLOUD,
@@ -259,16 +269,18 @@ exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
   const updatedPlaylist = { ...parsedPlaylist, segments: signedPlaylist };
 
   const m3u8Content = JSON.stringify(updatedPlaylist);
-    res.set({
-      'Content-Type': 'application/vnd.apple.mpegurl',
-      'Content-Disposition': 'attachment; filename="playlist.m3u8"'
-    }).status(200).send(m3u8Content);
+  res
+    .set({
+      "Content-Type": "application/vnd.apple.mpegurl",
+      "Content-Disposition": 'attachment; filename="playlist.m3u8"',
+    })
+    .status(200)
+    .send(m3u8Content);
 
   // const m3u8Content = parseM3U8.write(updatedPlaylist);
   //   const tempFilePath = '/file.m3u8';
   //   fs.writeFileSync(tempFilePath, m3u8Content);
 
-    
   //   const fileContent = fs.readFileSync(tempFilePath, 'utf-8');
 
   //   fs.unlinkSync(tempFilePath)
@@ -276,7 +288,6 @@ exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
   //     'Content-Type': 'application/vnd.apple.mpegurl',
   //     'Content-Disposition': 'attachment; filename="playlist.m3u8"'
   //   }).status(200).send(fileContent);
-
 
   // return res.status(200).json({ success: true, playlist: updatedPlaylist });
 });
