@@ -5,7 +5,7 @@ const { createFaq, getFaqs, deleteFaq, getFaq, updateFaq } = require("./faq.cont
 const router = express.Router();
 
 router.post("/create-faq", auth, isAdmin, createFaq);
-router.get("/get-faqs", auth, getFaqs);
+router.get("/get-faqs", getFaqs);
 router.delete("/delete-faq/:id", auth, isAdmin, deleteFaq);
 router.get("/get-faq/:id", auth, isAdmin, getFaq);
 router.patch("/update-faq/:id", auth, isAdmin, updateFaq);
