@@ -2,6 +2,7 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const Category = require("./category.model");
 const ErrorHandler = require("../utils/errorHandler");
 const Video = require("../@video-entity/video.model");
+const userModel = require("../@user_entity/user.model");
 
 exports.createCategory = catchAsyncError(async (req, res, next) => {
   const { name, status } = req.body;
@@ -16,6 +17,7 @@ exports.createCategory = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getAllCategories = catchAsyncError(async (req, res, next) => {
+  const user = await userModel.findById(req.userId);
   const categories = await Category.find()
     .populate({
       path: "video_array.video",
@@ -37,6 +39,18 @@ exports.getAllCategories = catchAsyncError(async (req, res, next) => {
       ],
     })
     .lean();
+
+  for (let category of categories) {
+    category.video_array = category.video_array.map((data) => {
+      if (user.watch_list.includes(data.video._id)) {
+        data.video.inWatchList = true;
+      } else {
+        data.video.inWatchList = false;
+      }
+      return data;
+    });
+  }
+
   res.status(200).json({
     success: true,
     categories,
