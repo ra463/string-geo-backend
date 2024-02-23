@@ -606,26 +606,33 @@ exports.removeVideoFromWatchlist = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getWatchList = catchAsyncError(async (req, res, next) => {
-  const user = await User.findById(req.userId).populate({
-    path: "watch_list",
-    select:
-      "category title description thumbnail_url createdAt category genres language keywords",
-    populate: [
-      {
-        path: "category",
-        select: "name",
-      },
-      {
-        path: "genres",
-        select: "name",
-      },
-      {
-        path: "language",
-        select: "name",
-      },
-    ],
-  });
+  const user = await User.findById(req.userId)
+    .populate({
+      path: "watch_list",
+      select:
+        "category title description thumbnail_url createdAt category genres language keywords",
+      populate: [
+        {
+          path: "category",
+          select: "name",
+        },
+        {
+          path: "genres",
+          select: "name",
+        },
+        {
+          path: "language",
+          select: "name",
+        },
+      ],
+    })
+    .lean();
   if (!user) return next(new ErrorHandler("User not Found", 400));
+
+  user.watch_list = user.watch_list.map((watchlist) => {
+    watchlist.inWatchList = true;
+    return watchlist
+  });
 
   res.status(200).json({
     success: true,
