@@ -51,6 +51,7 @@ const couponRoutes = require("./@coupon_entity/coupon.index");
 const pageRoutes = require("./@page_entity/page.index");
 const faqRoutes = require("./@faq_entity/faq.index");
 const trailerRoutes = require("./@trailer_entity/trailer.index");
+const carouselRoutes = require("./@carousel_entity/carousel.index");
 
 //import validators
 const userValidator = require("./@user_entity/user.validator");
@@ -68,6 +69,7 @@ const couponValidator = require("./@coupon_entity/coupon.validator");
 const pageValidator = require("./@page_entity/page.validator");
 const faqValidator = require("./@faq_entity/faq.validator");
 const trailerValidator = require("./@trailer_entity/trailer.validator");
+const carouselValidator = require("./@carousel_entity/carousel.validator");
 
 // use routes
 app.use("/api/user", userValidator, userRoutes);
@@ -86,6 +88,7 @@ app.use("/api/coupon", couponValidator, couponRoutes);
 app.use("/api/page", pageValidator, pageRoutes);
 app.use("/api/faq", faqValidator, faqRoutes);
 app.use("/api/trailer", trailerValidator, trailerRoutes);
+app.use("/api/carousel", carouselValidator, carouselRoutes);
 
 app.get("/", (req, res) =>
   res.send(`<h1>Its working. Click to visit Link.</h1>`)

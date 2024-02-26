@@ -22,7 +22,7 @@ const s3 = new aws.S3({
 exports.generateUploadURL = async () => {
   const rawBytes = await randomBytes(16);
   const imageName = rawBytes.toString("hex");
-  console.log(imageName);
+
   const params = {
     Bucket: process.env.AWS_BUCKET_NAME,
     Key: `admin-uploads/${imageName}`,
@@ -59,6 +59,38 @@ exports.s3Uploadv4 = async (file, id) => {
 
     return await s3.upload(params).promise();
   }
+};
+
+exports.s3AdminUploadv4 = async (file) => {
+  const s3 = new aws.S3({
+    accessKeyId: process.env.AWS_CAR_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_CAR_SECRET_KEY,
+    region: process.env.AWS_CAR_BUCKET_REGION,
+  });
+
+  const params = {
+    Bucket: process.env.AWS_CAR_BUCKET_NAME,
+    Key: `admin-uploads/images/${Date.now().toString()}-${file.originalname}`,
+    Body: file.buffer,
+  };
+
+  return await s3.upload(params).promise();
+};
+
+exports.s3delete = async (file) => {
+  const s3 = new aws.S3({
+    accessKeyId: process.env.AWS_CAR_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_CAR_SECRET_KEY,
+    region: process.env.AWS_CAR_BUCKET_REGION,
+  });
+
+  const key1 = file.split("/")[5];
+  const param = {
+    Bucket: process.env.AWS_CAR_BUCKET_REGION,
+    Key: `admin-uploads/images/${key1}`,
+  };
+
+  return await s3.deleteObject(param).promise();
 };
 
 const storage = multer.memoryStorage();

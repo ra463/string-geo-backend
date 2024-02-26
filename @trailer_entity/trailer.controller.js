@@ -45,22 +45,5 @@ exports.getTrailer = catchAsyncError(async (req, res, next) => {
   res.status(200).json({
     success: true,
     trailer,
-    message: "trailer find successfully",
   });
 });
-
-// exports.updateFaq = catchAsyncError(async (req, res, next) => {
-//   const faq = await faqModel.findById(req.params.id);
-//   const { title, description, status } = req.body;
-//   if (!faq) {
-//     return next(new ErrorHandler("Faq not found", 404));
-//   }
-//   if (title) faq.title = title;
-//   if (description) faq.description = description;
-//   if (status) faq.status = status;
-//   await faq.save();
-//   res.status(200).json({
-//     success: true,
-//     message: "Faq updated successfully",
-//   });
-// });
