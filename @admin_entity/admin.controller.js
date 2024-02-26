@@ -12,6 +12,7 @@ const genreModel = require("../@genre_entity/genre.model");
 const languageModel = require("../@language_entity/language.model");
 const categoriesModel = require("../@category_entity/category.model");
 const { sendBulkEmail } = require("../utils/sendEmail");
+const XLSX = require("xlsx");
 
 dotenv.config({ path: "../config/config.env" });
 
@@ -114,6 +115,35 @@ exports.getUserSubscriptionHistory = catchAsyncError(async (req, res, next) => {
   });
 });
 
+// exports.downloadAsCsv = catchAsyncError(async (req, res, next) => {
+//   const allowModels = ["User", "Transaction"];
+//   const models = {
+//     User: User,
+//     Transaction: Transaction,
+//   };
+
+//   if (!allowModels.includes(req.query.Model)) {
+//     return next(new ErrorHandler("Module Not Found", 404));
+//   }
+//   const allowfieleds = {
+//     User: ["name", "email", "mobile", "state", "city", "role"],
+//     Transaction: ["razorpay_payment_id", "gateway", "amount", "status"],
+//   };
+//   const data = await models[req.query.Model].find({});
+
+//   if (data.length === 0) {
+//     return next(new ErrorHandler(`No ${req.query.Model} Found`, 404));
+//   }
+
+//   const fields = allowfieleds[req.query.model];
+//   const json2csvParser = new Parser({ fields });
+//   const csv = json2csvParser.parse(data);
+
+//   res.setHeader("Content-Type", "text/csv");
+//   res.setHeader("Content-Disposition", "attachment; filename=users.csv");
+//   res.status(200).send(csv);
+// });
+
 exports.downloadAsCsv = catchAsyncError(async (req, res, next) => {
   const allowModels = ["User", "Transaction"];
   const models = {
@@ -124,23 +154,43 @@ exports.downloadAsCsv = catchAsyncError(async (req, res, next) => {
   if (!allowModels.includes(req.query.Model)) {
     return next(new ErrorHandler("Module Not Found", 404));
   }
-  const allowfieleds = {
-    User: ["name", "email", "mobile", "state", "city", "role"],
+
+  const allowFields = {
+    User: ["name", "email", "mobile", "states", "city", "role"],
     Transaction: ["razorpay_payment_id", "gateway", "amount", "status"],
   };
-  const data = await models[req.query.Model].find({});
+
+  const fieldsToExclude = "-_id"
+
+  const data = await models[req.query.Model]
+    .find({})
+    .select(`${fieldsToExclude} ${allowFields[req.query.Model].join(" ")}`)
+    .lean();
 
   if (data.length === 0) {
     return next(new ErrorHandler(`No ${req.query.Model} Found`, 404));
   }
 
-  const fields = allowfieleds[req.query.model];
-  const json2csvParser = new Parser({ fields });
-  const csv = json2csvParser.parse(data);
+  // Convert data to worksheet
+  const worksheet = XLSX.utils.json_to_sheet(data);
 
-  res.setHeader("Content-Type", "text/csv");
-  res.setHeader("Content-Disposition", "attachment; filename=users.csv");
-  res.status(200).send(csv);
+  // Create workbook and add the worksheet
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+  // Write the workbook to a buffer
+  const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+
+  // Set response headers
+  res.setHeader(
+    "Content-Type",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  );
+  res.setHeader("Content-Disposition", "attachment; filename=users.xlsx");
+
+  // Send the buffer as the response
+  // console.log(buffer)
+  res.status(200).send(buffer);
 });
 
 exports.deleteUser = catchAsyncError(async (req, res, next) => {
