@@ -5,7 +5,9 @@ const { s3Uploadv4 } = require("../utils/s3");
 const videoModel = require("./video.model");
 const User = require("../@user_entity/user.model");
 const axios = require("axios");
+const xml2js = require("xml2js");
 const parseM3U8 = require("parse-m3u8");
+
 const Category = require("../@category_entity/category.model");
 
 exports.createVideo = catchAsyncError(async (req, res, next) => {
@@ -261,42 +263,95 @@ exports.updateVideo = catchAsyncError(async (req, res, next) => {
 // });
 
 exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
-  const key = process.env.KEY_CLOUD;
-
   const expirationTime = new Date();
-  expirationTime.setHours(expirationTime.getHours() + 23);
-  const pemKey = `-----BEGIN PRIVATE KEY-----\n${key}\n-----END PRIVATE KEY-----`;
-  const signedUrl = getSignedUrl({
-    keyPairId: process.env.ID_CLOUD,
-    privateKey: pemKey,
-    url: "https://dewv7gdonips4.cloudfront.net/yvideo.m3u8",
-    dateLessThan: expirationTime,
-  });
+  expirationTime.setHours(expirationTime.getHours() + 48);
 
-  const { data } = await axios.get(signedUrl);
-  // const m3u8Text = await data.text();
-  const parsedPlaylist = parseM3U8(data);
-  const signedPlaylist = parsedPlaylist.segments.map((segment) => {
-    const tsUrl = segment.uri;
-    const signedTsUrl = getSignedUrl({
+  // // generate signed url of video
+  const key = process.env.KEY_CLOUD;
+  const pemKey = `-----BEGIN PRIVATE KEY-----\n${key}\n-----END PRIVATE KEY-----`;
+  function mf(key) {
+    const url = getSignedUrl({
       keyPairId: process.env.ID_CLOUD,
       privateKey: pemKey,
-      url: `https://dewv7gdonips4.cloudfront.net/${tsUrl}`,
+      url: `${process.env.URL_CLOUD}/${key}`,
       dateLessThan: expirationTime,
     });
-    return { ...segment, uri: signedTsUrl };
-  });
+    return url;
+  }
 
-  const updatedPlaylist = { ...parsedPlaylist, segments: signedPlaylist };
+  const signedUrl = mf("y.mpd");
+  console.log(signedUrl)
+  const parser = new xml2js.Parser();
+  const { data } = await axios.get(signedUrl);
+  const xmlToJson = await parser.parseStringPromise(data);
 
-  const m3u8Content = JSON.stringify(updatedPlaylist);
-  res
-    .set({
-      "Content-Type": "application/vnd.apple.mpegurl",
-      "Content-Disposition": 'attachment; filename="playlist.m3u8"',
+  const baseURLs = xmlToJson.MPD.Period.map((period) =>
+    period.AdaptationSet.map((adaptationSet) =>
+      adaptationSet.Representation.map((rep) => rep.BaseURL)
+    )
+  );
+  const baseURLsFlat = [].concat.apply([], [].concat.apply([], baseURLs));
+
+  const signedURLs = await Promise.all(
+    baseURLsFlat.map(async (baseURL) => {
+      const signedUrl = mf(baseURL[0]);
+      return signedUrl;
     })
-    .status(200)
-    .send(m3u8Content);
+  );
+
+  for (let i = 0; i < baseURLsFlat.length; i++) {
+    xmlToJson.MPD.Period.map((period) =>
+      period.AdaptationSet.map((adaptationSet) =>
+        adaptationSet.Representation.map((rep) => {
+          if (rep.BaseURL[0] === baseURLsFlat[i][0]) {
+            rep.BaseURL[0] = signedURLs[i];
+          }
+        })
+      )
+    );
+  }
+
+  const builder = new xml2js.Builder();
+  const xml = builder.buildObject(xmlToJson);
+  res.set("Content-Type", "application/xml");
+  res.send(xml);
+
+  // const key = process.env.KEY_CLOUD;
+
+  // const expirationTime = new Date();
+  // expirationTime.setHours(expirationTime.getHours() + 23);
+  // const pemKey = `-----BEGIN PRIVATE KEY-----\n${key}\n-----END PRIVATE KEY-----`;
+  // const signedUrl = getSignedUrl({
+  //   keyPairId: process.env.ID_CLOUD,
+  //   privateKey: pemKey,
+  //   url: "https://dewv7gdonips4.cloudfront.net/Yvideom3u8",
+  //   dateLessThan: expirationTime,
+  // });
+
+  // const { data } = await axios.get(signedUrl);
+  // // const m3u8Text = await data.text();
+  // const parsedPlaylist = parseM3U8(data);
+  // const signedPlaylist = parsedPlaylist.segments.map((segment) => {
+  //   const tsUrl = segment.uri;
+  //   const signedTsUrl = getSignedUrl({
+  //     keyPairId: process.env.ID_CLOUD,
+  //     privateKey: pemKey,
+  //     url: `https://dewv7gdonips4.cloudfront.net/${tsUrl}`,
+  //     dateLessThan: expirationTime,
+  //   });
+  //   return { ...segment, uri: signedTsUrl };
+  // });
+
+  // const updatedPlaylist = { ...parsedPlaylist, segments: signedPlaylist };
+
+  // const m3u8Content = JSON.stringify(updatedPlaylist);
+  // res
+  //   .set({
+  //     "Content-Type": "application/vnd.apple.mpegurl",
+  //     "Content-Disposition": 'attachment; filename="playlist.m3u8"',
+  //   })
+  //   .status(200)
+  //   .send(m3u8Content);
 
   // const m3u8Content = parseM3U8.write(updatedPlaylist);
   //   const tempFilePath = '/file.m3u8';
@@ -310,5 +365,5 @@ exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
   //     'Content-Disposition': 'attachment; filename="playlist.m3u8"'
   //   }).status(200).send(fileContent);
 
-  // return res.status(200).json({ success: true, playlist: updatedPlaylist });
+  // return res.status(200).json({ success: true, signedUrl });
 });
