@@ -160,7 +160,7 @@ exports.downloadAsCsv = catchAsyncError(async (req, res, next) => {
     Transaction: ["razorpay_payment_id", "gateway", "amount", "status"],
   };
 
-  const fieldsToExclude = "-_id"
+  const fieldsToExclude = "-_id";
 
   const data = await models[req.query.Model]
     .find({})
@@ -221,7 +221,7 @@ exports.getUser = catchAsyncError(async (req, res, next) => {
 });
 
 exports.updateUserProfile = catchAsyncError(async (req, res, next) => {
-  const { name, email, password, mobile } = req.body;
+  const { name, email, password, mobile, country, states, city } = req.body;
   const user = await User.findById(req.params.id);
   if (!user) return next(new ErrorHandler("User not found", 400));
 
@@ -234,11 +234,14 @@ exports.updateUserProfile = catchAsyncError(async (req, res, next) => {
   if (email) user.email = email;
   if (password) user.password = password;
   if (mobile) user.mobile = mobile;
+  if(country) user.country = country;
+  if(states) user.states = states;
+  if(city) user.city = city;
   user.country_code = "+91";
   if (location) user.avatar = location;
 
   await user.save();
-
+  console.log(user);
   res.status(200).json({
     success: true,
     message: "Profile Updated Successfully",
