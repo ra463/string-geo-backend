@@ -11,8 +11,8 @@ const {
 const router = express.Router();
 
 router.post("/create-page", auth, isAdmin, createPage);
-router.get("/get-pages", auth, getPages);
+router.get("/get-pages", getPages);
 router.delete("/delete-page/:id", auth, isAdmin, deletePage);
-router.get("/get-page/:id", auth, isAdmin, getPage);
+router.get("/get-page/:id", getPage);
 router.patch("/update-page/:id", auth, isAdmin, updatePage);
 module.exports = router;
