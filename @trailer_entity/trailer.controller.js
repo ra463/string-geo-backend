@@ -36,6 +36,7 @@ exports.getTrailers = catchAsyncError(async (req, res, next) => {
       dateLessThan: expirationTime,
     });
     trailers[0].video_url = signedUrl;
+    trailers[0].thumbnail_url = video.thumbnail_url;
   }
   res.status(200).json({
     success: true,
