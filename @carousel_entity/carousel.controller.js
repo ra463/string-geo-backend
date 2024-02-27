@@ -27,10 +27,16 @@ exports.getAllCarousel = catchAsyncError(async (req, res, next) => {
     .populate({
       path: "video_id",
       select: "title genres language createdAt",
-      populate: {
-        path: "genres",
-        select: "name",
-      },
+      populate: [
+        {
+          path: "genres",
+          select: "name",
+        },
+        {
+          path: "language",
+          select: "name",
+        },
+      ],
     })
     .lean();
 
