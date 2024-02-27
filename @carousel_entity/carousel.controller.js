@@ -23,7 +23,16 @@ exports.addCarousel = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getAllCarousel = catchAsyncError(async (req, res, next) => {
-  const carousels = await Carousel.find().populate("video_id", "title").lean();
+  const carousels = await Carousel.find()
+    .populate({
+      path: "video_id",
+      select: "title genres language createdAt",
+      populate: {
+        path: "genres",
+        select: "name",
+      },
+    })
+    .lean();
 
   res.status(200).json({
     success: true,
