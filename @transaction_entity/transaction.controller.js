@@ -10,7 +10,9 @@ exports.getAllTransaction = catchAsyncError(async (req, res, next) => {
     query["gateway"] = req.query.gateway;
   }
 
-
+  if (req.query.status && req.query.status === "Completed") {
+    query["status"] = req.query.status;
+  }
 
   // filter by createdAt
   if (req.query.from !== null) {
