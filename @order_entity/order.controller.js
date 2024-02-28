@@ -167,8 +167,30 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
     payment_id: razorpay_payment_id,
     gateway: "Razorpay",
     amount: order.inr_price,
-    status: "PENDING",
+    status: "COMPLETED",
   });
+
+  const active_order = await Order.find({
+    user: order.user,
+    status: "Active",
+  });
+
+  if (active_order.length && !order.is_upgrade) {
+    order.status = "Upcoming";
+    await order.save();
+  }
+  if (!active_order.length && !order.is_upgrade) {
+    order.status = "Active";
+    await order.save();
+  }
+
+  if (order.is_upgrade) {
+    const orders = await Order.find();
+    const delete_order = orders[orders.length - 2];
+    await delete_order.deleteOne();
+    order.status = "Active";
+    await order.save();
+  }
 
   const data = await sendInvoice(user, transaction);
   const result = await s3Uploadv4(data, user._id);
@@ -318,8 +340,30 @@ exports.capturePaypalOrder = catchAsyncError(async (req, res, next) => {
     payment_id: data.purchase_units[0].payments.captures[0].id,
     gateway: "Paypal",
     amount: order.usd_price,
-    status: "PENDING",
+    status: "COMPLETED",
   });
+
+  const active_order = await Order.find({
+    user: order.user,
+    status: "Active",
+  });
+
+  if (active_order.length && !order.is_upgrade) {
+    order.status = "Upcoming";
+    await order.save();
+  }
+  if (!active_order.length && !order.is_upgrade) {
+    order.status = "Active";
+    await order.save();
+  }
+
+  if (order.is_upgrade) {
+    const orders = await Order.find();
+    const delete_order = orders[orders.length - 2];
+    await delete_order.deleteOne();
+    order.status = "Active";
+    await order.save();
+  }
 
   const user = await User.findById(order.user);
   const invoice_data = await sendInvoice(user, transaction);
@@ -334,86 +378,87 @@ exports.capturePaypalOrder = catchAsyncError(async (req, res, next) => {
   });
 });
 
-exports.paymentWebhook = catchAsyncError(async (req, res, next) => {
-  if (req.body.event === "payment.captured") {
-    const transaction = await Transaction.findOne({
-      payment_id: req.body.payload.payment.entity.id,
-    }).populate("order", "order_id");
+// exports.paymentWebhook = catchAsyncError(async (req, res, next) => {
+//   if (req.body.event === "payment.captured") {
+//     const transaction = await Transaction.findOne({
+//       payment_id: req.body.payload.payment.entity.id,
+//     }).populate("order", "order_id");
 
-    const order = await Order.findOne({
-      order_id: transaction.order.order_id,
-    });
+//     const order = await Order.findOne({
+//       order_id: transaction.order.order_id,
+//     });
 
-    const active_order = await Order.find({
-      user: order.user,
-      status: "Active",
-    });
+//     const active_order = await Order.find({
+//       user: order.user,
+//       status: "Active",
+//     });
 
-    if (active_order.length && !order.is_upgrade) {
-      order.status = "Upcoming";
-      await order.save();
-    }
-    if (!active_order.length && !order.is_upgrade) {
-      order.status = "Active";
-      await order.save();
-    }
+//     if (active_order.length && !order.is_upgrade) {
+//       order.status = "Upcoming";
+//       await order.save();
+//     }
+//     if (!active_order.length && !order.is_upgrade) {
+//       order.status = "Active";
+//       await order.save();
+//     }
 
-    if (order.is_upgrade) {
-      const orders = await Order.find();
-      const delete_order = orders[orders.length - 2];
-      await delete_order.deleteOne();
-      order.status = "Active";
-      await order.save();
-    }
+//     if (order.is_upgrade) {
+//       const orders = await Order.find();
+//       const delete_order = orders[orders.length - 2];
+//       await delete_order.deleteOne();
+//       order.status = "Active";
+//       await order.save();
+//     }
 
-    transaction.status = req.body.payload.payment.entity.status;
-    await transaction.save();
+//     transaction.status = req.body.payload.payment.entity.status;
+//     await transaction.save();
 
-    return res.status(200).json({
-      success: true,
-      message: "Webhook Captured",
-    });
-  }
-});
+//     return res.status(200).json({
+//       success: true,
+//       message: "Webhook Captured",
+//     });
+//   }
+// });
 
-exports.paypalPaymentWebhook = catchAsyncError(async (req, res, next) => {
-  if (req.body.event_type === "PAYMENT.CAPTURE.COMPLETED") {
-    const orderId = req.body.resource.supplementary_data.related_ids.order_id;
 
-    const order = await Order.findOne({ order_id: orderId });
-    if (!order) return next(new ErrorHandler("Order not found", 404));
+// exports.paypalPaymentWebhook = catchAsyncError(async (req, res, next) => {
+//   if (req.body.event_type === "PAYMENT.CAPTURE.COMPLETED") {
+//     const orderId = req.body.resource.supplementary_data.related_ids.order_id;
 
-    const transaction = await Transaction.findOne({
-      order: order._id,
-    });
-    if (!transaction)
-      return next(new ErrorHandler("Transaction not found", 404));
+//     const order = await Order.findOne({ order_id: orderId });
+//     if (!order) return next(new ErrorHandler("Order not found", 404));
 
-    const active_order = await Order.find({
-      user: order.user,
-      status: "Active",
-    });
+//     const transaction = await Transaction.findOne({
+//       order: order._id,
+//     });
+//     if (!transaction)
+//       return next(new ErrorHandler("Transaction not found", 404));
 
-    if (active_order.length && !order.is_upgrade) {
-      order.status = "Upcoming";
-      await order.save();
-    }
-    if (!active_order.length && !order.is_upgrade) {
-      order.status = "Active";
-      await order.save();
-    }
+//     const active_order = await Order.find({
+//       user: order.user,
+//       status: "Active",
+//     });
 
-    if (order.is_upgrade) {
-      const orders = await Order.find();
-      const delete_order = orders[orders.length - 2];
-      await delete_order.deleteOne();
-      order.status = "Active";
-      await order.save();
-    }
+//     if (active_order.length && !order.is_upgrade) {
+//       order.status = "Upcoming";
+//       await order.save();
+//     }
+//     if (!active_order.length && !order.is_upgrade) {
+//       order.status = "Active";
+//       await order.save();
+//     }
 
-    transaction.status = req.body.resource.status;
-    await transaction.save();
+//     if (order.is_upgrade) {
+//       const orders = await Order.find();
+//       const delete_order = orders[orders.length - 2];
+//       await delete_order.deleteOne();
+//       order.status = "Active";
+//       await order.save();
+//     }
 
-    return res.status(200).json({ success: true, message: "Webhook Captured" });
-  }
-});
+//     transaction.status = req.body.resource.status;
+//     await transaction.save();
+
+//     return res.status(200).json({ success: true, message: "Webhook Captured" });
+//   }
+// });

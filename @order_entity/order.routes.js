@@ -3,11 +3,11 @@ const { auth } = require("../middlewares/auth");
 const {
   createOrder,
   verifyPayment,
-  paymentWebhook,
+  // paymentWebhook,
   getAPIKey,
   createPayapalOrder,
   capturePaypalOrder,
-  paypalPaymentWebhook,
+  // paypalPaymentWebhook,
 } = require("./order.controller");
 const router = express.Router();
 
@@ -16,7 +16,7 @@ router.get("/get-key", auth, getAPIKey);
 router.post("/verify-signature", verifyPayment);
 router.post("/create-paypal-order", auth, createPayapalOrder);
 router.post("/capture-payment/:orderId", auth, capturePaypalOrder);
-router.post("/payment-webhook", paymentWebhook);
-router.post("/paypal-payment-webhook", paypalPaymentWebhook);
+// router.post("/payment-webhook", paymentWebhook);
+// router.post("/paypal-payment-webhook", paypalPaymentWebhook);
 
 module.exports = router;
