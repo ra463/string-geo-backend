@@ -82,12 +82,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
   });
 
   if (user_exist && user_exist.is_verified) {
-    return next(
-      new ErrorHandler(
-        `${user_exist.email ? "Email" : "Mobile"} already exists`,
-        400
-      )
-    );
+    return next(new ErrorHandler(`Email/Mobile already exists`, 400));
   }
 
   let user;
@@ -631,7 +626,7 @@ exports.getWatchList = catchAsyncError(async (req, res, next) => {
 
   user.watch_list = user.watch_list.map((watchlist) => {
     watchlist.inWatchList = true;
-    return watchlist
+    return watchlist;
   });
 
   res.status(200).json({
