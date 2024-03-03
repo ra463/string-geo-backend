@@ -177,7 +177,8 @@ const loginGoogle = async (req, res, next) => {
   }
 
   const order = await Order.findOne({ user: user._id, status: "Active" });
-  if (order && order.allow_devices >= user.device_ids.length) {
+
+  if (order && user.device_ids.length >= order.allow_devices) {
     return next(
       new ErrorHandler(
         "Maximum device login limit is reached, please Logout from one of your device",
@@ -257,7 +258,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   }
 
   const order = await Order.findOne({ user: user._id, status: "Active" });
-  if (order && order.allow_devices >= user.device_ids.length) {
+  if (order && user.device_ids.length >= order.allow_devices) {
     return next(
       new ErrorHandler(
         "Maximum device login limit is reached, please Logout from one of your device",
