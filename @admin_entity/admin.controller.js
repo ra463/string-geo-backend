@@ -58,14 +58,24 @@ exports.getAllUsers = catchAsyncError(async (req, res, next) => {
     query["subscription_plans.plan_name"] = req.query.plan_name;
   }
   // console.log(query)
+  if (req.query.keyword) {
+    const keyword = req.query.keyword;
+    const numericKeyword = !isNaN(parseInt(keyword)) ? parseInt(keyword) : 1;
+    query["$or"] = [
+      { name: { $regex: keyword, $options: "i" } },
+      { email: { $regex: keyword, $options: "i" } },
+      { mobile: numericKeyword },
+    ];
+  }
   const userCount = await User.countDocuments();
 
-  const apiFeatures = new APIFeatures(
-    User.find(query).sort({ createdAt: -1 }),
-    req.query
-  ).search("name");
+  // const apiFeatures = new APIFeatures(
+  //   User.find(query).sort({ createdAt: -1 }),
+  //   req.query
+  // ).search("name");
+  // query["is_verified"] = true
 
-  let users = await apiFeatures.query;
+  let users = await User.find(query).sort({ createdAt: -1 });
 
   const filteredUsers = users.length;
   if (req.query.resultPerPage && req.query.currentPage) {
@@ -234,9 +244,9 @@ exports.updateUserProfile = catchAsyncError(async (req, res, next) => {
   if (email) user.email = email;
   if (password) user.password = password;
   if (mobile) user.mobile = mobile;
-  if(country) user.country = country;
-  if(states) user.states = states;
-  if(city) user.city = city;
+  if (country) user.country = country;
+  if (states) user.states = states;
+  if (city) user.city = city;
   user.country_code = "+91";
   if (location) user.avatar = location;
 
