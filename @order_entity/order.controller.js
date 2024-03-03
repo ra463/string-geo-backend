@@ -181,7 +181,9 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
   }
   if (!active_order.length && !order.is_upgrade) {
     order.status = "Active";
+    user.device_ids.push(req.headers.authorization.split(" ")[1]);
     await order.save();
+    await user.save();
   }
 
   if (order.is_upgrade) {
@@ -333,7 +335,7 @@ exports.capturePaypalOrder = catchAsyncError(async (req, res, next) => {
   );
 
   const order = await Order.findOne({ order_id: req.params.orderId });
-
+  const user = await User.findById(order.user);
   const transaction = new Transaction({
     order: order._id,
     user: order.user,
@@ -354,6 +356,8 @@ exports.capturePaypalOrder = catchAsyncError(async (req, res, next) => {
   }
   if (!active_order.length && !order.is_upgrade) {
     order.status = "Active";
+    user.device_ids.push(req.headers.authorization.split(" ")[1]);
+    await user.save();
     await order.save();
   }
 
@@ -365,7 +369,6 @@ exports.capturePaypalOrder = catchAsyncError(async (req, res, next) => {
     await order.save();
   }
 
-  const user = await User.findById(order.user);
   const invoice_data = await sendInvoice(user, transaction);
   const result = await s3Uploadv4(invoice_data, user._id);
   transaction.invoice_url = result.Location;
@@ -419,7 +422,6 @@ exports.capturePaypalOrder = catchAsyncError(async (req, res, next) => {
 //     });
 //   }
 // });
-
 
 // exports.paypalPaymentWebhook = catchAsyncError(async (req, res, next) => {
 //   if (req.body.event_type === "PAYMENT.CAPTURE.COMPLETED") {
