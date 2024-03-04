@@ -12,6 +12,11 @@ const schema = new mongoose.Schema(
       required: [true, "Please provide video_id"],
       unique: [true, "Video already exists"],
     },
+    tag: {
+      required: [true, "Please provide type"],
+      type: String,
+      enum: ["Inner", "Outer"],
+    },
   },
   {
     timestamps: true,
