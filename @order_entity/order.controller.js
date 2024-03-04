@@ -97,6 +97,15 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
     if (
       active.plan_name === "Family" &&
       active.plan_type === "monthly" &&
+      plan.name === "Family" &&
+      p_type.plan_type === "monthly"
+    ) {
+      return next(new ErrorHandler("You Already Have an Active Plan", 400));
+    }
+
+    if (
+      active.plan_name === "Family" &&
+      active.plan_type === "monthly" &&
       plan.name === "Individual" &&
       p_type.plan_type === "monthly"
     ) {
@@ -280,6 +289,15 @@ exports.createPayapalOrder = catchAsyncError(async (req, res, next) => {
           400
         )
       );
+    }
+
+    if (
+      active.plan_name === "Family" &&
+      active.plan_type === "monthly" &&
+      plan.name === "Family" &&
+      p_type.plan_type === "monthly"
+    ) {
+      return next(new ErrorHandler("You Already Have an Active Plan", 400));
     }
 
     if (
