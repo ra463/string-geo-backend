@@ -217,7 +217,7 @@ exports.getUser = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.params.userId);
   if (!user) return next(new ErrorHandler("User not found", 404));
 
-  const transactions = await Transaction.find({ user: user._id })
+  let transactions = await Transaction.find({ user: user._id })
     .populate("user", "email")
     .populate("order")
     .sort({ createdAt: -1 });
