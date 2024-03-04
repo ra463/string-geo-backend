@@ -39,18 +39,24 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
   if (!p_type) return next(new ErrorHandler("Plan type not found", 404));
 
   let expiry_date = new Date();
-  let start_date = new Date();
-  let upgrade = false;
   let price = 0;
 
-  const [upcoming, active] = await Promise.all([
-    Order.findOne({ user: req.userId, status: "Upcoming" }),
-    Order.findOne({ user: req.userId, status: "Active" }),
-  ]);
+  const active = await Order.findOne({ user: req.userId, status: "Active" });
 
-  if (upcoming) {
-    return next(new ErrorHandler("You already have one upcoming plan", 400));
-  } else if (active) {
+  if (active) {
+    if (active.plan_name === "Family" && active.plan_type === "annual") {
+      return next(new ErrorHandler("You Already Have an Active Plan", 400));
+    }
+
+    if (
+      active.plan_name === "Individual" &&
+      active.plan_type === "annual" &&
+      plan.name === "Individual" &&
+      p_type.plan_type === "annual"
+    ) {
+      return next(new ErrorHandler("You Already Have an Active Plan", 400));
+    }
+
     if (
       active.plan_name === "Individual" &&
       active.plan_type === "annual" &&
@@ -59,38 +65,42 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
     ) {
       return next(
         new ErrorHandler(
-          "You can upgrade your plan from annual to annual only",
+          "You can upgrade your plan from Individual annual to Family annual only",
           400
         )
       );
     }
 
-    if (active.plan_name === "Family" && plan.name === "Individual") {
+    if (
+      active.plan_name === "Individual" &&
+      active.plan_type === "annual" &&
+      plan.name === "Individual" &&
+      p_type.plan_type === "monthly"
+    ) {
       return next(
         new ErrorHandler(
-          "You cannot downgrade your active plan of family to individual",
+          "You can upgrade your plan from Individual annual to Family annual only",
           400
         )
       );
     }
 
-    if (active.plan_name === "Individual" && plan.name === "Family") {
-      let expiry = new Date(active.expiry_date);
-      let current = Date.now();
-      let remaining = expiry - current;
-      remaining = Math.ceil(remaining / (1000 * 60 * 60 * 24));
-      let days = active.plan_type === "monthly" ? 30 : 365;
-      price = Math.floor((active.inr_price / days) * remaining);
-      expiry_date.setDate(expiry_date.getDate() + p_type.validity);
-      upgrade = true;
-    } else {
-      const startDate = new Date(active.expiry_date.getTime());
-      start_date = startDate.setDate(startDate.getDate() + 1);
-      expiry_date = new Date(start_date);
-      expiry_date = expiry_date.setDate(
-        expiry_date.getDate() + p_type.validity - 1
-      );
+    if (
+      active.plan_name === "Family" &&
+      active.plan_type === "monthly" &&
+      plan.name === "Individual" &&
+      p_type.plan_type === "monthly"
+    ) {
+      return next(new ErrorHandler("You Already have active plan.", 400));
     }
+
+    expiry_date = expiry_date.setDate(expiry_date.getDate() + p_type.validity);
+    let expiry = new Date(active.expiry_date);
+    let current = Date.now();
+    let remaining = expiry - current;
+    remaining = Math.ceil(remaining / (1000 * 60 * 60 * 24));
+    let days = active.plan_type === "monthly" ? 30 : 365;
+    price = Math.floor((active.inr_price / days) * remaining);
   } else {
     expiry_date = expiry_date.setDate(expiry_date.getDate() + p_type.validity);
   }
@@ -109,8 +119,7 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
     allow_devices: plan.allow_devices,
     plan_type: p_type.plan_type,
     inr_price: Number(p_type.inr_price - price).toFixed(2),
-    start_date,
-    is_upgrade: upgrade,
+    // is_upgrade: active ? true : false,
     expiry_date,
     status: "Pending",
   });
@@ -158,8 +167,7 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
   const order = await Order.findOne({ order_id: razorpay_order_id });
   const user = await User.findById(order.user);
 
-  order.razorpay_signature = razorpay_signature;
-  await order.save();
+  // await order.save();
 
   const transaction = new Transaction({
     order: order._id,
@@ -170,29 +178,20 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
     status: "COMPLETED",
   });
 
-  const active_order = await Order.find({
+  const active_order = await Order.findOneAndDelete({
     user: order.user,
     status: "Active",
   });
 
-  if (active_order.length && !order.is_upgrade) {
-    order.status = "Upcoming";
-    await order.save();
-  }
-  if (!active_order.length && !order.is_upgrade) {
-    order.status = "Active";
+  if (!active_order) {
+    user.device_ids = [];
     user.device_ids.push(req.headers.authorization.split(" ")[1]);
-    await order.save();
-    await user.save();
   }
-
-  if (order.is_upgrade) {
-    const orders = await Order.find();
-    const delete_order = orders[orders.length - 2];
-    await delete_order.deleteOne();
-    order.status = "Active";
-    await order.save();
-  }
+  order.status = "Active";
+  order.razorpay_signature = razorpay_signature;
+  await order.save();
+  await user.save();
+  
 
   const data = await sendInvoice(user, transaction);
   const result = await s3Uploadv4(data, user._id);
@@ -222,18 +221,24 @@ exports.createPayapalOrder = catchAsyncError(async (req, res, next) => {
   if (!p_type) return next(new ErrorHandler("Plan type not found", 404));
 
   let expiry_date = new Date();
-  let start_date = new Date();
-  let upgrade = false;
   let price = 0;
 
-  const [upcoming, active] = await Promise.all([
-    Order.findOne({ user: req.userId, status: "Upcoming" }),
-    Order.findOne({ user: req.userId, status: "Active" }),
-  ]);
+  const active = await Order.findOne({ user: req.userId, status: "Active" })
 
-  if (upcoming) {
-    return next(new ErrorHandler("You already have one upcoming plan", 400));
-  } else if (active) {
+  if (active) {
+    if (active.plan_name === "Family" && active.plan_type === "annual") {
+      return next(new ErrorHandler("You Already Have an Active Plan", 400));
+    }
+
+    if (
+      active.plan_name === "Individual" &&
+      active.plan_type === "annual" &&
+      plan.name === "Individual" &&
+      p_type.plan_type === "annual"
+    ) {
+      return next(new ErrorHandler("You Already Have an Active Plan", 400));
+    }
+
     if (
       active.plan_name === "Individual" &&
       active.plan_type === "annual" &&
@@ -242,38 +247,42 @@ exports.createPayapalOrder = catchAsyncError(async (req, res, next) => {
     ) {
       return next(
         new ErrorHandler(
-          "You can upgrade your plan from annual to annual only",
+          "You can upgrade your plan from Individual annual to Family annual only",
           400
         )
       );
     }
 
-    if (active.plan_name === "Family" && plan.name === "Individual") {
+    if (
+      active.plan_name === "Individual" &&
+      active.plan_type === "annual" &&
+      plan.name === "Individual" &&
+      p_type.plan_type === "monthly"
+    ) {
       return next(
         new ErrorHandler(
-          "You cannot downgrade your active plan of family to individual",
+          "You can upgrade your plan from Individual annual to Family annual only",
           400
         )
       );
     }
 
-    if (active.plan_name === "Individual" && plan.name === "Family") {
-      let expiry = new Date(active.expiry_date);
-      let current = Date.now();
-      let remaining = expiry - current;
-      remaining = Math.ceil(remaining / (1000 * 60 * 60 * 24));
-      let days = active.plan_type === "monthly" ? 30 : 365;
-      price = Math.floor((active.inr_price / days) * remaining);
-      expiry_date.setDate(expiry_date.getDate() + p_type.validity);
-      upgrade = true;
-    } else {
-      const startDate = new Date(active.expiry_date.getTime());
-      start_date = startDate.setDate(startDate.getDate() + 1);
-      expiry_date = new Date(start_date);
-      expiry_date = expiry_date.setDate(
-        expiry_date.getDate() + p_type.validity - 1
-      );
+    if (
+      active.plan_name === "Family" &&
+      active.plan_type === "monthly" &&
+      plan.name === "Individual" &&
+      p_type.plan_type === "monthly"
+    ) {
+      return next(new ErrorHandler("You Already have active plan.", 400));
     }
+
+    expiry_date = expiry_date.setDate(expiry_date.getDate() + p_type.validity);
+    let expiry = new Date(active.expiry_date);
+    let current = Date.now();
+    let remaining = expiry - current;
+    remaining = Math.ceil(remaining / (1000 * 60 * 60 * 24));
+    let days = active.plan_type === "monthly" ? 30 : 365;
+    price = Math.floor((active.inr_price / days) * remaining);
   } else {
     expiry_date = expiry_date.setDate(expiry_date.getDate() + p_type.validity);
   }
@@ -308,8 +317,6 @@ exports.createPayapalOrder = catchAsyncError(async (req, res, next) => {
     allow_devices: plan.allow_devices,
     plan_type: p_type.plan_type,
     usd_price: Number(p_type.usd_price - price).toFixed(2),
-    start_date,
-    is_upgrade: upgrade,
     expiry_date: expiry_date,
     status: "Pending",
   });
@@ -345,29 +352,19 @@ exports.capturePaypalOrder = catchAsyncError(async (req, res, next) => {
     status: "COMPLETED",
   });
 
-  const active_order = await Order.find({
+  const active_order = await Order.findOneAndDelete({
     user: order.user,
     status: "Active",
   });
 
-  if (active_order.length && !order.is_upgrade) {
-    order.status = "Upcoming";
-    await order.save();
-  }
-  if (!active_order.length && !order.is_upgrade) {
-    order.status = "Active";
+  if (!active_order) {
+    user.device_ids = [];
     user.device_ids.push(req.headers.authorization.split(" ")[1]);
-    await user.save();
-    await order.save();
   }
-
-  if (order.is_upgrade) {
-    const orders = await Order.find();
-    const delete_order = orders[orders.length - 2];
-    await delete_order.deleteOne();
-    order.status = "Active";
-    await order.save();
-  }
+ 
+  order.status="Active";
+  await order.save();
+  await user.save();
 
   const invoice_data = await sendInvoice(user, transaction);
   const result = await s3Uploadv4(invoice_data, user._id);

@@ -36,10 +36,7 @@ const schema = new mongoose.Schema(
     },
     start_date: {
       type: Date,
-    },
-    is_upgrade: {
-      type: Boolean,
-      default: false,
+      default: new Date()
     },
   },
   {
