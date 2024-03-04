@@ -466,7 +466,7 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
   if (existing_user && existing_user._id.toString() !== user._id.toString()) {
     return next(
       new ErrorHandler(
-        `${existing_user.email ? "Email" : "Mobile number"} already exists`,
+        `Email/Mobile Number already exists`,
         400
       )
     );
