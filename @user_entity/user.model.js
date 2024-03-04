@@ -33,7 +33,6 @@ const schema = new mongoose.Schema(
     mobile: {
       type: Number,
       required: [true, "Please enter your mobile number"],
-      unique: [true, "Mobile number already exists"],
       trim: true,
     },
     avatar: {
