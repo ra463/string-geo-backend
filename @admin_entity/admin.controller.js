@@ -217,14 +217,11 @@ exports.getUser = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.params.userId);
   if (!user) return next(new ErrorHandler("User not found", 404));
 
-  let transactions = await Transaction.find({ user: user._id })
+  const transactions = await Transaction.find({ user: user._id })
     .populate("user", "email")
     .populate("order")
     .sort({ createdAt: -1 });
 
-  transactions = transactions.filter(
-    (transaction) => transaction.order.status === "Active"
-  );
 
   res.status(200).json({
     success: true,
