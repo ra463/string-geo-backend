@@ -222,6 +222,10 @@ exports.getUser = catchAsyncError(async (req, res, next) => {
     .populate("order")
     .sort({ createdAt: -1 });
 
+  transactions = transactions.filter(
+    (transaction) => transaction.order.status === "Active"
+  );
+
   res.status(200).json({
     success: true,
     message: "User Found Successfully",
