@@ -185,7 +185,7 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
 
   if (!active_order) {
     user.device_ids = [];
-    user.device_ids.push(req.headers.authorization.split(" ")[1]);
+    user.device_ids.push(req.query.token);
   }
   order.status = "Active";
   order.razorpay_signature = razorpay_signature;
@@ -359,7 +359,7 @@ exports.capturePaypalOrder = catchAsyncError(async (req, res, next) => {
 
   if (!active_order) {
     user.device_ids = [];
-    user.device_ids.push(req.headers.authorization.split(" ")[1]);
+    user.device_ids.push(req.query.token);
   }
  
   order.status="Active";
