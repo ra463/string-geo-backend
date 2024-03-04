@@ -91,12 +91,7 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
       plan.name === "Individual" &&
       p_type.plan_type === "monthly"
     ) {
-      return next(
-        new ErrorHandler(
-          "You Already Have an Active Plan",
-          400
-        )
-      );
+      return next(new ErrorHandler("You Already Have an Active Plan", 400));
     }
 
     if (
@@ -192,7 +187,7 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
     status: "COMPLETED",
   });
 
-  const active_order = await Order.findOneAndDelete({
+  const active_order = await Order.findOne({
     user: order.user,
     status: "Active",
   });
@@ -201,11 +196,17 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
     user.device_ids = [];
     user.device_ids.push(req.query.token);
   }
+
+  if (active_order) {
+    active_order.status = "Expire";
+    active_order.expiry_date = new Date();
+    await active_order.save();
+  }
+
   order.status = "Active";
   order.razorpay_signature = razorpay_signature;
   await order.save();
   await user.save();
-  
 
   const data = await sendInvoice(user, transaction);
   const result = await s3Uploadv4(data, user._id);
@@ -237,7 +238,7 @@ exports.createPayapalOrder = catchAsyncError(async (req, res, next) => {
   let expiry_date = new Date();
   let price = 0;
 
-  const active = await Order.findOne({ user: req.userId, status: "Active" })
+  const active = await Order.findOne({ user: req.userId, status: "Active" });
 
   if (active) {
     if (active.plan_name === "Family" && active.plan_type === "annual") {
@@ -287,12 +288,7 @@ exports.createPayapalOrder = catchAsyncError(async (req, res, next) => {
       plan.name === "Individual" &&
       p_type.plan_type === "monthly"
     ) {
-      return next(
-        new ErrorHandler(
-          "You Already Have an Active Plan",
-          400
-        )
-      );
+      return next(new ErrorHandler("You Already Have an Active Plan", 400));
     }
 
     if (
@@ -389,8 +385,14 @@ exports.capturePaypalOrder = catchAsyncError(async (req, res, next) => {
     user.device_ids = [];
     user.device_ids.push(req.query.token);
   }
- 
-  order.status="Active";
+
+  if (active_order) {
+    active_order.status = "Expire";
+    active_order.expiry_date = new Date();
+    await active_order.save();
+  }
+
+  order.status = "Active";
   await order.save();
   await user.save();
 
