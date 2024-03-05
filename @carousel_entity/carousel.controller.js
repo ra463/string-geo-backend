@@ -89,7 +89,8 @@ exports.deleteCarousel = catchAsyncError(async (req, res, next) => {
   if (!carousel) return next(new ErrorHandler("Carousel not found", 404));
 
   const url = carousel.poster_url;
-  await Promise.all([s3delete(url), carousel.deleteOne()]);
+  // await Promise.all([s3delete(url), carousel.deleteOne()]);
+  await carousel.deleteOne();
 
   res.status(200).json({
     success: true,
