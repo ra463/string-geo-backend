@@ -9,7 +9,6 @@ const schema = new mongoose.Schema(
     video_id: {
       type: mongoose.Types.ObjectId,
       ref: "Video",
-      unique: [true, "Video already exists"],
     },
     tag: {
       required: [true, "Please provide type"],
