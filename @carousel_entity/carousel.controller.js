@@ -14,7 +14,12 @@ exports.addCarousel = catchAsyncError(async (req, res, next) => {
   }
 
   const result = await s3AdminUploadv4(file);
-  await Carousel.create({ poster_url: result.Location, video_id, tag });
+
+  if (tag === "Inner") {
+    await Carousel.create({ poster_url: result.Location, video_id, tag });
+  } else {
+    await Carousel.create({ poster_url: result.Location, video_id: null, tag });
+  }
 
   res.status(201).json({
     success: true,
@@ -71,22 +76,7 @@ exports.getAllInnerCarousel = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getAllOuterCarousel = catchAsyncError(async (req, res, next) => {
-  const carousels = await Carousel.find({ tag: "Outer" })
-    .populate({
-      path: "video_id",
-      select: "title genres language createdAt",
-      populate: [
-        {
-          path: "genres",
-          select: "name",
-        },
-        {
-          path: "language",
-          select: "name",
-        },
-      ],
-    })
-    .lean();
+  const carousels = await Carousel.find({ tag: "Outer" }).lean();
 
   res.status(200).json({
     success: true,
