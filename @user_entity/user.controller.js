@@ -5,6 +5,7 @@ const {
   sendVerificationCode,
   sendForgotPasswordCode,
   sendInvoice,
+  sendInvoice2,
 } = require("../utils/sendEmail");
 const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
@@ -681,7 +682,7 @@ exports.deleteAccount = catchAsyncError(async (req, res, next) => {
 
 exports.sendInvoice = catchAsyncError(async (req, res, next) => {
   req.userId = "Rachit Patel";
-  const data = await sendInvoice(
+  const data = await sendInvoice2(
     {
       name: "Shobhit",
       email: "shobhitchoudhary745@gmail.com",
