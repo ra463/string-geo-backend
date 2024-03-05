@@ -7,6 +7,7 @@ const User = require("../@user_entity/user.model");
 const axios = require("axios");
 const xml2js = require("xml2js");
 const parseM3U8 = require("parse-m3u8");
+const trailerModel = require("../@trailer_entity/trailer.model");
 
 const Category = require("../@category_entity/category.model");
 
@@ -130,6 +131,13 @@ exports.deleteVideo = catchAsyncError(async (req, res, next) => {
       return { ...data, sequence: index + 1 };
     });
     await category.save();
+  }
+
+  const trailer = await trailerModel.find({});
+  if (trailer.length) {
+    if (trailer[0].video == video._id) {
+      await trailerModel.findByIdAndDelete(trailer[0]._id);
+    }
   }
 
   res.status(200).json({
@@ -280,7 +288,7 @@ exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
   }
 
   const signedUrl = mf("y.mpd");
-  console.log(signedUrl)
+  console.log(signedUrl);
   const parser = new xml2js.Parser();
   const { data } = await axios.get(signedUrl);
   const xmlToJson = await parser.parseStringPromise(data);
