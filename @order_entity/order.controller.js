@@ -42,6 +42,11 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
   let price = 0;
 
   const active = await Order.findOne({ user: req.userId, status: "Active" });
+  if (active && !active.inr_price) {
+    return next(
+      new ErrorHandler("You can not upgrade plan to different currency.")
+    );
+  }
 
   if (active) {
     if (active.plan_name === "Family" && active.plan_type === "annual") {
@@ -248,6 +253,11 @@ exports.createPayapalOrder = catchAsyncError(async (req, res, next) => {
   let price = 0;
 
   const active = await Order.findOne({ user: req.userId, status: "Active" });
+  if (active && !active.usd_price) {
+    return next(
+      new ErrorHandler("You can not upgrade plan to different currency.")
+    );
+  }
 
   if (active) {
     if (active.plan_name === "Family" && active.plan_type === "annual") {
