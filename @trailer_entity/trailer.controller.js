@@ -23,19 +23,19 @@ exports.getTrailers = catchAsyncError(async (req, res, next) => {
   const trailers = await trailerModel.find().lean();
   if (trailers.length != 0) {
     const video = await videoModel.findById(trailers[0].video);
-    const expirationTime = new Date();
-    expirationTime.setHours(expirationTime.getHours() + 1);
+    // const expirationTime = new Date();
+    // expirationTime.setHours(expirationTime.getHours() + 1);
 
-    // generate signed url of video
-    const key = process.env.KEY_CLOUD;
-    const pemKey = `-----BEGIN PRIVATE KEY-----\n${key}\n-----END PRIVATE KEY-----`;
-    const signedUrl = getSignedUrl({
-      keyPairId: process.env.ID_CLOUD,
-      privateKey: pemKey,
-      url: `${process.env.URL_CLOUD}/admin-uploads/${video.video_url}`,
-      dateLessThan: expirationTime,
-    });
-    trailers[0].video_url = signedUrl;
+    // // generate signed url of video
+    // const key = process.env.KEY_CLOUD;
+    // const pemKey = `-----BEGIN PRIVATE KEY-----\n${key}\n-----END PRIVATE KEY-----`;
+    // const signedUrl = getSignedUrl({
+    //   keyPairId: process.env.ID_CLOUD,
+    //   privateKey: pemKey,
+    //   url: `${process.env.URL_CLOUD}/admin-uploads/${video.video_url}`,
+    //   dateLessThan: expirationTime,
+    // });
+    trailers[0].video_url = video.video_url;
     trailers[0].thumbnail_url = video.thumbnail_url;
   }
   res.status(200).json({
