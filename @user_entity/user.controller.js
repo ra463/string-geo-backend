@@ -465,12 +465,7 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
   });
 
   if (existing_user && existing_user._id.toString() !== user._id.toString()) {
-    return next(
-      new ErrorHandler(
-        `Email/Mobile Number already exists`,
-        400
-      )
-    );
+    return next(new ErrorHandler(`Email/Mobile Number already exists`, 400));
   }
 
   if (name) user.name = name;
@@ -626,10 +621,16 @@ exports.getWatchList = catchAsyncError(async (req, res, next) => {
     .lean();
   if (!user) return next(new ErrorHandler("User not Found", 400));
 
+  user.watch_list = user.watch_list.filter((watchlist) => {
+    return watchlist != null;
+  });
+
   user.watch_list = user.watch_list.map((watchlist) => {
     watchlist.inWatchList = true;
     return watchlist;
   });
+
+  
 
   res.status(200).json({
     success: true,
