@@ -10,16 +10,8 @@ sg.setApiKey(api);
 
 exports.sendVerificationCode = async (email, code) => {
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD,
-      },
-    });
-
     const mailOptions = {
-      from: process.env.EMAIL,
+      from: "namaskaram@stringgeo.com",
       to: email,
       subject: "Your Account Verification Code",
       html: `<div style="font-family: 'Arial', sans-serif; text-align: center; background-color: #f4f4f4; margin-top: 15px; padding: 0;">
@@ -37,11 +29,7 @@ exports.sendVerificationCode = async (email, code) => {
     
     </div>`,
     };
-
-    transporter.sendMail(mailOptions, (error, res) => {
-      if (error) return console.log(error);
-      return res;
-    });
+    await sg.send(mailOptions);
   } catch (error) {
     console.log(error);
   }
@@ -49,16 +37,8 @@ exports.sendVerificationCode = async (email, code) => {
 
 exports.sendForgotPasswordCode = async (name, email, code) => {
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD,
-      },
-    });
-
     const mailOptions = {
-      from: process.env.EMAIL,
+      from: "namaskaram@stringgeo.com",
       to: email,
       subject: "Password Reset Code",
       html: `<div style="font-family: 'Arial', sans-serif; text-align: center; background-color: #f4f4f4; margin-top: 15px; padding: 0;">
@@ -78,11 +58,7 @@ exports.sendForgotPasswordCode = async (name, email, code) => {
     
     </div>`,
     };
-
-    transporter.sendMail(mailOptions, (error, res) => {
-      if (error) return console.log(error);
-      return res;
-    });
+    await sg.send(mailOptions);
   } catch (error) {
     console.log(error);
   }
@@ -106,17 +82,9 @@ exports.sendInvoice = async (user, transaction) => {
         if (err) {
           console.log(err);
         } else {
-          const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-              user: process.env.EMAIL,
-              pass: process.env.PASSWORD,
-            },
-          });
-
           const msg = {
             to: user.email,
-            from: process.env.EMAIL,
+            from: "namaskaram@stringgeo.com",
             subject: "Sending an Invoice",
             html: `<div style="font-family: 'Arial', sans-serif; text-align: center; background-color: #f4f4f4; margin-top: 15px; padding: 0;">
 
@@ -144,7 +112,7 @@ exports.sendInvoice = async (user, transaction) => {
           };
 
           try {
-            await transporter.sendMail(msg);
+            await sg.send(msg);
             console.log(data);
             fs.unlink(`${user._id}.pdf`, (err) => {});
             resolve(data);
@@ -161,7 +129,7 @@ exports.sendInvoice = async (user, transaction) => {
 exports.sendBulkEmail = async (emails, subject, description) => {
   return sg.send({
     to: emails,
-    from: "shobhitchoudhary745@gmail.com",
+    from: "namaskaram@stringgeo.com",
     subject: `${subject}`,
     text: `${description}`,
   });
