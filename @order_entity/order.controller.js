@@ -229,7 +229,9 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
   await transaction.save();
 
   // redirect to success page
-  res.redirect("https://string-geo.vercel.app/dashboard/account");
+  res.redirect(
+    "https://master.d3r7vkwv89wti0.amplifyapp.com/dashboard/account"
+  );
 
   res.status(200).json({
     success: true,
@@ -430,6 +432,11 @@ exports.capturePaypalOrder = catchAsyncError(async (req, res, next) => {
 
   await transaction.save();
 
+  // redirect to success page
+  res.redirect(
+    "https://master.d3r7vkwv89wti0.amplifyapp.com/dashboard/account"
+  );
+
   res.status(200).json({
     success: true,
     paymentCaptured: data.purchase_units[0].payments.captures[0],
@@ -438,12 +445,12 @@ exports.capturePaypalOrder = catchAsyncError(async (req, res, next) => {
 
 exports.paymentWebhook = catchAsyncError(async (req, res, next) => {
   if (req.body.event === "payment.captured") {
-    console.log("first")
+    console.log("first");
   }
 });
 
 exports.paypalPaymentWebhook = catchAsyncError(async (req, res, next) => {
   if (req.body.event_type === "PAYMENT.CAPTURE.COMPLETED") {
-    console.log("first")
+    console.log("first");
   }
 });
