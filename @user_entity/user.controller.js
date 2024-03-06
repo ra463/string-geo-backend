@@ -146,7 +146,10 @@ const loginGoogle = async (req, res, next) => {
   const { email, logout_from_other_device } = req.body;
   if (!email) return next(new ErrorHandler("Please enter email", 400));
 
-  const mail = email.trim();
+  let mail = null;
+  if (email) {
+    mail = email.trim();
+  }
 
   const user = await User.findOne({
     email: { $regex: new RegExp(`^${mail}$`, "i") },
@@ -213,7 +216,10 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Please Enter Email or Mobile Number", 400));
   if (!password) return next(new ErrorHandler("Please Enter Password", 400));
 
-  const mail = email.trim();
+  let mail = null;
+  if (email) {
+    mail = email.trim();
+  }
 
   const user = await User.findOne({
     $or: [{ email: { $regex: new RegExp(`^${mail}$`, "i") } }, { mobile }],
