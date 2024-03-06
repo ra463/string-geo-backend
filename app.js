@@ -24,7 +24,7 @@ const limiter = rateLimit({
   message: "Too many requests from this IP, please try again later.",
   headers: false,
 });
-app.use(limiter);
+// app.use(limiter);
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
@@ -52,6 +52,7 @@ const pageRoutes = require("./@page_entity/page.index");
 const faqRoutes = require("./@faq_entity/faq.index");
 const trailerRoutes = require("./@trailer_entity/trailer.index");
 const carouselRoutes = require("./@carousel_entity/carousel.index");
+const contactRoutes = require("./@contact_entity/contact.index");
 
 //import validators
 const userValidator = require("./@user_entity/user.validator");
@@ -70,6 +71,7 @@ const pageValidator = require("./@page_entity/page.validator");
 const faqValidator = require("./@faq_entity/faq.validator");
 const trailerValidator = require("./@trailer_entity/trailer.validator");
 const carouselValidator = require("./@carousel_entity/carousel.validator");
+const contactValidator = require("./@contact_entity/contact.validator");
 
 // use routes
 app.use("/api/user", userValidator, userRoutes);
@@ -89,6 +91,7 @@ app.use("/api/page", pageValidator, pageRoutes);
 app.use("/api/faq", faqValidator, faqRoutes);
 app.use("/api/trailer", trailerValidator, trailerRoutes);
 app.use("/api/carousel", carouselValidator, carouselRoutes);
+app.use("/api/contact", contactValidator, contactRoutes);
 
 app.get("/", (req, res) =>
   res.send(`<h1>Its working. Click to visit Link.</h1>`)
