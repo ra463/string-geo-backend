@@ -13,6 +13,7 @@ const languageModel = require("../@language_entity/language.model");
 const categoriesModel = require("../@category_entity/category.model");
 const { sendBulkEmail } = require("../utils/sendEmail");
 const XLSX = require("xlsx");
+const Order = require("../@order_entity/order.model");
 
 dotenv.config({ path: "../config/config.env" });
 
@@ -222,7 +223,6 @@ exports.getUser = catchAsyncError(async (req, res, next) => {
     .populate("order")
     .sort({ createdAt: -1 });
 
-
   res.status(200).json({
     success: true,
     message: "User Found Successfully",
@@ -333,9 +333,137 @@ exports.getHomeData = catchAsyncError(async (req, res, next) => {
       Video.countDocuments(),
     ]);
 
+  const today = new Date(); // Get today's date
+  const startOfDay = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+
+  const dailyRevenue = await Order.aggregate([
+    {
+      $match: {
+        start_date: { $gte: startOfDay }, // Filter orders for today or later
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalRevenue: {
+          $sum: {
+            $cond: {
+              if: { $ifNull: ["$inr_price", false] }, // If inr_price exists
+              then: "$inr_price", // Use inr_price directly
+              else: { $multiply: ["$usd_price", 83] }, // Calculate inr_price based on usd_price and exchange rate
+            },
+          },
+        },
+      },
+    },
+  ]);
+
+  const startOfWeek = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate() - today.getDay()
+  );
+  const weeklyRevenue = await Order.aggregate([
+    {
+      $match: {
+        start_date: { $gte: startOfWeek },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalRevenue: {
+          $sum: {
+            $cond: {
+              if: { $ifNull: ["$inr_price", false] },
+              then: "$inr_price",
+              else: { $multiply: ["$usd_price", 83] },
+            },
+          },
+        },
+      },
+    },
+  ]);
+
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const monthlyRevenue = await Order.aggregate([
+    {
+      $match: {
+        start_date: { $gte: startOfMonth }, // Filter orders for this month or later
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalRevenue: {
+          $sum: {
+            $cond: {
+              if: { $ifNull: ["$inr_price", false] }, // If inr_price exists
+              then: "$inr_price", // Use inr_price directly
+              else: { $multiply: ["$usd_price", 83] }, // Calculate inr_price based on usd_price and exchange rate
+            },
+          },
+        },
+      },
+    },
+  ]);
+
+  const startOfYear = new Date(today.getFullYear(), 0, 1);
+  const yearlyRevenue = await Order.aggregate([
+    {
+      $match: {
+        start_date: { $gte: startOfYear }, // Filter orders for this year or later
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalRevenue: {
+          $sum: {
+            $cond: {
+              if: { $ifNull: ["$inr_price", false] }, // If inr_price exists
+              then: "$inr_price", // Use inr_price directly
+              else: { $multiply: ["$usd_price", 83] }, // Calculate inr_price based on usd_price and exchange rate
+            },
+          },
+        },
+      },
+    },
+  ]);
+
+  console.log(
+    "Daily Revenue:",
+    dailyRevenue.length ? dailyRevenue[0].totalRevenue : 0
+  );
+  console.log(
+    "Monthly Revenue:",
+    monthlyRevenue.length ? monthlyRevenue[0].totalRevenue : 0
+  );
+  console.log(
+    "Yearly Revenue:",
+    yearlyRevenue.length ? yearlyRevenue[0].totalRevenue : 0
+  );
+
   res.status(200).json({
     success: true,
-    data: { users, transactions, genres, languages, categories, videos },
+    data: {
+      yearlyRevenue: yearlyRevenue.length ? yearlyRevenue[0].totalRevenue : 0,
+      monthlyRevenue: monthlyRevenue.length
+        ? monthlyRevenue[0].totalRevenue
+        : 0,
+      weeklyRevenue: weeklyRevenue.length ? weeklyRevenue[0].totalRevenue : 0,
+      dailyRevenue: dailyRevenue.length ? dailyRevenue[0].totalRevenue : 0,
+      users,
+      transactions,
+      genres,
+      languages,
+      categories,
+      videos,
+    },
   });
 });
 
