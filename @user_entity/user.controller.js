@@ -126,7 +126,7 @@ exports.verifyAccount = catchAsyncError(async (req, res, next) => {
   if (!email || !code)
     return next(new ErrorHandler("Please enter all fields", 400));
   const userEmail = email.toLowerCase();
-  const user = await User.findOne({ email:userEmail });
+  const user = await User.findOne({ email: userEmail });
   if (!user) return next(new ErrorHandler("User does not exist", 400));
 
   if (user.is_verified === true)
@@ -146,8 +146,10 @@ const loginGoogle = async (req, res, next) => {
   const { email, logout_from_other_device } = req.body;
   if (!email) return next(new ErrorHandler("Please enter email", 400));
 
+  const mail = email.trim();
+
   const user = await User.findOne({
-    email: { $regex: new RegExp(`^${email}$`, "i") },
+    email: { $regex: new RegExp(`^${mail}$`, "i") },
   });
 
   if (!user) return next(new ErrorHandler("User not found", 404));
@@ -205,15 +207,16 @@ const loginGoogle = async (req, res, next) => {
 exports.loginUser = catchAsyncError(async (req, res, next) => {
   const { email, mobile, password, google_login, logout_from_other_device } =
     req.body;
-  // let email = em.trim();
   if (google_login) return await loginGoogle(req, res, next);
 
   if (!email && !mobile)
     return next(new ErrorHandler("Please Enter Email or Mobile Number", 400));
   if (!password) return next(new ErrorHandler("Please Enter Password", 400));
 
+  const mail = email.trim();
+
   const user = await User.findOne({
-    $or: [{ email: { $regex: new RegExp(`^${email}$`, "i") } }, { mobile }],
+    $or: [{ email: { $regex: new RegExp(`^${mail}$`, "i") } }, { mobile }],
   }).select("+password");
   if (!user) return next(new ErrorHandler("Account Not Found", 400));
   if (!user.is_verified) {
@@ -434,18 +437,7 @@ exports.getProfile = catchAsyncError(async (req, res, next) => {
   if (order) {
     isActivePlan = true;
   }
-  // const data = {
-  //   name: user.name,
-  //   email: user.email,
-  //   country_code: user.country_code,
-  //   mobile: user.mobile,
-  //   avatar: user.avatar,
-  //   role: user.role,
-  //   dob: user.dob,
-  //   states: user.states,
-  //   country: user.country,
-  //   city: user.city,
-  // };
+
   user.password = undefined;
   res.status(200).json({
     success: true,
@@ -475,19 +467,6 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
   if (country_code) user.country_code = country_code;
 
   await user.save();
-
-  // const data = {
-  //   name: user.name,
-  //   email: user.email,
-  //   country_code: user.country_code,
-  //   mobile: user.mobile,
-  //   avatar: user.avatar,
-  //   role: user.role,
-  //   dob: user.dob,
-  //   states: user.states,
-  //   country: user.country,
-  //   city: user.city,
-  // };
   user.password = undefined;
 
   res.status(200).json({
@@ -521,20 +500,6 @@ exports.updateProfilePicture = catchAsyncError(async (req, res, next) => {
 
   user.avatar = location;
   await user.save();
-
-  // const data = {
-  //   name: user.name,
-  //   email: user.email,
-  //   country_code: user.country_code,
-  //   mobile: user.mobile,
-  //   avatar: user.avatar,
-  //   role: user.role,
-  //   dob: user.dob,
-  //   states: user.states,
-  //   country: user.country,
-  //   city: user.city,
-  // };
-
   user.password = undefined;
 
   res.status(200).json({
@@ -621,20 +586,16 @@ exports.getWatchList = catchAsyncError(async (req, res, next) => {
     .lean();
   if (!user) return next(new ErrorHandler("User not Found", 400));
 
-  user.watch_list = user.watch_list.filter((watchlist) => {
-    return watchlist != null;
-  });
+  const watch = user.watch_list.filter(Boolean);
 
-  user.watch_list = user.watch_list.map((watchlist) => {
-    watchlist.inWatchList = true;
-    return watchlist;
-  });
-
-  
+  if (watch.length !== user.watch_list.length) {
+    user.watch_list = watch;
+    await user.save();
+  }
 
   res.status(200).json({
     success: true,
-    watch_list: user.watch_list,
+    watch_list: watch,
   });
 });
 
