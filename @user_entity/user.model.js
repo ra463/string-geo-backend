@@ -32,7 +32,7 @@ const schema = new mongoose.Schema(
     },
     mobile: {
       type: Number,
-      required: [true, "Please enter your mobile number"],
+      // required: [true, "Please enter your mobile number"],
       trim: true,
     },
     avatar: {
