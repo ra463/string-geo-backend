@@ -125,8 +125,8 @@ exports.verifyAccount = catchAsyncError(async (req, res, next) => {
   const { email, code } = req.body;
   if (!email || !code)
     return next(new ErrorHandler("Please enter all fields", 400));
-
-  const user = await User.findOne({ email });
+  const userEmail = email.toLowerCase();
+  const user = await User.findOne({ email:userEmail });
   if (!user) return next(new ErrorHandler("User does not exist", 400));
 
   if (user.is_verified === true)
