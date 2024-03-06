@@ -203,9 +203,9 @@ const loginGoogle = async (req, res, next) => {
 };
 
 exports.loginUser = catchAsyncError(async (req, res, next) => {
-  const { em, mobile, password, google_login, logout_from_other_device } =
+  const { email, mobile, password, google_login, logout_from_other_device } =
     req.body;
-  let email = em.trim();
+  // let email = em.trim();
   if (google_login) return await loginGoogle(req, res, next);
 
   if (!email && !mobile)
