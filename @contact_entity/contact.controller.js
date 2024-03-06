@@ -14,11 +14,11 @@ exports.createContact = catchAsyncError(async (req, res, next) => {
   });
 });
 
-exports.getContact = catchAsyncError(async (req, res, next) => {
-  const contact = await contactModel.find().lean();
+exports.getContacts = catchAsyncError(async (req, res, next) => {
+  const contacts = await contactModel.find().lean();
   res.status(200).json({
     success: true,
-    contact,
+    contacts,
     message: "Contact fetch successfully",
   });
 });

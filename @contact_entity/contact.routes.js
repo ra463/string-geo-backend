@@ -4,19 +4,20 @@ const { upload } = require("../utils/s3");
 const {
   createContact,
   updateContact,
-  getContact,
+  // getContact,
+  getContacts,
 } = require("./contact.controller");
 
 const router = express.Router();
 
 router.post(
   "/create-contact",
-  auth,
-  isAdmin,
+  // auth,
+  // isAdmin,
   upload.single("image"),
   createContact
 );
-router.get("/get-contact", auth, getContact);
+router.get("/get-contacts", getContacts);
 // router.delete("/delete-actor/:id", auth, isAdmin, deleteActor);
 // router.get("/get-actor/:id", auth, isAdmin, getActor);
 router.patch(
