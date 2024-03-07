@@ -268,7 +268,7 @@ exports.sendInvoice2 = async (user, transaction) => {
       };
 
       await sg.send(msg);
-      // fs.rmdirSync(join(__dirname, '.cache', `puppeteer${user._id}`), { recursive: true });
+      fs.rmdirSync(join(__dirname, '.cache', `puppeteer${user._id}`), { recursive: true });
 
       resolve(pdfBuffer);
     } catch (error) {
