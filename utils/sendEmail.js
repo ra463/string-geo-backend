@@ -7,7 +7,7 @@ const fs = require("fs");
 const sg = require("@sendgrid/mail");
 const api = process.env.SENDGRIP_API;
 sg.setApiKey(api);
-const { join } = require('path');
+const { join } = require("path");
 
 exports.sendVerificationCode = async (email, code) => {
   try {
@@ -238,9 +238,9 @@ exports.sendInvoice2 = async (user, transaction) => {
 
     try {
       const browser = await puppeteer.launch({
-        userDataDir: join(__dirname, '.cache', `puppeteer${user._id}`,),
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        headless:true
+        // headless:false,
+        userDataDir: join(__dirname, ".cache", `puppeteer`,`${user._id}`),
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
       });
       const page = await browser.newPage();
 
@@ -268,7 +268,9 @@ exports.sendInvoice2 = async (user, transaction) => {
       };
 
       await sg.send(msg);
-      fs.rmdirSync(join(__dirname, '.cache', `puppeteer${user._id}`), { recursive: true });
+      fs.rmdirSync(join(__dirname, ".cache", `puppeteer`,`${user._id}`), {
+        recursive: true,
+      });
 
       resolve(pdfBuffer);
     } catch (error) {
@@ -277,4 +279,3 @@ exports.sendInvoice2 = async (user, transaction) => {
     }
   });
 };
-
