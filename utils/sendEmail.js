@@ -283,9 +283,18 @@ exports.sendBulkEmail = async (emails, subject, description) => {
 exports.sendInvoice = async (user, transaction) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const date = new Date(transaction.createdAt);
-      const options = { year: "numeric", month: "short", day: "2-digit" };
-      const formattedDate = date.toLocaleDateString("en-US", options);
+      const formattedDate = (dateTimeString) => {
+        const dateTime = new Date(dateTimeString);
+        const month = dateTime.toLocaleString("default", { month: "short" });
+        const day = dateTime.getDate();
+        const year = dateTime.getFullYear();
+        const time = dateTime.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "numeric",
+          hour12: true,
+        });
+        return `${day} ${month}, ${year} ${time}`;
+      };
 
       const htmlTemplate = `<div
       		style="padding:3rem; margin-bottom:3rem; border:1.5px solid black; margin-top: 7%; margin-left: 7%;margin-right: 7%;">
@@ -322,7 +331,9 @@ exports.sendInvoice = async (user, transaction) => {
       				<p style="margin-top: 0.2rem;">Contact No: ${user.mobile}</p>
       			</div>
       			<div style="display: flex;flex-direction: column;">
-      				<p style="margin-top: 0.2rem;margin-bottom: 0.2rem;" style="text-align: end;">Transaction Date: ${formattedDate}</p>
+      				<p style="margin-top: 0.2rem;margin-bottom: 0.2rem;" style="text-align: end;">Transaction Date: ${formattedDate(
+                transaction.createdAt
+              )}</p>
       				<p style="margin-top: 0.2rem;">Transaction No: ${
                 transaction.payment_id
               }</p>
@@ -391,7 +402,7 @@ exports.sendInvoice = async (user, transaction) => {
         const file = { content: htmlTemplate };
         const pdfBuffer = await pdf.generatePdf(file, options);
 
-        const msg = { 
+        const msg = {
           to: user.email,
           from: "namaskaram@stringgeo.com",
           subject: "Sending an Invoice",
