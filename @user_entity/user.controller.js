@@ -657,8 +657,9 @@ exports.sendInvoice = catchAsyncError(async (req, res, next) => {
       name: "Shobhit",
       email: "shobhitchoudhary745@gmail.com",
       _id: "demoidvgvgvg",
+      mobile:7898062538
     },
-    { amount: 99, razorpay_payment_id: "randomid" }
+    { amount: 999, payment_id: "randomid" }
   );
 
   const location = await s3Uploadv4(data, "dummyuserid");
