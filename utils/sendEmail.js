@@ -297,7 +297,7 @@ exports.sendInvoice = async (user, transaction) => {
       		style="padding:3rem; margin-bottom:3rem; border:1.5px solid black; margin-top: 7%; margin-left: 7%;margin-right: 7%;">
       		<div style="text-align: right;">
       			<img width="200px" height="60px" style="background-color: white; border: none;"
-      				src="https://stringgeo.com/upload/NewFolder/String%20Geo%20logo%20Icon.png" />
+      				src="https://adelaide-car.s3.amazonaws.com/uploads/user-65e5b4c51dec04256212b52d/profile/1709807277309-String%20Geo%20logo%20Black.png" />
       		</div>
       		<div>
       			<p style="margin-bottom: 0.4rem;">
@@ -407,7 +407,7 @@ exports.sendInvoice = async (user, transaction) => {
           attachments: [
             {
               content: pdfBuffer.toString("base64"),
-              filename: `${user._id}.pdf`,
+              filename: `${user.name}.pdf`,
               encoding: "base64",
             },
           ],
