@@ -238,8 +238,8 @@ exports.sendInvoice2 = async (user, transaction) => {
 
     try {
       const browser = await puppeteer.launch({
-        // userDataDir: join(__dirname, '.cache', `puppeteer${user._id}`,),
-        // args: ['--no-sandbox', '--disable-setuid-sandbox']
+        userDataDir: join(__dirname, '.cache', `puppeteer${user._id}`,),
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
         headless:true
       });
       const page = await browser.newPage();
