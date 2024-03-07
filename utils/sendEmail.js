@@ -283,7 +283,7 @@ exports.sendBulkEmail = async (emails, subject, description) => {
 exports.sendInvoice = async (user, transaction) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const date = new Date(transaction.createAt);
+      const date = new Date(transaction.createdAt);
       const options = { year: "numeric", month: "short", day: "2-digit" };
       const formattedDate = date.toLocaleDateString("en-US", options);
 
