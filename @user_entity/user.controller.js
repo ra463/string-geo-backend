@@ -5,7 +5,6 @@ const {
   sendVerificationCode,
   sendForgotPasswordCode,
   sendInvoice,
-  sendInvoice2,
 } = require("../utils/sendEmail");
 const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
@@ -229,7 +228,7 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Account Not Found", 400));
   }
 
-  console.log(user)
+  console.log(user);
 
   //check if user account is freeze
   if (user.is_frozen) {
@@ -652,14 +651,27 @@ exports.deleteAccount = catchAsyncError(async (req, res, next) => {
 
 exports.sendInvoice = catchAsyncError(async (req, res, next) => {
   req.userId = "Rachit Patel";
-  const data = await sendInvoice2(
+  const data = await sendInvoice(
     {
       name: "Shobhit",
       email: "shobhitchoudhary745@gmail.com",
       _id: "demoidvgvgvg",
-      mobile:7898062538
+      mobile: 7898062538,
     },
-    { amount: 999, payment_id: "randomid" }
+    {
+      _id: "65e5c981471c00a09b2e3218",
+      order: "65e5c92c0939ce882644899b",
+      user: "65e5c9060939ce882644898f",
+      payment_id: "pay_NiI6swHNH4e8m4",
+      gateway: "Razorpay",
+      amount: 1,
+      status: "COMPLETED",
+      invoice_url:
+        "https://adelaide-car.s3.amazonaws.com/uploads/user-65e5c9060939ce88264…",
+      createdAt: "2024-03-04T13:15:48.506+00:00",
+      updatedAt: "2024-03-04T13:15:48.506+00:00",
+      __v: 0,
+    }
   );
 
   const location = await s3Uploadv4(data, "dummyuserid");

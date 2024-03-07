@@ -221,6 +221,7 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
   order.razorpay_signature = razorpay_signature;
   await order.save();
   await user.save();
+  await transaction.save();
 
   const data = await sendInvoice(user, transaction);
   const result = await s3Uploadv4(data, user._id);

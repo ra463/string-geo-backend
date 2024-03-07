@@ -1,13 +1,10 @@
 const dotenv = require("dotenv");
-const PDFDocument = require("pdfkit");
-// const puppeteer = require("puppeteer");
 dotenv.config({ path: "../config/config.env" });
 const pdf = require("html-pdf-node");
 const fs = require("fs");
 const sg = require("@sendgrid/mail");
 const api = process.env.SENDGRIP_API;
 sg.setApiKey(api);
-const { join } = require("path");
 
 exports.sendVerificationCode = async (email, code) => {
   try {
@@ -283,7 +280,7 @@ exports.sendBulkEmail = async (emails, subject, description) => {
 exports.sendInvoice = async (user, transaction) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const formattedDate = (dateTimeString) => {
+      const formatDateTime = (dateTimeString) => {
         const dateTime = new Date(dateTimeString);
         const month = dateTime.toLocaleString("default", { month: "short" });
         const day = dateTime.getDate();
@@ -331,8 +328,8 @@ exports.sendInvoice = async (user, transaction) => {
       				<p style="margin-top: 0.2rem;">Contact No: ${user.mobile}</p>
       			</div>
       			<div style="display: flex;flex-direction: column;">
-      				<p style="margin-top: 0.2rem;margin-bottom: 0.2rem;" style="text-align: end;">Transaction Date: ${formattedDate(
-                transaction.createdAt
+      				<p style="margin-top: 0.2rem;margin-bottom: 0.2rem;" style="text-align: end;">Transaction Date: ${formatDateTime(
+                transaction?.createdAt
               )}</p>
       				<p style="margin-top: 0.2rem;">Transaction No: ${
                 transaction.payment_id
