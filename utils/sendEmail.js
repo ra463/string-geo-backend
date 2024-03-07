@@ -2,10 +2,12 @@ const dotenv = require("dotenv");
 const PDFDocument = require("pdfkit");
 const puppeteer = require("puppeteer");
 dotenv.config({ path: "../config/config.env" });
+// const pdf = require('html-pdf-node');
 const fs = require("fs");
 const sg = require("@sendgrid/mail");
 const api = process.env.SENDGRIP_API;
 sg.setApiKey(api);
+const { join } = require('path');
 
 exports.sendVerificationCode = async (email, code) => {
   try {
@@ -235,7 +237,11 @@ exports.sendInvoice2 = async (user, transaction) => {
 	</div>`;
 
     try {
-      const browser = await puppeteer.launch();
+      const browser = await puppeteer.launch({
+        // userDataDir: join(__dirname, '.cache', `puppeteer${user._id}`,),
+        // args: ['--no-sandbox', '--disable-setuid-sandbox']
+        headless:true
+      });
       const page = await browser.newPage();
 
       // Set content to the page
@@ -262,6 +268,7 @@ exports.sendInvoice2 = async (user, transaction) => {
       };
 
       await sg.send(msg);
+      // fs.rmdirSync(join(__dirname, '.cache', `puppeteer${user._id}`), { recursive: true });
 
       resolve(pdfBuffer);
     } catch (error) {
@@ -270,3 +277,4 @@ exports.sendInvoice2 = async (user, transaction) => {
     }
   });
 };
+
