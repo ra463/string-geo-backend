@@ -290,7 +290,7 @@ exports.sendInvoice = async (user, transaction) => {
           minute: "numeric",
           hour12: true,
         });
-        return `${day} ${month}, ${year} ${time}`;
+        return `${day} ${month}, ${year}`;
       };
 
       const htmlTemplate = `<div
