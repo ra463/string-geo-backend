@@ -426,9 +426,10 @@ exports.capturePaypalOrder = catchAsyncError(async (req, res, next) => {
   order.status = "Active";
   await order.save();
   await user.save();
+  await transaction.save();
 
-  const invoice_data = await sendInvoice(user, transaction);
-  const result = await s3Uploadv4(invoice_data, user._id);
+  const invoice = await sendInvoice(user, transaction);
+  const result = await s3Uploadv4(invoice, user._id);
   transaction.invoice_url = result.Location;
 
   await transaction.save();
