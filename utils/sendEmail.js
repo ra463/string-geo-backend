@@ -65,67 +65,67 @@ exports.sendForgotPasswordCode = async (name, email, code) => {
   }
 };
 
-exports.sendInvoice = async (user, transaction) => {
-  return new Promise((resolve, reject) => {
-    const doc = new PDFDocument();
-    const writeStream = fs.createWriteStream(`${user._id}.pdf`);
+// exports.sendInvoice = async (user, transaction) => {
+//   return new Promise((resolve, reject) => {
+//     const doc = new PDFDocument();
+//     const writeStream = fs.createWriteStream(`${user._id}.pdf`);
 
-    doc.text(
-      `Name : ${user.name}\nEmail : ${user.email}\nTransaction Amount : ${transaction.amount}.\nTransaction id : ${transaction.payment_id}`
-    );
+//     doc.text(
+//       `Name : ${user.name}\nEmail : ${user.email}\nTransaction Amount : ${transaction.amount}.\nTransaction id : ${transaction.payment_id}`
+//     );
 
-    doc.end();
+//     doc.end();
 
-    doc.pipe(writeStream);
+//     doc.pipe(writeStream);
 
-    writeStream.on("finish", () => {
-      fs.readFile(`${user._id}.pdf`, async (err, data) => {
-        if (err) {
-          console.log(err);
-        } else {
-          const msg = {
-            to: user.email,
-            from: "namaskaram@stringgeo.com",
-            subject: "Sending an Invoice",
-            html: `<div style="font-family: 'Arial', sans-serif; text-align: center; background-color: #f4f4f4; margin-top: 15px; padding: 0;">
+//     writeStream.on("finish", () => {
+//       fs.readFile(`${user._id}.pdf`, async (err, data) => {
+//         if (err) {
+//           console.log(err);
+//         } else {
+//           const msg = {
+//             to: user.email,
+//             from: "namaskaram@stringgeo.com",
+//             subject: "Sending an Invoice",
+//             html: `<div style="font-family: 'Arial', sans-serif; text-align: center; background-color: #f4f4f4; margin-top: 15px; padding: 0;">
 
-                <div style="max-width: 600px; margin: 30px auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-                  <h1 style="color: #333333;">Hey ${user.name}! You Payment of ${transaction.amount} has been done successfully</h1>
-                  <p style="color: #666666;">You have now access to our paid content.</p>
-                  <p style="color: #666666;">
-                    If you did not request this mail, please ignore this email.
-                  </p>
-                </div>
+//                 <div style="max-width: 600px; margin: 30px auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+//                   <h1 style="color: #333333;">Hey ${user.name}! You Payment of ${transaction.amount} has been done successfully</h1>
+//                   <p style="color: #666666;">You have now access to our paid content.</p>
+//                   <p style="color: #666666;">
+//                     If you did not request this mail, please ignore this email.
+//                   </p>
+//                 </div>
 
-                <div style="color: #888888;">
-                  <p style="margin-bottom: 10px;">Regards, <span style="color: #caa257;">Team String Geo</span></p>
-                </div>
+//                 <div style="color: #888888;">
+//                   <p style="margin-bottom: 10px;">Regards, <span style="color: #caa257;">Team String Geo</span></p>
+//                 </div>
 
-              </div>`,
-            attachments: [
-              {
-                content: data.toString("base64"),
-                filename: `${user._id}.pdf`,
-                path: `${user._id}.pdf`,
-                encoding: "base64",
-              },
-            ],
-          };
+//               </div>`,
+//             attachments: [
+//               {
+//                 content: data.toString("base64"),
+//                 filename: `${user._id}.pdf`,
+//                 path: `${user._id}.pdf`,
+//                 encoding: "base64",
+//               },
+//             ],
+//           };
 
-          try {
-            await sg.send(msg);
-            console.log(data);
-            fs.unlink(`${user._id}.pdf`, (err) => {});
-            resolve(data);
-          } catch (error) {
-            console.log(error);
-            reject(error);
-          }
-        }
-      });
-    });
-  });
-};
+//           try {
+//             await sg.send(msg);
+//             console.log(data);
+//             fs.unlink(`${user._id}.pdf`, (err) => {});
+//             resolve(data);
+//           } catch (error) {
+//             console.log(error);
+//             reject(error);
+//           }
+//         }
+//       });
+//     });
+//   });
+// };
 
 exports.sendBulkEmail = async (emails, subject, description) => {
   return sg.sendMultiple({
@@ -280,7 +280,7 @@ exports.sendBulkEmail = async (emails, subject, description) => {
 //   });
 // };
 
-exports.sendInvoice2 = async (user, transaction) => {
+exports.sendInvoice = async (user, transaction) => {
   return new Promise(async (resolve, reject) => {
     try {
       const date = new Date(transaction.createAt);
