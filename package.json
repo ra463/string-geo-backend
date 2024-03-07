@@ -28,7 +28,6 @@
     "nodemon": "^3.0.2",
     "parse-m3u8": "^1.0.1",
     "pdfkit": "^0.14.0",
-    "puppeteer": "^22.4.0",
     "qs": "^6.11.2",
     "razorpay": "^2.9.2",
     "validator": "^13.11.0",

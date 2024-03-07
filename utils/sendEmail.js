@@ -1,6 +1,6 @@
 const dotenv = require("dotenv");
 const PDFDocument = require("pdfkit");
-const puppeteer = require("puppeteer");
+// const puppeteer = require("puppeteer");
 dotenv.config({ path: "../config/config.env" });
 // const pdf = require('html-pdf-node');
 const fs = require("fs");
@@ -136,146 +136,146 @@ exports.sendBulkEmail = async (emails, subject, description) => {
   });
 };
 
-exports.sendInvoice2 = async (user, transaction) => {
-  return new Promise(async (resolve, reject) => {
-    // transaction.createAt = "2024-02-21T14:37:29.797+00:00";
-    const date = new Date(transaction.createAt);
+// exports.sendInvoice2 = async (user, transaction) => {
+//   return new Promise(async (resolve, reject) => {
+//     // transaction.createAt = "2024-02-21T14:37:29.797+00:00";
+//     const date = new Date(transaction.createAt);
 
-    const options = { year: "numeric", month: "short", day: "2-digit" };
-    const formattedDate = date.toLocaleDateString("en-US", options);
-    const htmlTemplate = `<div
-		style="padding:3rem; margin-bottom:3rem; border:1.5px solid black; margin-top: 7%; margin-left: 7%;margin-right: 7%;">
-		<div style="text-align: right;">
-			<img width="200px" height="60px" style="background-color: white; border: none;"
-				src="https://stringgeo.com/upload/NewFolder/String%20Geo%20logo%20Icon.png" />
-		</div>
-		<div>
-			<p style="margin-bottom: 0.4rem;">
-				<strong>STRING ART PRIVATE LIMITED</strong>
-			</p>
-			<p style="margin-top: 0.4rem;margin-bottom: 0.4rem;">
-				<strong>GSTIN - </strong>37ABICS6540H1Z2
-			</p>
-			<p style="margin-top: 0.4rem;margin-bottom: 0.4rem;">
-				<strong>Mobile - </strong>7022022728
-			</p>
-			<p style="margin-top: 0.4rem;margin-bottom: 0.4rem;">
-				<strong>Email - </strong>namaskaram@stringgeo.com
-			</p>
-		</div>
-		<div style="text-align: center;">
-			<h1>Tax Invoice</h1>
-		</div>
-		<div style="display: flex;justify-content: space-between;">
-			<div style="display: flex;flex-direction: column;">
-				<p style="margin-bottom: 0.2rem;">Billing To: Prakash</p>
-				<p style="margin-bottom: 0.2rem;margin-top: 0.2rem;">Full Name: ${user.name}</p>
-				<p style="margin-bottom: 0.2rem;margin-top: 0.2rem;">Email Id: ${user.email}</p>
-				<p style="margin-top: 0.2rem;">Contact No: ${user.mobile}</p>
-			</div>
-			<div style="display: flex;flex-direction: column;">
-				<p style="margin-top: 0.2rem;margin-bottom: 0.2rem;" style="text-align: end;">Transaction Date: ${formattedDate}</p>
-				<p style="margin-top: 0.2rem;">Transaction No: ${transaction.payment_id}</p>
-			</div>
-		</div>
-		<div>
-			<table style="margin-top: 1rem; border-collapse: collapse; width: 100%; border: 3px solid black;">
-				<thead>
-					<tr>
-						<th style="border: 2px solid black; padding: 8px;" colspan="6">Description</th>
-						<th style="border: 2px solid black; padding: 8px;" colspan="3">SAC Code</th>
-						<th style="border: 2px solid black; padding: 8px;" colspan="3">Amount (Rs.)</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td style="border: 2px solid black; padding: 8px; text-align: center;" colspan="6">Basic
-							(Monthly)</td>
-						<td style="border: 2px solid black; padding: 8px;text-align: center;" colspan="3">998433</td>
-						<td style="border: 2px solid black; padding: 8px;text-align: center;" colspan="3">${parseFloat(
-              0.82 * transaction.amount
-            ).toFixed(2)}</td>
-					</tr>
-					<tr>
-						<td style="border: 2px solid black; padding: 8px;text-align: center;" colspan="6">IGST @ 18%
-						</td>
-						<td style="border: 2px solid black; padding: 8px;text-align: center;" colspan="3"></td>
-						<td style="border: 2px solid black; padding: 8px;text-align: center;" colspan="3">${parseFloat(
-              0.18 * transaction.amount
-            ).toFixed(2)}</td>
-					</tr>
-					<tr>
-						<td style="border: 2px solid black; padding: 8px;text-align: center;" colspan="6">Invoice Total
-						</td>
-						<td style="border: 2px solid black; padding: 8px;text-align: center;" colspan="3"></td>
-						<td style="border: 2px solid black; padding: 8px;text-align: center;" colspan="3">${
-              transaction.amount
-            }</td>
-					</tr>
+//     const options = { year: "numeric", month: "short", day: "2-digit" };
+//     const formattedDate = date.toLocaleDateString("en-US", options);
+//     const htmlTemplate = `<div
+// 		style="padding:3rem; margin-bottom:3rem; border:1.5px solid black; margin-top: 7%; margin-left: 7%;margin-right: 7%;">
+// 		<div style="text-align: right;">
+// 			<img width="200px" height="60px" style="background-color: white; border: none;"
+// 				src="https://stringgeo.com/upload/NewFolder/String%20Geo%20logo%20Icon.png" />
+// 		</div>
+// 		<div> 
+// 			<p style="margin-bottom: 0.4rem;">
+// 				<strong>STRING ART PRIVATE LIMITED</strong>
+// 			</p>
+// 			<p style="margin-top: 0.4rem;margin-bottom: 0.4rem;">
+// 				<strong>GSTIN - </strong>37ABICS6540H1Z2
+// 			</p>
+// 			<p style="margin-top: 0.4rem;margin-bottom: 0.4rem;">
+// 				<strong>Mobile - </strong>7022022728
+// 			</p>
+// 			<p style="margin-top: 0.4rem;margin-bottom: 0.4rem;">
+// 				<strong>Email - </strong>namaskaram@stringgeo.com
+// 			</p>
+// 		</div>
+// 		<div style="text-align: center;">
+// 			<h1>Tax Invoice</h1>
+// 		</div>
+// 		<div style="display: flex;justify-content: space-between;">
+// 			<div style="display: flex;flex-direction: column;">
+// 				<p style="margin-bottom: 0.2rem;">Billing To: Prakash</p>
+// 				<p style="margin-bottom: 0.2rem;margin-top: 0.2rem;">Full Name: ${user.name}</p>
+// 				<p style="margin-bottom: 0.2rem;margin-top: 0.2rem;">Email Id: ${user.email}</p>
+// 				<p style="margin-top: 0.2rem;">Contact No: ${user.mobile}</p>
+// 			</div>
+// 			<div style="display: flex;flex-direction: column;">
+// 				<p style="margin-top: 0.2rem;margin-bottom: 0.2rem;" style="text-align: end;">Transaction Date: ${formattedDate}</p>
+// 				<p style="margin-top: 0.2rem;">Transaction No: ${transaction.payment_id}</p>
+// 			</div>
+// 		</div>
+// 		<div>
+// 			<table style="margin-top: 1rem; border-collapse: collapse; width: 100%; border: 3px solid black;">
+// 				<thead>
+// 					<tr>
+// 						<th style="border: 2px solid black; padding: 8px;" colspan="6">Description</th>
+// 						<th style="border: 2px solid black; padding: 8px;" colspan="3">SAC Code</th>
+// 						<th style="border: 2px solid black; padding: 8px;" colspan="3">Amount (Rs.)</th>
+// 					</tr>
+// 				</thead>
+// 				<tbody>
+// 					<tr>
+// 						<td style="border: 2px solid black; padding: 8px; text-align: center;" colspan="6">Basic
+// 							(Monthly)</td>
+// 						<td style="border: 2px solid black; padding: 8px;text-align: center;" colspan="3">998433</td>
+// 						<td style="border: 2px solid black; padding: 8px;text-align: center;" colspan="3">${parseFloat(
+//               0.82 * transaction.amount
+//             ).toFixed(2)}</td>
+// 					</tr>
+// 					<tr>
+// 						<td style="border: 2px solid black; padding: 8px;text-align: center;" colspan="6">IGST @ 18%
+// 						</td>
+// 						<td style="border: 2px solid black; padding: 8px;text-align: center;" colspan="3"></td>
+// 						<td style="border: 2px solid black; padding: 8px;text-align: center;" colspan="3">${parseFloat(
+//               0.18 * transaction.amount
+//             ).toFixed(2)}</td>
+// 					</tr>
+// 					<tr>
+// 						<td style="border: 2px solid black; padding: 8px;text-align: center;" colspan="6">Invoice Total
+// 						</td>
+// 						<td style="border: 2px solid black; padding: 8px;text-align: center;" colspan="3"></td>
+// 						<td style="border: 2px solid black; padding: 8px;text-align: center;" colspan="3">${
+//               transaction.amount
+//             }</td>
+// 					</tr>
 
-				</tbody>
-			</table>
-		</div>
+// 				</tbody>
+// 			</table>
+// 		</div>
 
-		<div>
-			<p style="margin-bottom: 0.4rem;"><b>Note:</b> The subscription amount is inclusive Goods and Service tax
-				(GST) at rate of 18%.</p>
-			<p style="margin-top: 0.4rem;margin-bottom: 0.4rem;">Reverse Charge Applicability: No</p>
-			<p style="margin-top: 0.4rem;margin-bottom: 0.4rem;">See Terms and Conditions on the www.stringgeo.com
-				website</p>
-		</div>
+// 		<div>
+// 			<p style="margin-bottom: 0.4rem;"><b>Note:</b> The subscription amount is inclusive Goods and Service tax
+// 				(GST) at rate of 18%.</p>
+// 			<p style="margin-top: 0.4rem;margin-bottom: 0.4rem;">Reverse Charge Applicability: No</p>
+// 			<p style="margin-top: 0.4rem;margin-bottom: 0.4rem;">See Terms and Conditions on the www.stringgeo.com
+// 				website</p>
+// 		</div>
 
-		<div style="margin-top: 4rem;text-align: center;">
-			<p>This is System generated invoice</p>
-			<p style="margin-bottom: 0.3rem;"><b>STRING ART PRIVATE LIMITED</b></p>
-			<p style="margin-bottom: 0.3rem;margin-top: 0.3rem;">D NO 85-40-4/4, F S-1, SRI SARASWATHI NIVAS APPT,</p>
-			<p style="margin-bottom: 0.3rem;margin-top: 0.3rem;">RAJAHMUNDRY, East Godavari,</p>
-			<p style="margin-bottom: 0.3rem;margin-top: 0.3rem;">Andhra Pradesh, India, 533101</p>
+// 		<div style="margin-top: 4rem;text-align: center;">
+// 			<p>This is System generated invoice</p>
+// 			<p style="margin-bottom: 0.3rem;"><b>STRING ART PRIVATE LIMITED</b></p>
+// 			<p style="margin-bottom: 0.3rem;margin-top: 0.3rem;">D NO 85-40-4/4, F S-1, SRI SARASWATHI NIVAS APPT,</p>
+// 			<p style="margin-bottom: 0.3rem;margin-top: 0.3rem;">RAJAHMUNDRY, East Godavari,</p>
+// 			<p style="margin-bottom: 0.3rem;margin-top: 0.3rem;">Andhra Pradesh, India, 533101</p>
 
-		</div>
+// 		</div>
 
-	</div>`;
+// 	</div>`;
 
-    try {
-      const browser = await puppeteer.launch({
-        // headless:false,
-        userDataDir: join(__dirname, ".cache", `puppeteer`,`${user._id}`),
-        args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      });
-      const page = await browser.newPage();
+//     try {
+//       const browser = await puppeteer.launch({
+//         // headless:false,
+//         userDataDir: join(__dirname, ".cache", `puppeteer`,`${user._id}`),
+//         args: ["--no-sandbox", "--disable-setuid-sandbox"],
+//       });
+//       const page = await browser.newPage();
 
-      // Set content to the page
-      await page.setContent(htmlTemplate);
+//       // Set content to the page
+//       await page.setContent(htmlTemplate);
 
-      // Generate PDF from the page content
-      const pdfBuffer = await page.pdf({ format: "A4" });
+//       // Generate PDF from the page content
+//       const pdfBuffer = await page.pdf({ format: "A4" });
 
-      // Close the browser
-      await browser.close();
+//       // Close the browser
+//       await browser.close();
 
-      const msg = {
-        to: user.email,
-        from: "namaskaram@stringgeo.com",
-        subject: "Sending an Invoice",
-        text: `Welcome ${user.name}, Thank you for joining us. Please find an attachment below containing your transaction details.`,
-        attachments: [
-          {
-            content: pdfBuffer.toString("base64"),
-            filename: `${user._id}.pdf`,
-            encoding: "base64",
-          },
-        ],
-      };
+//       const msg = {
+//         to: user.email,
+//         from: "namaskaram@stringgeo.com",
+//         subject: "Sending an Invoice",
+//         text: `Welcome ${user.name}, Thank you for joining us. Please find an attachment below containing your transaction details.`,
+//         attachments: [
+//           {
+//             content: pdfBuffer.toString("base64"),
+//             filename: `${user._id}.pdf`,
+//             encoding: "base64",
+//           },
+//         ],
+//       };
 
-      await sg.send(msg);
-      fs.rmdirSync(join(__dirname, ".cache", `puppeteer`,`${user._id}`), {
-        recursive: true,
-      });
+//       await sg.send(msg);
+//       fs.rmdirSync(join(__dirname, ".cache", `puppeteer`,`${user._id}`), {
+//         recursive: true,
+//       });
 
-      resolve(pdfBuffer);
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      reject(error);
-    }
-  });
-};
+//       resolve(pdfBuffer);
+//     } catch (error) {
+//       console.error("Error generating PDF:", error);
+//       reject(error);
+//     }
+//   });
+// };
