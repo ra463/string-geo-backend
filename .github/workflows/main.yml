@@ -44,5 +44,5 @@ jobs:
             docker rm string-container || true
 
             # Run the new Docker container
-            docker run -d --name string-container --env-file string/config.env -p 4000:5000  pradyumnaquantum/string
+            docker run -d --name string-container --env-file string/config.env -p 5000:4000  pradyumnaquantum/string
             
