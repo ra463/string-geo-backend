@@ -7,6 +7,7 @@ const {
   getVideo,
   getVideosOfCategory,
   getSingnedUrls,
+  get,
 } = require("./video.controller");
 const { auth, isAdmin } = require("../middlewares/auth");
 const { upload } = require("../utils/s3");
@@ -31,5 +32,6 @@ router.patch(
   updateVideo
 );
 router.get("/geturl", getSingnedUrls);
+router.get("/script",get);
 
 module.exports = router;

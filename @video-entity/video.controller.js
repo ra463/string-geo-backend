@@ -168,21 +168,6 @@ exports.getVideo = catchAsyncError(async (req, res, next) => {
       new ErrorHandler(`${!video ? "Video" : "User"} not found`, 404)
     );
 
-  if (user.role === "admin") {
-    const expirationTime = new Date();
-    expirationTime.setHours(expirationTime.getHours() + 5);
-    const key = process.env.KEY_CLOUD;
-    const pemKey = `-----BEGIN PRIVATE KEY-----\n${key}\n-----END PRIVATE KEY-----`;
-    const signedUrl = getSignedUrl({
-      keyPairId: process.env.ID_CLOUD,
-      privateKey: pemKey,
-      url: `${process.env.URL_CLOUD}/admin-uploads/${video.video_url}`,
-      dateLessThan: expirationTime,
-    });
-
-    video.video_url = signedUrl;
-  }
-
   res.status(200).json({
     success: true,
     video,
@@ -190,6 +175,7 @@ exports.getVideo = catchAsyncError(async (req, res, next) => {
 });
 
 exports.updateVideo = catchAsyncError(async (req, res, next) => {
+  
   const video = await videoModel.findById(req.params.id);
 
   if (!video) {
@@ -372,4 +358,27 @@ exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
   //   }).status(200).send(fileContent);
 
   // return res.status(200).json({ success: true, signedUrl });
+});
+
+exports.get = catchAsyncError(async (req, res, next) => {
+  const videos = await videoModel.find({});
+  for (let i = 67; i < 70; ++i) {
+    console.log(i)
+    const data = await axios.get(`${videos[i].thumbnail_url}`, {
+      responseType: "arraybuffer",
+    });
+    // console.log(videos[i].thumbnail_url.split(".")[videos[i].thumbnail_url.split(".").length-1])
+    const data2 = await s3Uploadv4(
+      data.data,
+      "bchdbhcbdhcbhdb",
+      videos[i].thumbnail_url.split(".com/")[1].replaceAll("%","")
+    );
+    videos[i].thumbnail_url = data2.Location;
+    await videos[i].save();
+  }
+
+  res.status(200).json({
+    success: true,
+    // videos
+  });
 });

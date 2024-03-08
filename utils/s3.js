@@ -35,46 +35,57 @@ exports.generateUploadURL = async () => {
 
 exports.s3Uploadv4 = async (file, id) => {
   const s3 = new aws.S3({
-    accessKeyId: process.env.AWS_CAR_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_CAR_SECRET_KEY,
-    region: process.env.AWS_CAR_BUCKET_REGION,
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY,
+    region: process.env.AWS_BUCKET_REGION,
   });
 
   if (file?.mimetype?.split("/")[0] === "image") {
+    const key = `uploads/user-${id}/profile/${Date.now().toString()}-${
+      file.originalname
+    }`;
+
     const params = {
-      Bucket: process.env.AWS_CAR_BUCKET_NAME,
-      Key: `uploads/user-${id}/profile/${Date.now().toString()}-${
-        file.originalname
-      }`,
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: key,
       Body: file.buffer,
     };
 
-    return await s3.upload(params).promise();
+    const data = await s3.upload(params).promise();
+    data.Location = key;
+    return data;
   } else {
+    const key = `uploads/user-${id}/pdf/${Date.now().toString()}-invoice.pdf`;
     const params = {
-      Bucket: process.env.AWS_CAR_BUCKET_NAME,
-      Key: `uploads/user-${id}/pdf/${Date.now().toString()}-invoice.pdf`,
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: key,
       Body: file,
     };
 
-    return await s3.upload(params).promise();
+    const data = await s3.upload(params).promise();
+    data.Location = key;
+    return data;
   }
 };
 
 exports.s3AdminUploadv4 = async (file) => {
   const s3 = new aws.S3({
-    accessKeyId: process.env.AWS_CAR_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_CAR_SECRET_KEY,
-    region: process.env.AWS_CAR_BUCKET_REGION,
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_SECRET_KEY,
+    region: process.env.AWS_BUCKET_REGION,
   });
-
+  const key = `admin-uploads/images/${Date.now().toString()}-${
+    file.originalname
+  }`;
   const params = {
-    Bucket: process.env.AWS_CAR_BUCKET_NAME,
-    Key: `admin-uploads/images/${Date.now().toString()}-${file.originalname}`,
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: key,
     Body: file.buffer,
   };
 
-  return await s3.upload(params).promise();
+  const data = await s3.upload(params).promise();
+  data.Location = key;
+  return data;
 };
 
 exports.s3delete = async (file) => {
