@@ -4,8 +4,6 @@ const app = express();
 const { error } = require("./middlewares/error");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
-// const ip = require("ip");
-// const requestIp = require("request-ip");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
@@ -16,8 +14,6 @@ dotenv.config({
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("tiny"));
-// app.set("trust proxy", 1);
-// app.use(requestIp.mw());
 const limiter = rateLimit({
   windowMs: process.env.TIME,
   max: process.env.MAX,
