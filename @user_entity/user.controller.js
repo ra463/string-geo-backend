@@ -86,7 +86,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
   const user_exist = await User.findOne({
     $or: [
       { email: { $regex: new RegExp(email, "i") } },
-      { mobile: { $exists: true, $ne: null } },
+      // { mobile: { $exists: true, $ne: null } },
     ],
   });
 
@@ -475,7 +475,7 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
   const existing_user = await User.findOne({
     $or: [
       { email: { $regex: new RegExp(email, "i") } },
-      { mobile: { $exists: true, $ne: null } },
+      // { mobile: { $exists: true, $ne: null } },
     ],
   });
 
