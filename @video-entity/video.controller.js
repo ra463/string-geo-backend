@@ -168,20 +168,20 @@ exports.getVideo = catchAsyncError(async (req, res, next) => {
       new ErrorHandler(`${!video ? "Video" : "User"} not found`, 404)
     );
 
-  // const expirationTime = new Date();
-  // expirationTime.setHours(expirationTime.getHours() + 1);
+  if (user.role === "admin") {
+    const expirationTime = new Date();
+    expirationTime.setHours(expirationTime.getHours() + 5);
+    const key = process.env.KEY_CLOUD;
+    const pemKey = `-----BEGIN PRIVATE KEY-----\n${key}\n-----END PRIVATE KEY-----`;
+    const signedUrl = getSignedUrl({
+      keyPairId: process.env.ID_CLOUD,
+      privateKey: pemKey,
+      url: `${process.env.URL_CLOUD}/admin-uploads/${video.video_url}`,
+      dateLessThan: expirationTime,
+    });
 
-  // // generate signed url of video
-  // const key = process.env.KEY_CLOUD;
-  // const pemKey = `-----BEGIN PRIVATE KEY-----\n${key}\n-----END PRIVATE KEY-----`;
-  // const signedUrl = getSignedUrl({
-  //   keyPairId: process.env.ID_CLOUD,
-  //   privateKey: pemKey,
-  //   url: `${process.env.URL_CLOUD}/admin-uploads/${video.video_url}`,
-  //   dateLessThan: expirationTime,
-  // });
-
-  // video.video_url = signedUrl;
+    video.video_url = signedUrl;
+  }
 
   res.status(200).json({
     success: true,

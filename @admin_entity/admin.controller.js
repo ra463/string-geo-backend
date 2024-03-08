@@ -435,18 +435,7 @@ exports.getHomeData = catchAsyncError(async (req, res, next) => {
     },
   ]);
 
-  console.log(
-    "Daily Revenue:",
-    dailyRevenue.length ? dailyRevenue[0].totalRevenue : 0
-  );
-  console.log(
-    "Monthly Revenue:",
-    monthlyRevenue.length ? monthlyRevenue[0].totalRevenue : 0
-  );
-  console.log(
-    "Yearly Revenue:",
-    yearlyRevenue.length ? yearlyRevenue[0].totalRevenue : 0
-  );
+ 
 
   res.status(200).json({
     success: true,
