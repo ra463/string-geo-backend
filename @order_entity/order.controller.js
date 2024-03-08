@@ -142,7 +142,6 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
     allow_devices: plan.allow_devices,
     plan_type: p_type.plan_type,
     inr_price: Number(p_type.inr_price - price).toFixed(2),
-    // is_upgrade: active ? true : false,
     expiry_date,
     status: "Pending",
   });
@@ -230,9 +229,7 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
   await transaction.save();
 
   // redirect to success page
-  res.redirect(
-    "https://master.d3r7vkwv89wti0.amplifyapp.com/dashboard/account"
-  );
+  res.redirect("https://www.stringevolve.in");
 
   res.status(200).json({
     success: true,
@@ -435,9 +432,7 @@ exports.capturePaypalOrder = catchAsyncError(async (req, res, next) => {
   await transaction.save();
 
   // redirect to success page
-  res.redirect(
-    "https://master.d3r7vkwv89wti0.amplifyapp.com/dashboard/account"
-  );
+  res.redirect("https://www.stringevolve.in");
 
   res.status(200).json({
     success: true,

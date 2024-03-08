@@ -65,11 +65,17 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     country_code,
   } = req.body;
 
+  if (name && (name.length < 8 || name.length > 25)) {
+    return next(
+      new ErrorHandler("Name must be between 8 and 25 characters", 400)
+    );
+  }
+
   if (!isStrongPassword(password)) {
     return next(
       new ErrorHandler(
         "Password must contain one Uppercase, Lowercase, Numeric and Special Character",
-        400
+        40
       )
     );
   }
@@ -78,7 +84,10 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Confirm Password does not match", 400));
 
   const user_exist = await User.findOne({
-    $or: [{ email: { $regex: new RegExp(email, "i") } }, { mobile }],
+    $or: [
+      { email: { $regex: new RegExp(email, "i") } },
+      { mobile: { $exists: true, $ne: null } },
+    ],
   });
 
   if (user_exist && user_exist.is_verified) {
@@ -227,8 +236,6 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
   if (!user.is_verified) {
     return next(new ErrorHandler("Account Not Found", 400));
   }
-
-  console.log(user);
 
   //check if user account is freeze
   if (user.is_frozen) {
@@ -459,8 +466,17 @@ exports.updateProfile = catchAsyncError(async (req, res, next) => {
   const user = await User.findById(req.userId);
   if (!user) return next(new ErrorHandler("User not Found", 400));
 
+  if (name && (name.length < 8 || name.length > 25)) {
+    return next(
+      new ErrorHandler("Name must be between 8 and 25 characters", 400)
+    );
+  }
+
   const existing_user = await User.findOne({
-    $or: [{ email: { $regex: new RegExp(`^${email}$`, "i") } }, { mobile }],
+    $or: [
+      { email: { $regex: new RegExp(email, "i") } },
+      { mobile: { $exists: true, $ne: null } },
+    ],
   });
 
   if (existing_user && existing_user._id.toString() !== user._id.toString()) {

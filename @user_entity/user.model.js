@@ -8,8 +8,6 @@ const schema = new mongoose.Schema(
     name: {
       type: String,
       required: [true, "Please enter your name"],
-      // minLength: [8, "Name must be atleast 8 characters"],
-      // maxLength: [25, "Name must be atmost 25 characters"],
       trim: true,
     },
     email: {
@@ -32,7 +30,6 @@ const schema = new mongoose.Schema(
     },
     mobile: {
       type: Number,
-      // required: [true, "Please enter your mobile number"],
       trim: true,
     },
     avatar: {

@@ -107,8 +107,6 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
     return video;
   });
 
-  // console.log(videos);
-
   res.status(200).json({
     success: true,
     videos,
