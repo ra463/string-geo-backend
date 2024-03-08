@@ -609,16 +609,18 @@ exports.getWatchList = catchAsyncError(async (req, res, next) => {
     .lean();
   if (!user) return next(new ErrorHandler("User not Found", 400));
 
-  const watch = user.watch_list.filter(Boolean);
+  user.watch_list = user.watch_list.filter((watchlist) => {
+    return watchlist != null;
+  });
 
-  if (watch.length !== user.watch_list.length) {
-    user.watch_list = watch;
-    await user.save();
-  }
+  user.watch_list = user.watch_list.map((watchlist) => {
+    watchlist.inWatchList = true;
+    return watchlist;
+  });
 
   res.status(200).json({
     success: true,
-    watch_list: watch,
+    watch_list: user.watch_list,
   });
 });
 
