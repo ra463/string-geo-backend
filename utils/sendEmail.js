@@ -5,7 +5,7 @@ const fs = require("fs");
 const sg = require("@sendgrid/mail");
 const api = process.env.SENDGRIP_API;
 const puppeteer = require('puppeteer');
-const join = require("join")
+const join = require("join");
 sg.setApiKey(api);
 
 
