@@ -27,4 +27,4 @@ const port = process.env.PORT || 4000;
 app.listen(port, () => {
   logger.info(`Process is online on port number ${port}`);
   console.log(`Process is online on port number ${port}`);
-});
+})
