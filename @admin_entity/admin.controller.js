@@ -135,7 +135,7 @@ exports.getAllUsers = catchAsyncError(async (req, res, next) => {
       (user) =>
         user.name.toLowerCase().includes(keyword.toLowerCase()) ||
         user.email.toLowerCase().includes(keyword.toLowerCase()) ||
-        user.mobile.toString().includes(keyword)
+        (user.mobile && user.mobile.toString().includes(keyword))
     );
   }
 
