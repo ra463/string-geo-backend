@@ -51,13 +51,7 @@ exports.adminLogin = catchAsyncError(async (req, res, next) => {
 
 exports.getAllUsers = catchAsyncError(async (req, res, next) => {
   let query = {};
-  if (req.query.plan_type && req.query.plan_type != "all") {
-    query["subscription_plans.plan_type"] = req.query.plan_type;
-  }
-
-  if (req.query.plan_name && req.query.plan_name != "all") {
-    query["subscription_plans.plan_name"] = req.query.plan_name;
-  }
+  // plan_type ,plan_name
   // console.log(query)
   if (req.query.keyword) {
     const keyword = req.query.keyword;
@@ -70,12 +64,6 @@ exports.getAllUsers = catchAsyncError(async (req, res, next) => {
   }
   const userCount = await User.countDocuments();
 
-  // const apiFeatures = new APIFeatures(
-  //   User.find(query).sort({ createdAt: -1 }),
-  //   req.query
-  // ).search("name");
-  // query["is_verified"] = true
-
   let users = await User.find(query).sort({ createdAt: -1 });
 
   const filteredUsers = users.length;
@@ -85,6 +73,119 @@ exports.getAllUsers = catchAsyncError(async (req, res, next) => {
 
     let skip = resultPerPage * (currentPage - 1);
     users = await users.slice(skip, skip + resultPerPage);
+  }
+
+  res.status(200).json({
+    success: true,
+    filteredUsers,
+    users,
+    userCount,
+  });
+});
+
+exports.getAllUsers = catchAsyncError(async (req, res, next) => {
+  let query = {};
+  // let match = {};
+
+  if (req.query.keyword) {
+    const keyword = req.query.keyword;
+    const numericKeyword = !isNaN(parseInt(keyword)) ? parseInt(keyword) : 1;
+    query["$or"] = [
+      { name: { $regex: keyword, $options: "i" } },
+      { email: { $regex: keyword, $options: "i" } },
+      { mobile: numericKeyword },
+    ];
+  }
+
+  // if (req.query.plan_type && ["monthly", "annual"].includes(req.query.plan_type)) {
+  //   match.plan_type = req.query.plan_type;
+  // }
+
+  // if (req.query.plan_name && ["indi", "family"].includes(req.query.plan_name)) {
+  //   match.plan_name = req.query.plan_name;
+  // }
+
+  const userCount = await User.countDocuments();
+
+  // let users = await User.aggregate([
+  //   { $match: query },
+  //   {
+  //     $lookup: {
+  //       from: "orders",
+  //       localField: "_id",
+  //       foreignField: "user",
+  //       as: "orders",
+  //     },
+  //   },
+  //   { $unwind: { path: "$orders", preserveNullAndEmptyArrays: true } },
+  //   { $match: match },
+  //   { $group: { _id: "$_id", user: { $first: "$$ROOT" } } },
+  //   { $replaceRoot: { newRoot: "$user" } },
+  // ]);
+
+  let users = await User.aggregate([
+    { $match: query },
+    {
+      $lookup: {
+        from: "orders",
+        let: { userId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$user", "$$userId"] },
+                  { $eq: ["$status", "Active"] },
+                ],
+              },
+            },
+          },
+          { $sort: { createdAt: -1 } },
+          { $limit: 1 },
+        ],
+        as: "latestOrder",
+      },
+    },
+    // {
+    //   $addFields: {
+    //     plan_type: {
+    //       $cond: {
+    //         if: { $eq: [{ $size: "$latestOrder" }, 0] },
+    //         then: null,
+    //         else: { $arrayElemAt: ["$latestOrder.plan_type", 0] },
+    //       },
+    //     },
+    //   },
+    // },
+    {
+      $addFields: {
+        latestOrder: { $arrayElemAt: ["$latestOrder", 0] },
+      },
+    },
+  ]);
+
+  if (req.query.plan_type) {
+    users = users.filter(
+      (user) =>
+        user.latestOrder && user.latestOrder.plan_type === req.query.plan_type
+    );
+  }
+
+  if (req.query.plan_name) {
+    users = users.filter(
+      (user) =>
+        user.latestOrder && user.latestOrder.plan_name === req.query.plan_name
+    );
+  }
+
+  const filteredUsers = users.length;
+
+  if (req.query.resultPerPage && req.query.currentPage) {
+    let resultPerPage = Number(req.query.resultPerPage);
+    let currentPage = Number(req.query.currentPage);
+
+    let skip = resultPerPage * (currentPage - 1);
+    users = users.slice(skip, skip + resultPerPage);
   }
 
   res.status(200).json({
@@ -125,35 +226,6 @@ exports.getUserSubscriptionHistory = catchAsyncError(async (req, res, next) => {
     data: userData,
   });
 });
-
-// exports.downloadAsCsv = catchAsyncError(async (req, res, next) => {
-//   const allowModels = ["User", "Transaction"];
-//   const models = {
-//     User: User,
-//     Transaction: Transaction,
-//   };
-
-//   if (!allowModels.includes(req.query.Model)) {
-//     return next(new ErrorHandler("Module Not Found", 404));
-//   }
-//   const allowfieleds = {
-//     User: ["name", "email", "mobile", "state", "city", "role"],
-//     Transaction: ["razorpay_payment_id", "gateway", "amount", "status"],
-//   };
-//   const data = await models[req.query.Model].find({});
-
-//   if (data.length === 0) {
-//     return next(new ErrorHandler(`No ${req.query.Model} Found`, 404));
-//   }
-
-//   const fields = allowfieleds[req.query.model];
-//   const json2csvParser = new Parser({ fields });
-//   const csv = json2csvParser.parse(data);
-
-//   res.setHeader("Content-Type", "text/csv");
-//   res.setHeader("Content-Disposition", "attachment; filename=users.csv");
-//   res.status(200).send(csv);
-// });
 
 exports.downloadAsCsv = catchAsyncError(async (req, res, next) => {
   const allowModels = ["User", "Transaction"];
@@ -434,8 +506,6 @@ exports.getHomeData = catchAsyncError(async (req, res, next) => {
       },
     },
   ]);
-
- 
 
   res.status(200).json({
     success: true,
