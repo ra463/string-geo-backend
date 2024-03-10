@@ -75,7 +75,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     return next(
       new ErrorHandler(
         "Password must contain one Uppercase, Lowercase, Numeric and Special Character",
-        40
+        400
       )
     );
   }
@@ -84,10 +84,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Confirm Password does not match", 400));
 
   const user_exist = await User.findOne({
-    $or: [
-      { email: { $regex: new RegExp(email, "i") } },
-      // { mobile: { $exists: true, $ne: null } },
-    ],
+    email: { $regex: new RegExp(email, "i") },
   });
 
   if (user_exist && user_exist.is_verified) {
