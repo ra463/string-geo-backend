@@ -84,47 +84,9 @@ exports.adminLogin = catchAsyncError(async (req, res, next) => {
 // });
 
 exports.getAllUsers = catchAsyncError(async (req, res, next) => {
-  let query = {};
-  // let match = {};
-
-  if (req.query.keyword) {
-    const keyword = req.query.keyword;
-    const numericKeyword = !isNaN(parseInt(keyword)) ? parseInt(keyword) : 1;
-    query["$or"] = [
-      { name: { $regex: keyword, $options: "i" } },
-      { email: { $regex: keyword, $options: "i" } },
-      { mobile: numericKeyword },
-    ];
-  }
-
-  // if (req.query.plan_type && ["monthly", "annual"].includes(req.query.plan_type)) {
-  //   match.plan_type = req.query.plan_type;
-  // }
-
-  // if (req.query.plan_name && ["indi", "family"].includes(req.query.plan_name)) {
-  //   match.plan_name = req.query.plan_name;
-  // }
-
   const userCount = await User.countDocuments();
 
-  // let users = await User.aggregate([
-  //   { $match: query },
-  //   {
-  //     $lookup: {
-  //       from: "orders",
-  //       localField: "_id",
-  //       foreignField: "user",
-  //       as: "orders",
-  //     },
-  //   },
-  //   { $unwind: { path: "$orders", preserveNullAndEmptyArrays: true } },
-  //   { $match: match },
-  //   { $group: { _id: "$_id", user: { $first: "$$ROOT" } } },
-  //   { $replaceRoot: { newRoot: "$user" } },
-  // ]);
-
   let users = await User.aggregate([
-    { $match: query },
     {
       $lookup: {
         from: "orders",
@@ -146,17 +108,6 @@ exports.getAllUsers = catchAsyncError(async (req, res, next) => {
         as: "latestOrder",
       },
     },
-    // {
-    //   $addFields: {
-    //     plan_type: {
-    //       $cond: {
-    //         if: { $eq: [{ $size: "$latestOrder" }, 0] },
-    //         then: null,
-    //         else: { $arrayElemAt: ["$latestOrder.plan_type", 0] },
-    //       },
-    //     },
-    //   },
-    // },
     {
       $addFields: {
         latestOrder: { $arrayElemAt: ["$latestOrder", 0] },
@@ -175,6 +126,16 @@ exports.getAllUsers = catchAsyncError(async (req, res, next) => {
     users = users.filter(
       (user) =>
         user.latestOrder && user.latestOrder.plan_name === req.query.plan_name
+    );
+  }
+
+  if (req.query.keyword) {
+    const keyword = req.query.keyword;
+    users = users.filter(
+      (user) =>
+        user.name.toLowerCase().includes(keyword.toLowerCase()) ||
+        user.email.toLowerCase().includes(keyword.toLowerCase()) ||
+        user.mobile.toString().includes(keyword)
     );
   }
 
