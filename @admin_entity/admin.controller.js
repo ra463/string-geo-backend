@@ -87,6 +87,7 @@ exports.getAllUsers = catchAsyncError(async (req, res, next) => {
   const userCount = await User.countDocuments();
 
   let users = await User.aggregate([
+    { $sort: { createdAt: -1 } },
     {
       $lookup: {
         from: "orders",
