@@ -49,39 +49,39 @@ exports.adminLogin = catchAsyncError(async (req, res, next) => {
   sendData(res, 200, user, "Admin Logged In");
 });
 
-exports.getAllUsers = catchAsyncError(async (req, res, next) => {
-  let query = {};
-  // plan_type ,plan_name
-  // console.log(query)
-  if (req.query.keyword) {
-    const keyword = req.query.keyword;
-    const numericKeyword = !isNaN(parseInt(keyword)) ? parseInt(keyword) : 1;
-    query["$or"] = [
-      { name: { $regex: keyword, $options: "i" } },
-      { email: { $regex: keyword, $options: "i" } },
-      { mobile: numericKeyword },
-    ];
-  }
-  const userCount = await User.countDocuments();
+// exports.getAllUsers = catchAsyncError(async (req, res, next) => {
+//   let query = {};
+//   // plan_type ,plan_name
+//   // console.log(query)
+//   if (req.query.keyword) {
+//     const keyword = req.query.keyword;
+//     const numericKeyword = !isNaN(parseInt(keyword)) ? parseInt(keyword) : 1;
+//     query["$or"] = [
+//       { name: { $regex: keyword, $options: "i" } },
+//       { email: { $regex: keyword, $options: "i" } },
+//       { mobile: numericKeyword },
+//     ];
+//   }
+//   const userCount = await User.countDocuments();
 
-  let users = await User.find(query).sort({ createdAt: -1 });
+//   let users = await User.find(query).sort({ createdAt: -1 });
 
-  const filteredUsers = users.length;
-  if (req.query.resultPerPage && req.query.currentPage) {
-    let resultPerPage = Number(req.query.resultPerPage);
-    let currentPage = Number(req.query.currentPage);
+//   const filteredUsers = users.length;
+//   if (req.query.resultPerPage && req.query.currentPage) {
+//     let resultPerPage = Number(req.query.resultPerPage);
+//     let currentPage = Number(req.query.currentPage);
 
-    let skip = resultPerPage * (currentPage - 1);
-    users = await users.slice(skip, skip + resultPerPage);
-  }
+//     let skip = resultPerPage * (currentPage - 1);
+//     users = await users.slice(skip, skip + resultPerPage);
+//   }
 
-  res.status(200).json({
-    success: true,
-    filteredUsers,
-    users,
-    userCount,
-  });
-});
+//   res.status(200).json({
+//     success: true,
+//     filteredUsers,
+//     users,
+//     userCount,
+//   });
+// });
 
 exports.getAllUsers = catchAsyncError(async (req, res, next) => {
   let query = {};
