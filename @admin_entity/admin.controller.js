@@ -83,10 +83,84 @@ exports.adminLogin = catchAsyncError(async (req, res, next) => {
 //   });
 // });
 
+// exports.getAllUsers = catchAsyncError(async (req, res, next) => {
+//   const userCount = await User.countDocuments();
+
+//   let users = await User.aggregate([
+//     {
+//       $lookup: {
+//         from: "orders",
+//         let: { userId: "$_id" },
+//         pipeline: [
+//           {
+//             $match: {
+//               $expr: {
+//                 $and: [
+//                   { $eq: ["$user", "$$userId"] },
+//                   { $eq: ["$status", "Active"] },
+//                 ],
+//               },
+//             },
+//           },
+//           { $sort: { createdAt: -1 } },
+//           { $limit: 1 },
+//         ],
+//         as: "latestOrder",
+//       },
+//     },
+//     {
+//       $addFields: {
+//         latestOrder: { $arrayElemAt: ["$latestOrder", 0] },
+//       },
+//     },
+//   ]);
+
+//   if (req.query.plan_type) {
+//     users = users.filter(
+//       (user) =>
+//         user.latestOrder && user.latestOrder.plan_type === req.query.plan_type
+//     );
+//   }
+
+//   if (req.query.plan_name) {
+//     users = users.filter(
+//       (user) =>
+//         user.latestOrder && user.latestOrder.plan_name === req.query.plan_name
+//     );
+//   }
+
+//   if (req.query.keyword) {
+//     const keyword = req.query.keyword;
+//     users = users.filter(
+//       (user) =>
+//         user.name.toLowerCase().includes(keyword.toLowerCase()) ||
+//         user.email.toLowerCase().includes(keyword.toLowerCase()) ||
+//         user.mobile.toString().includes(keyword)
+//     );
+//   }
+
+//   const filteredUsers = users.length;
+
+//   if (req.query.resultPerPage && req.query.currentPage) {
+//     let resultPerPage = Number(req.query.resultPerPage);
+//     let currentPage = Number(req.query.currentPage);
+
+//     let skip = resultPerPage * (currentPage - 1);
+//     users = users.slice(skip, skip + resultPerPage);
+//   }
+
+//   res.status(200).json({
+//     success: true,
+//     filteredUsers,
+//     users,
+//     userCount,
+//   });
+// });
+
 exports.getAllUsers = catchAsyncError(async (req, res, next) => {
   const userCount = await User.countDocuments();
 
-  let users = await User.aggregate([
+  let pipeline = [
     {
       $lookup: {
         from: "orders",
@@ -113,31 +187,30 @@ exports.getAllUsers = catchAsyncError(async (req, res, next) => {
         latestOrder: { $arrayElemAt: ["$latestOrder", 0] },
       },
     },
-  ]);
+  ];
 
-  if (req.query.plan_type) {
-    users = users.filter(
-      (user) =>
-        user.latestOrder && user.latestOrder.plan_type === req.query.plan_type
-    );
+  if (req.query.plan_type || req.query.plan_name || req.query.keyword) {
+    pipeline = [
+      ...pipeline,
+      {
+        $match: {
+          $or: [
+            { "latestOrder.plan_type": req.query.plan_type },
+            { "latestOrder.plan_name": req.query.plan_name },
+            {
+              $or: [
+                { name: { $regex: req.query.keyword, $options: "i" } },
+                { email: { $regex: req.query.keyword, $options: "i" } },
+                { mobile: req.query.keyword },
+              ],
+            },
+          ],
+        },
+      },
+    ];
   }
 
-  if (req.query.plan_name) {
-    users = users.filter(
-      (user) =>
-        user.latestOrder && user.latestOrder.plan_name === req.query.plan_name
-    );
-  }
-
-  if (req.query.keyword) {
-    const keyword = req.query.keyword;
-    users = users.filter(
-      (user) =>
-        user.name.toLowerCase().includes(keyword.toLowerCase()) ||
-        user.email.toLowerCase().includes(keyword.toLowerCase()) ||
-        user.mobile.toString().includes(keyword)
-    );
-  }
+  let users = await User.aggregate(pipeline);
 
   const filteredUsers = users.length;
 
