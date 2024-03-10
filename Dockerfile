@@ -14,11 +14,10 @@ RUN apk update && \
         curl
 
 
-
 # Install Google Chrome Stable
-RUN curl -sSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o /tmp/chrome.deb && \
-    dpkg -i /tmp/chrome.deb || apt-get install -f && \
-    rm -rf /tmp/chrome.deb
+RUN curl -sSL https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.rpm -o /tmp/chrome.rpm && \
+    apk add --no-cache /tmp/chrome.rpm && \
+    rm -rf /tmp/chrome.rpm
 
 # Install fonts for better compatibility
 RUN apk add --update --no-cache \
@@ -29,6 +28,7 @@ RUN apk add --update --no-cache \
 RUN rm -rf /var/cache/* && \
     rm -rf /tmp/* && \
     rm -rf /var/tmp/*
+
 
 
 WORKDIR /app
