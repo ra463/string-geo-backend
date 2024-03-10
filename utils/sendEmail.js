@@ -2,13 +2,14 @@ const dotenv = require("dotenv");
 dotenv.config({ path: "../config/config.env" });
 // const pdf = require("html-pdf-node");
 const pdf = require("pdf-creator-node");
-
+const puppeteer = require("puppeteer")
 const fs = require("fs");
 const sg = require("@sendgrid/mail");
 const api = process.env.SENDGRIP_API;
 sg.setApiKey(api);
 const PDFDocument = require("pdfkit");
 const path = require("path");
+const {join} = require('path');
 
 exports.sendVerificationCode = async (email, code) => {
   try {
