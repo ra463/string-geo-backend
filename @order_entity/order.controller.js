@@ -229,7 +229,7 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
   await transaction.save();
 
   // redirect to success page
-  res.redirect("https://www.stringevolve.in");
+  res.redirect("https://www.stringevolve.in/dashboard/account");
 
   res.status(200).json({
     success: true,
@@ -432,7 +432,7 @@ exports.capturePaypalOrder = catchAsyncError(async (req, res, next) => {
   await transaction.save();
 
   // redirect to success page
-  res.redirect("https://www.stringevolve.in");
+  res.redirect("https://www.stringevolve.in/dashboard/account");
 
   res.status(200).json({
     success: true,
