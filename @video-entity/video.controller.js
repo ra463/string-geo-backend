@@ -25,20 +25,24 @@ exports.createVideo = catchAsyncError(async (req, res, next) => {
 
   const result = await s3Uploadv4(req.file, req.userId);
 
-  let genreArray = genres.split(",");
-  let keywordsArray = keywords.split(",");
-  let categoryArray = categories.split(",");
+  let genreArray;
+  let keywordsArray;
+  let categoryArray;
+
+  if (genres) genreArray = genres.split(",");
+  if (keywords) keywordsArray = keywords.split(",");
+  if (categories) categoryArray = categories.split(",");
 
   const video = await videoModel.create({
     title,
     description,
     thumbnail_url: result.Location,
     video_url,
-    genres: genreArray,
+    genres: genreArray ? genreArray : [],
     language,
-    keywords: keywordsArray,
+    keywords: keywordsArray ? keywordsArray : [],
     access,
-    category: categoryArray,
+    category: categoryArray ? categoryArray : [],
   });
 
   res.status(200).json({
@@ -175,7 +179,6 @@ exports.getVideo = catchAsyncError(async (req, res, next) => {
 });
 
 exports.updateVideo = catchAsyncError(async (req, res, next) => {
-  
   const video = await videoModel.findById(req.params.id);
 
   if (!video) {
@@ -363,7 +366,7 @@ exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
 exports.get = catchAsyncError(async (req, res, next) => {
   const videos = await videoModel.find({});
   for (let i = 67; i < 70; ++i) {
-    console.log(i)
+    console.log(i);
     const data = await axios.get(`${videos[i].thumbnail_url}`, {
       responseType: "arraybuffer",
     });
@@ -371,7 +374,7 @@ exports.get = catchAsyncError(async (req, res, next) => {
     const data2 = await s3Uploadv4(
       data.data,
       "bchdbhcbdhcbhdb",
-      videos[i].thumbnail_url.split(".com/")[1].replaceAll("%","")
+      videos[i].thumbnail_url.split(".com/")[1].replaceAll("%", "")
     );
     videos[i].thumbnail_url = data2.Location;
     await videos[i].save();

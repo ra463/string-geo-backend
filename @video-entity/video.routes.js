@@ -32,6 +32,6 @@ router.patch(
   updateVideo
 );
 router.get("/geturl", getSingnedUrls);
-router.get("/script",get);
+router.get("/script", get);
 
 module.exports = router;
