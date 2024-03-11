@@ -35,7 +35,7 @@ const schema = new mongoose.Schema(
     avatar: {
       type: String,
       default:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSh1MxDvWeEQ39D04ETGLuJ_pnSkd_gZf47R7qkQaxbHotxVs-aBvYjsHmbvxcKhTGn9gI&usqp=CAU",
+        "uploads/user-65e5b4c51dec04256212b52d/profile/1710134355730-images.png",
     },
     role: {
       type: String,
