@@ -52,7 +52,7 @@ exports.s3Uploadv4 = async (file, id) => {
     };
 
     const data = await s3.upload(params).promise();
-    data.Location = key;
+    data.Location = data.Key;
     return data;
   } else {
     const key = `uploads/user-${id}/pdf/${Date.now().toString()}-invoice.pdf`;
@@ -63,7 +63,7 @@ exports.s3Uploadv4 = async (file, id) => {
     };
 
     const data = await s3.upload(params).promise();
-    data.Location = key;
+    data.Location = data.Key;
     return data;
   }
 };
@@ -84,7 +84,7 @@ exports.s3AdminUploadv4 = async (file) => {
   };
 
   const data = await s3.upload(params).promise();
-  data.Location = key;
+  data.Location = data.Key;
   return data;
 };
 
