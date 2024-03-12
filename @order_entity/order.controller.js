@@ -123,7 +123,10 @@ exports.createOrder = catchAsyncError(async (req, res, next) => {
     let remaining = expiry - current;
     remaining = Math.ceil(remaining / (1000 * 60 * 60 * 24));
     let days = active.plan_type === "monthly" ? 30 : 365;
-    price = Math.floor((active.actual_price / days) * remaining);
+    price = Math.floor(
+      ((active.actual_price ? active.actual_price : active.inr_price) / days) *
+        remaining
+    );
   } else {
     expiry_date = expiry_date.setDate(expiry_date.getDate() + p_type.validity);
   }
@@ -223,7 +226,7 @@ exports.verifyPayment = catchAsyncError(async (req, res, next) => {
   await user.save();
   await transaction.save();
 
-  const data = await sendInvoice(user, transaction,"Rupee");
+  const data = await sendInvoice(user, transaction, "Rupee");
   const result = await s3Uploadv4(data, user._id);
   transaction.invoice_url = result.Location;
 
@@ -335,7 +338,10 @@ exports.createPayapalOrder = catchAsyncError(async (req, res, next) => {
     let remaining = expiry - current;
     remaining = Math.ceil(remaining / (1000 * 60 * 60 * 24));
     let days = active.plan_type === "monthly" ? 30 : 365;
-    price = Math.floor((active.actual_price / days) * remaining);
+    price = Math.floor(
+      ((active.actual_price ? active.actual_price : active.usd_price) / days) *
+        remaining
+    );
   } else {
     expiry_date = expiry_date.setDate(expiry_date.getDate() + p_type.validity);
   }
@@ -427,7 +433,7 @@ exports.capturePaypalOrder = catchAsyncError(async (req, res, next) => {
   await user.save();
   await transaction.save();
 
-  const invoice = await sendInvoice(user, transaction,"Dollar");
+  const invoice = await sendInvoice(user, transaction, "Dollar");
   const result = await s3Uploadv4(invoice, user._id);
   transaction.invoice_url = result.Location;
 
