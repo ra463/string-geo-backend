@@ -94,7 +94,6 @@ exports.deleteCarousel = catchAsyncError(async (req, res, next) => {
   //   s3delete(url),
   //   carousel.deleteOne(),
   // ]);
-  await carousel.deleteOne();
 
   res.status(200).json({
     success: true,

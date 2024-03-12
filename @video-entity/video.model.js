@@ -32,7 +32,6 @@ const schema = new mongoose.Schema(
     },
     keywords: {
       type: Array,
-      required: [true, "Please enter keywords"],
     },
     views: {
       type: Number,
