@@ -38,6 +38,9 @@ const schema = new mongoose.Schema(
       type: Date,
       default: new Date()
     },
+    actual_price:{
+      type:Number,
+    }
   },
   {
     timestamps: true,

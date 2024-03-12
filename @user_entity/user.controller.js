@@ -679,20 +679,21 @@ exports.sendInvoice = catchAsyncError(async (req, res, next) => {
       user: "65e5c9060939ce882644898f",
       payment_id: "pay_NiI6swHNH4e8m4",
       gateway: "Razorpay",
-      amount: 1,
+      amount: 1737,
       status: "COMPLETED",
       invoice_url:
         "https://adelaide-car.s3.amazonaws.com/uploads/user-65e5c9060939ce88264…",
       createdAt: "2024-03-04T13:15:48.506+00:00",
       updatedAt: "2024-03-04T13:15:48.506+00:00",
       __v: 0,
-    }
+    },
+    "Dollar"
   );
 
-  const location = await s3Uploadv4(data, "dummyuserid");
+  // const location = await s3Uploadv4(data, "dummyuserid");
   res.status(200).json({
     success: true,
-    location,
-    data,
+    // location,
+    // data,
   });
 });

@@ -42,7 +42,7 @@ exports.s3Uploadv4 = async (file, id) => {
 
   if (file?.mimetype?.split("/")[0] === "image") {
     const key = `uploads/user-${id}/profile/${Date.now().toString()}-${
-      file.originalname
+      file.originalname.replaceAll(" ","")
     }`;
 
     const params = {
@@ -75,7 +75,7 @@ exports.s3AdminUploadv4 = async (file) => {
     region: process.env.AWS_BUCKET_REGION,
   });
   const key = `admin-uploads/images/${Date.now().toString()}-${
-    file.originalname
+    file.originalname.replaceAll(" ","")
   }`;
   const params = {
     Bucket: process.env.AWS_BUCKET_NAME,

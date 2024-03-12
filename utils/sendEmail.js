@@ -1,7 +1,6 @@
 const dotenv = require("dotenv");
 dotenv.config({ path: "../config/config.env" });
 
-
 const fs = require("fs");
 const sg = require("@sendgrid/mail");
 const api = process.env.SENDGRIP_API;
@@ -9,6 +8,89 @@ sg.setApiKey(api);
 const PDFDocument = require("pdfkit");
 const path = require("path");
 const { format } = require("winston");
+
+function numberToWords(number) {
+  // Check for invalid input
+  if (number < 1 || number > 9999) {
+    throw new Error("Number must be between 1 and 9999");
+  }
+
+  // Define arrays for ones, tens, and teens
+  const ones = [
+    "",
+    "One",
+    "Two",
+    "Three",
+    "Four",
+    "Five",
+    "Six",
+    "Seven",
+    "Eight",
+    "Nine",
+  ];
+  const tens = [
+    "",
+    "",
+    "Twenty",
+    "Thirty",
+    "Forty",
+    "Fifty",
+    "Sixty",
+    "Seventy",
+    "Eighty",
+    "Ninety",
+  ];
+  const teens = [
+    "Ten",
+    "Eleven",
+    "Twelve",
+    "Thirteen",
+    "Fourteen",
+    "Fifteen",
+    "Sixteen",
+    "Seventeen",
+    "Eighteen",
+    "Nineteen",
+  ];
+
+  // Separate thousands, hundreds, tens, and ones digits
+  const thousands = Math.floor(number / 1000);
+  const hundreds = Math.floor((number % 1000) / 100);
+  const tensDigit = Math.floor((number % 100) / 10);
+  const onesDigit = number % 10;
+
+  // Build the word representation
+  let words = "";
+
+  // Add thousands part
+  if (thousands > 0) {
+    words += numberToWords(thousands) + " Thousand ";
+  }
+
+  // Add hundreds part
+  if (hundreds > 0) {
+    words += ones[hundreds] + " Hundred ";
+  }
+
+  // Add tens and ones parts
+  if (tensDigit > 0) {
+    if (tensDigit === 1 && onesDigit > 0) {
+      words += teens[onesDigit - 1];
+    } else {
+      words += tens[tensDigit];
+      if (onesDigit > 0) {
+        words += " " + ones[onesDigit];
+      }
+    }
+  } else if (onesDigit > 0) {
+    words += ones[onesDigit];
+  }
+
+  // Remove trailing space
+  words = words.trim();
+
+  return words;
+}
 
 exports.sendVerificationCode = async (email, code) => {
   try {
@@ -66,7 +148,7 @@ exports.sendForgotPasswordCode = async (name, email, code) => {
   }
 };
 
-exports.sendInvoice = async (user, transaction) => {
+exports.sendInvoice = async (user, transaction,currency) => {
   return new Promise((resolve, reject) => {
     const imagePath = path.join(__dirname, "/logo.png");
     const doc = new PDFDocument();
@@ -110,10 +192,10 @@ exports.sendInvoice = async (user, transaction) => {
     doc
       .font("Helvetica")
       .fontSize(12)
-      .text("Billing To: Prakash", xColumn1, yColumn1, { lineGap: 5 })
-      .text("Full Name: " + user.name, xColumn1, doc.y, { lineGap: 5 })
-      .text("Email Id: " + user.email, xColumn1, doc.y, { lineGap: 5 })
-      .text("Contact No: " + user.mobile, xColumn1, doc.y, { lineGap: 10 });
+      .text("Billing To: " + user.name, xColumn1, yColumn1, { lineGap: 5 })
+      .text("Contact No: " + user.mobile, xColumn1, doc.y, { lineGap: 5 })
+      .text("Email Id: " + user.email, xColumn1, doc.y, { lineGap: 10 })
+      
 
     doc
       .text(
@@ -125,18 +207,54 @@ exports.sendInvoice = async (user, transaction) => {
           lineGap: 5,
         }
       )
-      .text("Transaction No: " + transaction.payment_id, xColumn2, doc.y, {
+      .text("Transaction Id: " + transaction.payment_id, xColumn2, doc.y, {
         align: "right",
         lineGap: 10,
       });
 
-    const tableMarginTop = 62;
+    // const tableMarginTop = 62;
+    // const borderWidth = 1;
+    // const cellPadding = 8;
+    // const columnWidths = [6, 3, 3, 3];
+
+    // const tableData = [
+    //   ["Description", "SAC Code", "Amount (Rs.)"],
+    //   [
+    //     "Basic (Monthly)",
+    //     "998433",
+    //     parseFloat(0.82 * transaction.amount).toFixed(2),
+    //   ],
+    //   ["IGST @ 18%", "", parseFloat(0.18 * transaction.amount).toFixed(2)],
+    //   ["Invoice Total", "", transaction.amount],
+    // ];
+
+    // const tableHeight = tableData.length * (borderWidth * 2 + cellPadding * 2);
+    // let tableTop = doc.y + tableMarginTop;
+    // doc.lineWidth(borderWidth);
+
+    // for (let i = 0; i < tableData.length; i++) {
+    //   let rowTop = tableTop + i * (borderWidth * 2 + cellPadding * 2);
+    //   for (let j = 0; j < tableData[i].length; j++) {
+    //     let cellLeft = 70 + j * 150;
+    //     let cellWidth = 150;
+    //     doc
+    //       .rect(cellLeft, rowTop, cellWidth, borderWidth * 2 + cellPadding * 2)
+    //       .stroke();
+    //     doc.text(
+    //       tableData[i][j],
+    //       cellLeft + cellPadding,
+    //       rowTop + borderWidth + cellPadding
+    //     );
+    //   }
+    // }
+
+    const tableMarginTop = 52;
     const borderWidth = 1;
     const cellPadding = 8;
     const columnWidths = [6, 3, 3, 3];
 
     const tableData = [
-      ["Description", "SAC Code", "Amount (Rs.)"],
+      ["Description", "SAC Code", `Amount ${currency==="Rupee"?"(Rs.)":"($)"}`],
       [
         "Basic (Monthly)",
         "998433",
@@ -155,13 +273,12 @@ exports.sendInvoice = async (user, transaction) => {
       for (let j = 0; j < tableData[i].length; j++) {
         let cellLeft = 70 + j * 150;
         let cellWidth = 150;
-        doc
-          .rect(cellLeft, rowTop, cellWidth, borderWidth * 2 + cellPadding * 2)
-          .stroke();
+        let cellHeight = borderWidth * 2 + cellPadding * 2;
+        doc.rect(cellLeft, rowTop, cellWidth, cellHeight).stroke();
         doc.text(
           tableData[i][j],
           cellLeft + cellPadding,
-          rowTop + borderWidth + cellPadding
+          rowTop + borderWidth + 3.5
         );
       }
     }
@@ -169,6 +286,7 @@ exports.sendInvoice = async (user, transaction) => {
     doc.moveDown(1);
     doc
       .fontSize(10)
+      .text(`Amount in words : ${currency==="Rupee"?"(INR)":"(Dollar)"} ` + numberToWords(transaction.amount), 70)
       .text(
         "Note: The subscription amount is inclusive Goods and Service tax (GST) at rate of 18%.",
         70
@@ -417,5 +535,3 @@ exports.sendBulkEmail = async (emails, subject, description) => {
 //     }
 //   });
 // };
-
-
