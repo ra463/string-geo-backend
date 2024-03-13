@@ -8,8 +8,10 @@ const axios = require("axios");
 const xml2js = require("xml2js");
 const parseM3U8 = require("parse-m3u8");
 const trailerModel = require("../@trailer_entity/trailer.model");
+const genreModel = require("../@genre_entity/genre.model");
 
 const Category = require("../@category_entity/category.model");
+const orderModel = require("../@order_entity/order.model");
 
 exports.createVideo = catchAsyncError(async (req, res, next) => {
   const {
@@ -19,7 +21,7 @@ exports.createVideo = catchAsyncError(async (req, res, next) => {
     genres,
     language,
     keywords,
-    access,
+    // access,
     categories,
   } = req.body;
 
@@ -28,6 +30,13 @@ exports.createVideo = catchAsyncError(async (req, res, next) => {
   let genreArray;
   let keywordsArray;
   let categoryArray;
+  let access = "paid";
+  if (genres.length === 1) {
+    const genre = await genreModel.findById(genres[0]);
+    if (genre.name === "Carousel") {
+      access = "free";
+    }
+  }
 
   if (genres) genreArray = genres.split(",");
   if (keywords) keywordsArray = keywords.split(",");
@@ -111,6 +120,8 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
     return video;
   });
 
+  videos = videos.filter((video) => video.genres.name != "Carousel");
+
   res.status(200).json({
     success: true,
     videos,
@@ -172,6 +183,15 @@ exports.getVideo = catchAsyncError(async (req, res, next) => {
       new ErrorHandler(`${!video ? "Video" : "User"} not found`, 404)
     );
 
+  const order = await orderModel.findOne({
+    status: "Active",
+    user: req.userId,
+  });
+  if (video.access === "paid" && !order) {
+    return next(
+      new ErrorHandler("Please buy Subscription plan to watch this video.", 402)
+    );
+  }
   res.status(200).json({
     success: true,
     video,
@@ -197,7 +217,7 @@ exports.updateVideo = catchAsyncError(async (req, res, next) => {
     genres,
     language,
     keywords,
-    access,
+    // access,
     categories,
   } = req.body;
 
@@ -210,7 +230,7 @@ exports.updateVideo = catchAsyncError(async (req, res, next) => {
   if (video_url) video.video_url = video_url;
   if (language) video.language = language;
   if (url) video.thumbnail_url = url;
-  if (access) video.access = access;
+  // if (access) video.access = access;
   if (genres) video.genres = genreArray;
   if (keywords) video.keywords = keywordsArray;
   if (categories) video.category = categoryArray;

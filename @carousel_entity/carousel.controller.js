@@ -55,7 +55,7 @@ exports.getAllInnerCarousel = catchAsyncError(async (req, res, next) => {
   const carousels = await Carousel.find({ tag: "Inner" })
     .populate({
       path: "video_id",
-      select: "title genres language createdAt",
+      select: "title genres access language createdAt",
       populate: [
         {
           path: "genres",
