@@ -336,7 +336,7 @@ exports.sendInvoice = async (user, transaction,currency) => {
             html: `<div style="font-family: 'Arial', sans-serif; text-align: center; background-color: #f4f4f4; margin-top: 15px; padding: 0;">
 
                 <div style="max-width: 600px; margin: 30px auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
-                  <h1 style="color: #333333;">Hey ${user.name}! You Payment of ${transaction.amount} has been done successfully</h1>
+                  <h1 style="color: #333333;">Hey ${user.name}! Your Payment of ${transaction.amount} has been done successfully</h1>
                   <p style="color: #666666;">You have now access to our paid content.</p>
                   <p style="color: #666666;">
                     If you did not request this mail, please ignore this email.
