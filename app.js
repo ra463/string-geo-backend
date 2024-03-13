@@ -6,6 +6,7 @@ const dotenv = require("dotenv");
 const morgan = require("morgan");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+require("./utils/cronJobs");
 
 dotenv.config({
   path: "./config/config.env",
