@@ -31,17 +31,17 @@ exports.createVideo = catchAsyncError(async (req, res, next) => {
   let keywordsArray;
   let categoryArray;
   let access = "paid";
-  if (genres.length === 1) {
-    const genre = await genreModel.findById(genres[0]);
-    if (genre.name === "Carousel") {
-      access = "free";
-    }
-  }
 
   if (genres) genreArray = genres.split(",");
   if (keywords) keywordsArray = keywords.split(",");
   if (categories) categoryArray = categories.split(",");
-
+ 
+  if (genreArray.length === 1) {
+    const genre = await genreModel.findById(genreArray[0]);
+    if (genre.name === "Carousel") {
+      access = "free";
+    }
+  }
   const video = await videoModel.create({
     title,
     description,
@@ -85,7 +85,7 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
       { keywords: { $in: [keyword] } },
     ];
   }
-
+  query.access = "paid"
   const totalVideoCount = await videoModel.countDocuments(query);
 
   const limit = Number(resultPerPage);
@@ -96,6 +96,8 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
     user = await User.findById(req.query.id);
   }
 
+  
+
   let videos = await videoModel
     .find(query)
     .sort({ createdAt: orderBy })
@@ -105,6 +107,7 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
     .populate("genres", "name")
     .populate("category", "name")
     .lean();
+
 
   videos = videos.map((video) => {
     if (user) {
@@ -120,7 +123,9 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
     return video;
   });
 
-  videos = videos.filter((video) => video.genres.name != "Carousel");
+  // console.log(videos)
+
+  // videos = videos.filter((video) => video.genres.name != "Carousel");
 
   res.status(200).json({
     success: true,
@@ -295,7 +300,7 @@ exports.getSingnedUrls = catchAsyncError(async (req, res, next) => {
   }
 
   const signedUrl = mf("y.mpd");
-  console.log(signedUrl);
+  // console.log(signedUrl);
   const parser = new xml2js.Parser();
   const { data } = await axios.get(signedUrl);
   const xmlToJson = await parser.parseStringPromise(data);
