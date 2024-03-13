@@ -587,7 +587,7 @@ exports.getWatchList = catchAsyncError(async (req, res, next) => {
     .populate({
       path: "watch_list",
       select:
-        "category title description thumbnail_url createdAt category genres language keywords",
+        "category title description access thumbnail_url createdAt category genres language keywords",
       populate: [
         {
           path: "category",
