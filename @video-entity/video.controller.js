@@ -35,7 +35,7 @@ exports.createVideo = catchAsyncError(async (req, res, next) => {
   if (genres) genreArray = genres.split(",");
   if (keywords) keywordsArray = keywords.split(",");
   if (categories) categoryArray = categories.split(",");
- 
+
   if (genreArray.length === 1) {
     const genre = await genreModel.findById(genreArray[0]);
     if (genre.name === "Carousel") {
@@ -85,7 +85,7 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
       { keywords: { $in: [keyword] } },
     ];
   }
-  query.access = "paid"
+  query.access = "paid";
   const totalVideoCount = await videoModel.countDocuments(query);
 
   const limit = Number(resultPerPage);
@@ -96,8 +96,6 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
     user = await User.findById(req.query.id);
   }
 
-  
-
   let videos = await videoModel
     .find(query)
     .sort({ createdAt: orderBy })
@@ -107,7 +105,6 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
     .populate("genres", "name")
     .populate("category", "name")
     .lean();
-
 
   videos = videos.map((video) => {
     if (user) {
@@ -192,7 +189,7 @@ exports.getVideo = catchAsyncError(async (req, res, next) => {
     status: "Active",
     user: req.userId,
   });
-  if (video.access === "paid" && !order) {
+  if (user.role === "user" && video.access === "paid" && !order) {
     return next(
       new ErrorHandler("Please buy Subscription plan to watch this video.", 402)
     );
