@@ -2,6 +2,7 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const ErrorHandler = require("../utils/errorHandler");
 const { s3delete, s3AdminUploadv4 } = require("../utils/s3");
 const Carousel = require("./carousel.model");
+const Video = require("../@video-entity/video.model");
 
 exports.addCarousel = catchAsyncError(async (req, res, next) => {
   const { video_id, tag } = req.body;
@@ -87,13 +88,10 @@ exports.getAllOuterCarousel = catchAsyncError(async (req, res, next) => {
 exports.deleteCarousel = catchAsyncError(async (req, res, next) => {
   const carousel = await Carousel.findById(req.params.id);
   if (!carousel) return next(new ErrorHandler("Carousel not found", 404));
-
-  const url = carousel.poster_url;
-  await Promise.all([s3delete(url), carousel.deleteOne()]);
-  // const [delete_1, delete_2] = await Promise.all([
-  //   s3delete(url),
-  //   carousel.deleteOne(),
-  // ]);
+  await carousel.deleteOne();
+  if (carousel.tag === "Inner") {
+    await Video.findByIdAndDelete(carousel.video_id);
+  }
 
   res.status(200).json({
     success: true,
