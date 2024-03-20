@@ -68,9 +68,10 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
     resultPerPage,
     currentPage,
     sortBy,
-    carousel
+    carousel,
+    category,
   } = req.query;
-  if (carousel&&carousel!="false") {
+  if (carousel && carousel != "false") {
     const videos = await videoModel.find({ access: "free" });
     return res.status(200).json({
       success: true,
@@ -87,6 +88,9 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
   }
   if (language && language != "all") {
     query.language = language;
+  }
+  if (category) {
+    query.category = { $in: [category] };
   }
   if (genres && genres != "all") {
     query.genres = { $in: [genres] };
