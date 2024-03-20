@@ -11,6 +11,7 @@ const categoriesModel = require("../@category_entity/category.model");
 const { sendBulkEmail } = require("../utils/sendEmail");
 const XLSX = require("xlsx");
 const Order = require("../@order_entity/order.model");
+const Query = require("../@query_entity/query.model");
 
 dotenv.config({ path: "../config/config.env" });
 
@@ -187,10 +188,11 @@ exports.getUserSubscriptionHistory = catchAsyncError(async (req, res, next) => {
 });
 
 exports.downloadAsCsv = catchAsyncError(async (req, res, next) => {
-  const allowModels = ["User", "Transaction"];
+  const allowModels = ["User", "Transaction", "Query"];
   const models = {
     User: User,
     Transaction: Transaction,
+    Query: Query,
   };
 
   if (!allowModels.includes(req.query.Model)) {
@@ -198,8 +200,9 @@ exports.downloadAsCsv = catchAsyncError(async (req, res, next) => {
   }
 
   const allowFields = {
-    User: ["name", "email", "mobile", "states", "city", "role"],
+    User: ["name", "email", "mobile", "role", "states", "city", "country"],
     Transaction: ["razorpay_payment_id", "gateway", "amount", "status"],
+    Query: ["name", "email", "mobile", "address", "message", "company_name"],
   };
 
   const fieldsToExclude = "-_id";

@@ -2,7 +2,7 @@ const validator = (req, res, next) => {
   try {
     const fieleds = {
       allowBody: ["video"],
-      allowQuery: [],
+      allowQuery: ["language", "genres", "keyword", "resultPerPage", "currentPage"],
       allowParams: ["id"],
     };
     const body = Object.keys(req.body);

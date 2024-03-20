@@ -54,7 +54,7 @@ const schema = new mongoose.Schema(
     },
     states: {
       type: String,
-      required: true,
+      // required: true,
     },
     country: {
       type: String,
@@ -62,7 +62,7 @@ const schema = new mongoose.Schema(
     },
     city: {
       type: String,
-      required: true,
+      // required: true,
     },
     temp_code: {
       type: String,

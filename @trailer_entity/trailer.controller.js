@@ -66,3 +66,54 @@ exports.getTrailer = catchAsyncError(async (req, res, next) => {
     trailer,
   });
 });
+
+exports.getAllVideos = catchAsyncError(async (req, res, next) => {
+  const { language, genres, keyword, resultPerPage, currentPage } = req.query;
+  const query = {};
+  if (language && language != "all") {
+    query.language = language;
+  }
+  if (genres && genres != "all") {
+    query.genres = { $in: [genres] };
+  }
+
+  if (keyword) {
+    const keywordRegExp = new RegExp(keyword, "i");
+    query.$or = [
+      { title: { $regex: keywordRegExp } },
+      { description: { $regex: keywordRegExp } },
+      { keywords: { $in: [keyword] } },
+    ];
+  }
+  query.access = "paid";
+
+  const limit = Number(resultPerPage);
+  const page = Number(currentPage);
+  const skip = (page - 1) * limit;
+
+  const trailer = await trailerModel.findOne().lean();
+  if (trailer) {
+    query._id = { $ne: trailer.video };
+  }
+  const totalVideoCount = await videoModel.countDocuments(query);
+  let videos = await videoModel.find(query).lean();
+
+  // for(let i of videos){
+  // console.log(videos.length);
+  videos = videos.slice(skip, skip + limit);
+  // }
+  if (trailer) {
+    const trailervideo = await videoModel.findById(trailer.video);
+
+    // console.log(trailervideo);
+    videos = [trailervideo, ...videos];
+  }
+
+  // videos = videos.slice(skip, skip + limit);
+
+  res.status(200).json({
+    success: true,
+    videos,
+    totalVideoCount,
+  });
+});

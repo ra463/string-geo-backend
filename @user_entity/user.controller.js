@@ -91,6 +91,10 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler(`Email/Mobile already exists`, 400));
   }
 
+  if (country === "India" && (!states || !city)) {
+    return next(new ErrorHandler("State/City is required."));
+  }
+
   let user;
   if (!user_exist) {
     user = await User.create({
@@ -98,18 +102,18 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
       email: email.toLowerCase(),
       password,
       mobile,
-      states,
+      states: states ? states : "",
       country,
-      city,
+      city: city ? city : "",
       country_code,
     });
   } else {
     user_exist.name = name;
     user_exist.password = password;
     user_exist.mobile = mobile;
-    user_exist.states = states;
+    user_exist.states = states || "";
     user_exist.country = country;
-    user_exist.city = city;
+    user_exist.city = city || "";
     user_exist.country_code = country_code;
     user = user_exist;
   }
@@ -683,11 +687,11 @@ exports.sendInvoice = catchAsyncError(async (req, res, next) => {
       status: "COMPLETED",
       invoice_url:
         "https://adelaide-car.s3.amazonaws.com/uploads/user-65e5c9060939ce88264…",
-      createdAt: "2024-03-04T13:15:48.506+00:00",
+      createdAt: "2024-04-04T13:15:48.506+00:00",
       updatedAt: "2024-03-04T13:15:48.506+00:00",
       __v: 0,
     },
-    "Dollar"
+    "Rupee"
   );
 
   // const location = await s3Uploadv4(data, "dummyuserid");

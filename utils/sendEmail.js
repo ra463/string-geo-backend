@@ -148,7 +148,7 @@ exports.sendForgotPasswordCode = async (name, email, code) => {
   }
 };
 
-exports.sendInvoice = async (user, transaction,currency) => {
+exports.sendInvoice = async (user, transaction, currency) => {
   return new Promise((resolve, reject) => {
     const imagePath = path.join(__dirname, "/logo.png");
     const doc = new PDFDocument();
@@ -157,7 +157,13 @@ exports.sendInvoice = async (user, transaction,currency) => {
       const dateTime = new Date(dateTimeString);
       const month = dateTime.toLocaleString("default", { month: "short" });
       const day = dateTime.getDate();
-      const year = dateTime.getFullYear();
+      let year = dateTime.getFullYear();
+      const monthNumber = dateTime.getMonth();
+      if (monthNumber < 3) {
+        year = year - 1 + " - " + year;
+      } else {
+        year = year + " - " + (year + 1);
+      }
       const time = dateTime.toLocaleTimeString("en-US", {
         hour: "numeric",
         minute: "numeric",
@@ -194,8 +200,7 @@ exports.sendInvoice = async (user, transaction,currency) => {
       .fontSize(12)
       .text("Billing To: " + user.name, xColumn1, yColumn1, { lineGap: 5 })
       .text("Contact No: " + user.mobile, xColumn1, doc.y, { lineGap: 5 })
-      .text("Email Id: " + user.email, xColumn1, doc.y, { lineGap: 10 })
-      
+      .text("Email Id: " + user.email, xColumn1, doc.y, { lineGap: 10 });
 
     doc
       .text(
@@ -253,22 +258,41 @@ exports.sendInvoice = async (user, transaction,currency) => {
     const cellPadding = 8;
     const columnWidths = [6, 3, 3, 3];
 
-    const tableData = [
-      ["Description", "SAC Code", `Amount ${currency==="Rupee"?"(Rs.)":"($)"}`],
-      [
-        "Basic (Monthly)",
-        "998433",
-        parseFloat(0.82 * transaction.amount).toFixed(2),
-      ],
-      ["IGST @ 18%", "", parseFloat(0.18 * transaction.amount).toFixed(2)],
-      ["Invoice Total", "", transaction.amount],
-    ];
+    const tableData =
+      currency === "Rupee"
+        ? [
+            [
+              "Description",
+              "SAC Code",
+              `Amount ${currency === "Rupee" ? "(Rs.)" : "($)"}`,
+            ],
+            [
+              "Basic (Monthly)",
+              "998433",
+              parseFloat(0.82 * transaction.amount).toFixed(2),
+            ],
+            [
+              "IGST @ 18%",
+              "",
+              parseFloat(0.18 * transaction.amount).toFixed(2),
+            ],
+            ["Invoice Total", "", transaction.amount],
+          ]
+        : [
+            [
+              "Description",
+              "SAC Code",
+              `Amount ${currency === "Rupee" ? "(Rs.)" : "($)"}`,
+            ],
+            ["Invoice Total", "", transaction.amount],
+          ];
 
     const tableHeight = tableData.length * (borderWidth * 2 + cellPadding * 2);
     let tableTop = doc.y + tableMarginTop;
     doc.lineWidth(borderWidth);
 
     for (let i = 0; i < tableData.length; i++) {
+      // if (currency === "Dollar" && (i == 1 || i == 2)) continue;
       let rowTop = tableTop + i * (borderWidth * 2 + cellPadding * 2);
       for (let j = 0; j < tableData[i].length; j++) {
         let cellLeft = 70 + j * 150;
@@ -286,7 +310,11 @@ exports.sendInvoice = async (user, transaction,currency) => {
     doc.moveDown(1);
     doc
       .fontSize(10)
-      .text(`Amount in words : ${currency==="Rupee"?"(INR)":"(Dollar)"} ` + numberToWords(transaction.amount), 70)
+      .text(
+        `Amount in words : ${currency === "Rupee" ? "(INR)" : "(Dollar)"} ` +
+          numberToWords(transaction.amount),
+        70
+      )
       .text(
         "Note: The subscription amount is inclusive Goods and Service tax (GST) at rate of 18%.",
         70
