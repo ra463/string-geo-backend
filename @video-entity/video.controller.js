@@ -79,6 +79,15 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
       totalVideoCount: videos.length,
     });
   }
+
+  if (category) {
+    const videos = await videoModel.find({ category: { $in: [category] } });
+    return res.status(200).json({
+      success: true,
+      videos,
+      totalVideoCount: videos.length,
+    });
+  }
   const query = {};
   let orderBy = 1;
   if (sortBy && sortBy == "latest") {
@@ -88,9 +97,6 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
   }
   if (language && language != "all") {
     query.language = language;
-  }
-  if (category) {
-    query.category = { $in: [category] };
   }
   if (genres && genres != "all") {
     query.genres = { $in: [genres] };
