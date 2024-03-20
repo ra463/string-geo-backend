@@ -20,7 +20,8 @@ const validator = (req, res, next) => {
         "currentPage",
         "sortBy",
         "id",
-        "carousel"
+        "carousel",
+        "category"
       ],
       allowParams: ["id"],
     };
