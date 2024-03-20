@@ -19,7 +19,8 @@ const validator = (req, res, next) => {
         "resultPerPage",
         "currentPage",
         "sortBy",
-        "id"
+        "id",
+        "carousel"
       ],
       allowParams: ["id"],
     };

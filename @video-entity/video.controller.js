@@ -61,8 +61,23 @@ exports.createVideo = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getVideos = catchAsyncError(async (req, res, next) => {
-  const { language, genres, keyword, resultPerPage, currentPage, sortBy } =
-    req.query;
+  const {
+    language,
+    genres,
+    keyword,
+    resultPerPage,
+    currentPage,
+    sortBy,
+    carousel
+  } = req.query;
+  if (carousel&&carousel!="false") {
+    const videos = await videoModel.find({ access: "free" });
+    return res.status(200).json({
+      success: true,
+      videos,
+      totalVideoCount: videos.length,
+    });
+  }
   const query = {};
   let orderBy = 1;
   if (sortBy && sortBy == "latest") {

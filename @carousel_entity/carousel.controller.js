@@ -19,7 +19,7 @@ exports.addCarousel = catchAsyncError(async (req, res, next) => {
   if (tag === "Inner") {
     await Carousel.create({ poster_url: result.Location, video_id, tag });
   } else {
-    await Carousel.create({ poster_url: result.Location, video_id: null, tag });
+    await Carousel.create({ poster_url: result.Location, video_id, tag });
   }
 
   res.status(201).json({
@@ -77,7 +77,22 @@ exports.getAllInnerCarousel = catchAsyncError(async (req, res, next) => {
 });
 
 exports.getAllOuterCarousel = catchAsyncError(async (req, res, next) => {
-  const carousels = await Carousel.find({ tag: "Outer" }).lean();
+  const carousels = await Carousel.find({ tag: "Outer" })
+    .populate({
+      path: "video_id",
+      select: "title genres access language createdAt",
+      populate: [
+        {
+          path: "genres",
+          select: "name",
+        },
+        {
+          path: "language",
+          select: "name",
+        },
+      ],
+    })
+    .lean();
 
   res.status(200).json({
     success: true,
@@ -89,7 +104,7 @@ exports.deleteCarousel = catchAsyncError(async (req, res, next) => {
   const carousel = await Carousel.findById(req.params.id);
   if (!carousel) return next(new ErrorHandler("Carousel not found", 404));
   await carousel.deleteOne();
-  if (carousel.tag === "Inner") {
+  if (carousel.video_id) {
     await Video.findByIdAndDelete(carousel.video_id);
   }
 
