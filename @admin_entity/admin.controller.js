@@ -266,7 +266,19 @@ exports.getUser = catchAsyncError(async (req, res, next) => {
 });
 
 exports.updateUserProfile = catchAsyncError(async (req, res, next) => {
-  const { name, email, password, mobile, country, states, city } = req.body;
+  const {
+    name,
+    email,
+    password,
+    mobile,
+    country,
+    states,
+    city,
+    plan_name,
+    plan_type,
+    expiry,
+    order_id,
+  } = req.body;
   const user = await User.findById(req.params.id);
   if (!user) return next(new ErrorHandler("User not found", 400));
 
@@ -285,6 +297,24 @@ exports.updateUserProfile = catchAsyncError(async (req, res, next) => {
   user.country_code = "+91";
   if (location) user.avatar = location;
 
+  if (plan_name && plan_type && expiry && order_id) {
+    const order = await Order.findById(order_id);
+    order.plan_name = plan_name;
+    order.plan_type = plan_type;
+    order.expiry_date = new Date(expiry);
+    if (plan_name === "Family") {
+      order.allow_devices = 4;
+    }
+    const date1 = new Date();
+    const date2 = new Date(order.expiry_date);
+    if (date1 <= date2) {
+      order.status = "Active";
+    } else {
+      order.status = "Expire";
+      user.device_ids = [];
+    }
+    await order.save();
+  }
   await user.save();
   console.log(user);
   res.status(200).json({

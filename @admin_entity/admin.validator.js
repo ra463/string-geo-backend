@@ -16,7 +16,11 @@ const validator = (req, res, next) => {
         "category",
         "language",
         "keywords",
-        "subject"
+        "subject",
+        "plan_name",
+        "plan_type",
+        "expiry",
+        "order_id"
       ],
       allowQuery: [
         "resultPerPage",
