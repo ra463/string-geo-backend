@@ -32,7 +32,7 @@ exports.getAllCarousel = catchAsyncError(async (req, res, next) => {
   const carousels = await Carousel.find()
     .populate({
       path: "video_id",
-      select: "title genres language createdAt",
+      select: "title video_url genres language createdAt",
       populate: [
         {
           path: "genres",
