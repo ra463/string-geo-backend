@@ -32,7 +32,7 @@ exports.getAllCarousel = catchAsyncError(async (req, res, next) => {
   const carousels = await Carousel.find()
     .populate({
       path: "video_id",
-      select: "title video_url genres language createdAt",
+      select: "title genres language createdAt",
       populate: [
         {
           path: "genres",
@@ -80,7 +80,7 @@ exports.getAllOuterCarousel = catchAsyncError(async (req, res, next) => {
   const carousels = await Carousel.find({ tag: "Outer" })
     .populate({
       path: "video_id",
-      select: "title genres access language createdAt",
+      select: "title video_url genres access language createdAt",
       populate: [
         {
           path: "genres",
