@@ -81,7 +81,10 @@ exports.getVideos = catchAsyncError(async (req, res, next) => {
   }
 
   if (category) {
-    const videos = await videoModel.find({ category: { $in: [category] } });
+    const videos = await videoModel
+      .find({ category: { $in: [category] } })
+      .populate("language", "name")
+      .populate("genres", "name").lean();
     return res.status(200).json({
       success: true,
       videos,
